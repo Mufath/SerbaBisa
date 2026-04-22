@@ -4,7 +4,25 @@
 
 ---
 
-## 🚀 Panduan Instalasi & Penggunaan
+## Cara Mendapatkan Kode
+
+Sebelum memulai, pastikan Anda sudah memiliki folder project ini di komputer Anda. Ada dua cara:
+
+### A. Bagi Pengguna Umum (Rekomendasi)
+1.  Klik tombol hijau **"Code"** di bagian atas halaman GitHub ini.
+2.  Pilih **"Download ZIP"**.
+3.  Ekstrak (unzip) file yang sudah didownload ke folder pilihan Anda (misalnya di `D:\SerbaBisa`).
+
+### B. Bagi Developer (Menggunakan Git)
+Buka Terminal/CMD, lalu jalankan perintah:
+```bash
+git clone https://github.com/username/SerbaBisa.git
+cd SerbaBisa
+```
+
+---
+
+## Panduan Instalasi & Penggunaan
 
 Ikuti langkah-langkah di bawah ini untuk menyiapkan aplikasi di komputer Anda (Windows).
 
@@ -25,7 +43,7 @@ Double-klik file **`Start.bat`** (atau pakai shortcut di Desktop).
 
 ---
 
-## 📂 Struktur File Utama
+## Struktur File Utama
 
 Berikut adalah penjelasan mengenai file-file penting di dalam folder ini:
 
@@ -48,7 +66,7 @@ Berikut adalah penjelasan mengenai file-file penting di dalam folder ini:
 
 ---
 
-## ❓ Troubleshooting (Masalah Umum)
+## Troubleshooting (Masalah Umum)
 
 *   **Python tidak ditemukan:** Pastikan Anda sudah mengunduh Python dari [python.org](https://www.python.org/) dan mencentang **"Add Python to PATH"** saat instalasi.
 *   **Gagal install library:** Pastikan koneksi internet stabil saat menjalankan `Setup.bat`.
@@ -56,4 +74,4 @@ Berikut adalah penjelasan mengenai file-file penting di dalam folder ini:
 
 ---
 
-*Dikembangkan dengan ❤️ untuk kemudahan produktivitas lokal.*
+*Dikembangkan dengan ❤️ untuk kemudahan produktivitas lokal yang aman.*
