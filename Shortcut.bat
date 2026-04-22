@@ -6,7 +6,7 @@ echo         Membuat Shortcut SerbaBisa di Desktop...
 echo ========================================================
 echo.
 
-set SCRIPT_NAME=Run_SerbaBisa.bat
+set SCRIPT_NAME=Start.bat
 set TARGET_PATH=%~dp0%SCRIPT_NAME%
 set ICON_PATH=%~dp0static\favicon.ico
 set SHORTCUT_PATH=%USERPROFILE%\Desktop\SerbaBisa.lnk
@@ -30,7 +30,7 @@ cscript /nologo CreateShortcut.vbs
 :: Hapus VBS
 del CreateShortcut.vbs
 
-echo Berhasil! Coba cek layar Desktop Anda sekarang.
-echo Ada ikon SerbaBisa baru di sana!
+echo.
+echo Berhasil! Cek Desktop Anda, sekarang ada ikon SerbaBisa.
 echo.
 pause

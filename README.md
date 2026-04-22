@@ -1,2 +1,59 @@
-# SerbaBisa
+# 🛠️ SerbaBisa
 
+**SerbaBisa** adalah toolkit serbaguna berbasis web untuk membantu berbagai tugas digital Anda, seperti konversi file, manipulasi gambar, pengolahan teks, dan banyak lagi secara lokal tanpa upload data ke internet.
+
+---
+
+## 🚀 Panduan Instalasi & Penggunaan
+
+Ikuti langkah-langkah di bawah ini untuk menyiapkan aplikasi di komputer Anda (Windows).
+
+### 1. Instalasi Awal (Hanya Sekali)
+Double-klik file **`Setup.bat`**.
+*   Skrip ini akan mengecek apakah Python sudah terinstal.
+*   Skrip akan mengunduh semua library yang dibutuhkan (membutuhkan koneksi internet).
+*   Skrip akan mencoba memasang FFmpeg untuk pengolahan audio/video.
+
+### 2. Membuat Shortcut (Opsional)
+Double-klik file **`Shortcut.bat`**.
+*   Ini akan membuat ikon **SerbaBisa** di layar Desktop Anda agar aplikasi mudah dibuka kapan saja.
+
+### 3. Menjalankan Aplikasi
+Double-klik file **`Start.bat`** (atau pakai shortcut di Desktop).
+*   Jendela hitam (command prompt) akan muncul. **JANGAN DITUTUP** selama Anda menggunakan aplikasi.
+*   Browser Anda akan otomatis terbuka ke alamat `http://localhost:5000`.
+
+---
+
+## 📂 Struktur File Utama
+
+Berikut adalah penjelasan mengenai file-file penting di dalam folder ini:
+
+### Skrip Peluncur (Launchers)
+*   `Setup.bat`: Digunakan saat pertama kali install atau jika ada error library.
+*   `Start.bat`: Cara utama menjalankan aplikasi.
+*   `Shortcut.bat`: Membuat jalan pintas ke Desktop.
+
+### Alat Bantu (Utilities)
+*   `rename.py`: Skrip untuk mengganti nama file secara massal.
+*   `translate_buttons.py` & `translate_routes.py`: Skrip internal untuk pengalihan bahasa antarmuka.
+*   `history.py`: Mengelola riwayat aktivitas Anda di aplikasi.
+*   `install_ffmpeg.ps1`: Skrip otomatis untuk memasang FFmpeg.
+
+### Folder Inti
+*   `/static`: Berisi file gambar, CSS, dan JavaScript untuk tampilan.
+*   `/templates`: Berisi file HTML untuk setiap halaman fitur.
+*   `/routes`: Logika utama untuk setiap fitur aplikasi.
+*   `/venv`: Folder lingkungan Python (jangan dihapus agar aplikasi tetap jalan).
+
+---
+
+## ❓ Troubleshooting (Masalah Umum)
+
+*   **Python tidak ditemukan:** Pastikan Anda sudah mengunduh Python dari [python.org](https://www.python.org/) dan mencentang **"Add Python to PATH"** saat instalasi.
+*   **Gagal install library:** Pastikan koneksi internet stabil saat menjalankan `Setup.bat`.
+*   **Video tidak bisa diproses:** Jalankan kembali `Setup.bat` untuk memastikan FFmpeg terpasang dengan benar.
+
+---
+
+*Dikembangkan dengan ❤️ untuk kemudahan produktivitas lokal.*
