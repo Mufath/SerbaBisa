@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Timestamp Converter - SerbaBisa{% endblock %}
+{% block top_title %}Timestamp Converter{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>Timestamp Converter</h1>
+        <p>Ubah format Unix Timestamp ke tanggal yang bisa dibaca manusia, atau sebaliknya.</p>
+    </div>
+
+    <div class="calc-section">
+        <h3>Waktu Sekarang</h3>
+        <div class="calc-result-inline" id="ts-now"></div>
+        <div style="font-size:.85rem;color:var(--text-light)" id="ts-now-date"></div>
+    </div>
+
+    <div class="calc-section">
+        <h3>Unix Timestamp &rarr; Tanggal</h3>
+        <div class="inline-form">
+            <input type="number" id="ts-input" placeholder="Contoh: 1700000000" class="wide" oninput="tsToDate()">
+            <select id="ts-unit" onchange="tsToDate()" style="width:auto">
+                <option value="s">Detik (Seconds)</option>
+                <option value="ms">Milidetik (Milliseconds)</option>
+            </select>
+        </div>
+        <div id="ts-to-date-result" class="calc-result-inline" style="font-size:1rem;margin-top:.5rem">&mdash;</div>
+    </div>
+
+    <div class="calc-section">
+        <h3>Tanggal &rarr; Unix Timestamp</h3>
+        <div class="inline-form">
+            <input type="datetime-local" id="ts-date-input" onchange="dateToTs()" step="1">
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:.5rem">
+            <div>
+                <div style="font-size:.8rem;color:var(--text-light)">Detik</div>
+                <div class="calc-result-inline" id="ts-from-date-s" style="font-size:1rem">&mdash;</div>
+            </div>
+            <div>
+                <div style="font-size:.8rem;color:var(--text-light)">Milidetik</div>
+                <div class="calc-result-inline" id="ts-from-date-ms" style="font-size:1rem">&mdash;</div>
+            </div>
+        </div>
+        <button class="btn btn-small" style="margin-top:.5rem" onclick="copyTs()"><i class="bi bi-clipboard"></i> Salin Detik</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateNow() {
+    const now = Math.floor(Date.now() / 1000);
+    document.getElementById("ts-now").textContent = now;
+    document.getElementById("ts-now-date").textContent = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' });
+}
+updateNow();
+setInterval(updateNow, 1000);
+
+function tsToDate() {
+    const val = document.getElementById("ts-input").value;
+    const unit = document.getElementById("ts-unit").value;
+    const resultDiv = document.getElementById("ts-to-date-result");
+    
+    if (!val) { resultDiv.textContent = "\u2014"; return; }
+
+    let ms = parseInt(val);
+    if (unit === "s") ms *= 1000;
+
+    const d = new Date(ms);
+    if (isNaN(d)) { resultDiv.textContent = "Timestamp tidak valid"; return; }
+
+    resultDiv.innerHTML = 
+        `<div style="margin-bottom: 0.5rem"><strong>${d.toLocaleString('id-ID')}</strong> <span style="color:var(--text-light);font-size:.85rem">(Waktu Lokal)</span></div>` +
+        `<div style="margin-bottom: 0.5rem">${d.toUTCString()} <span style="color:var(--text-light);font-size:.85rem">(UTC)</span></div>` +
+        `<div><code>${d.toISOString()}</code> <span style="color:var(--text-light);font-size:.85rem">(ISO 8601)</span></div>`;
+}
+
+function dateToTs() {
+    const val = document.getElementById("ts-date-input").value;
+    if (!val) return;
+    const d = new Date(val);
+    const s = Math.floor(d.getTime() / 1000);
+    document.getElementById("ts-from-date-s").textContent = s;
+    document.getElementById("ts-from-date-ms").textContent = d.getTime();
+}
+
+function copyTs() {
+    const s = document.getElementById("ts-from-date-s").textContent;
+    if (s !== "\u2014") {
+        navigator.clipboard.writeText(s);
+    }
+}
+
+// Inisialisasi input tanggal dengan waktu sekarang
+const nowInit = new Date();
+const offset = nowInit.getTimezoneOffset() * 60000;
+const localISOTime = new Date(nowInit.getTime() - offset).toISOString().slice(0, 19);
+document.getElementById("ts-date-input").value = localISOTime;
+dateToTs();
+</script>
+{% endblock %}

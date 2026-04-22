@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Markdown to Word - SerbaBisa{% endblock %}
+{% block top_title %}Markdown to Word{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>Markdown to Word</h1>
+        <p>Tulis draf dalam format Markdown dan ekspor langsung ke dokumen Word (.docx) yang siap diedit.</p>
+    </div>
+
+    <div style="display:flex; gap:0.8rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
+        <label style="font-weight: 600; font-size: 0.9rem;">Nama File Output:
+            <input type="text" id="file-name" value="laporan_mufath" style="width:200px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);">
+        </label>
+        
+        <div style="margin-left:auto; display: flex; gap: 0.6rem;">
+            <input type="file" id="md-upload" accept=".md,.markdown,.txt" style="display:none" onchange="loadFile(this.files[0])">
+            <button type="button" class="btn btn-small" onclick="document.getElementById('md-upload').click()">
+                <i class="bi bi-folder2-open"></i> Impor .md
+            </button>
+            <button class="btn btn-primary" onclick="convertMD()">
+                <i class="bi bi-file-word-fill"></i> Konversi ke DOCX
+            </button>
+        </div>
+    </div>
+
+    <textarea id="md-input" placeholder="# Judul Laporan Praktikum
+
+Tulis draf laporan atau tugas kamu di sini...
+
+- Struktur otomatis terjaga
+- Mendukung rumus dan kode teknis SI
+- Ekspor cepat ke format Office
+
+```python
+# Contoh kode program
+def sapa_mufath():
+    print('Semangat kuliahnya di Unair!')
+Masukkan teks dan klik tombol Konversi untuk mengunduh file Word." 
+style="min-height:480px; width:100%; font-family: 'Consolas', 'Monaco', monospace; padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); line-height: 1.6; font-size: 1rem;"></textarea>
+
+    <div id="md-status" style="margin-top:1rem; font-size:0.9rem; font-weight: 500; min-height: 24px;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/**
+ * Memasukkan konten dari file .md yang dipilih ke editor
+ */
+function loadFile(f) {
+    if (!f) return;
+    const nameWithoutExt = f.name.replace(/\.[^.]+$/, "");
+    document.getElementById("file-name").value = nameWithoutExt;
+    
+    const reader = new FileReader();
+    const status = document.getElementById("md-status");
+    
+    reader.onload = e => { 
+        document.getElementById("md-input").value = e.target.result; 
+        status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-check2-circle"></i> Berhasil memuat "${f.name}"</span>`;
+    };
+    
+    reader.onerror = () => {
+        status.innerHTML = `<span style="color:var(--danger)">Gagal membaca file lokal.</span>`;
+    };
+    
+    reader.readAsText(f);
+}
+
+/**
+ * Mengirim konten Markdown ke backend Flask untuk dijadikan DOCX
+ */
+async function convertMD() {
+    const mdContent = document.getElementById("md-input").value;
+    const statusDisplay = document.getElementById("md-status");
+    const fileName = document.getElementById("file-name").value || "dokumen";
+
+    if (!mdContent.trim()) { 
+        statusDisplay.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> Isi teks Markdown dulu, Fath!</span>`; 
+        return; 
+    }
+
+    const formData = new FormData();
+    formData.append("markdown", mdContent);
+    formData.append("file_name", fileName);
+
+    statusDisplay.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> Sedang memproses dokumen DOCX...</span>`;
+    
+    try {
+        const response = await fetch("/convert/md-to-docx", { 
+            method: "POST", 
+            body: formData 
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || "Gagal menghubungi server konversi.");
+        }
+        
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        
+        link.href = url;
+        link.download = fileName + ".docx";
+        document.body.appendChild(link); 
+        link.click(); 
+        link.remove();
+        
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        statusDisplay.innerHTML = `<span style="color:var(--success)"><i class="bi bi-check-circle-fill"></i> Berhasil! File "${fileName}.docx" telah diunduh.</span>`;
+        
+    } catch (err) {
+        statusDisplay.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-octagon-fill"></i> Kesalahan: ${err.message}</span>`;
+    }
+}
+</script>
+{% endblock %}

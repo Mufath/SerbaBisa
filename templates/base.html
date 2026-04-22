@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SerbaBisa{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="logo"><i class="bi bi-box-fill"></i> SerbaBisa</a>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-category">
+                <a href="/" class="nav-category-btn" style="text-decoration: none;">
+                    <i class="bi bi-grid-1x2-fill"></i> Dasbor
+                </a>
+            </div>
+            
+            {% for cat in tool_categories %}
+            <div class="nav-category">
+                <button class="nav-category-btn" onclick="toggleCategory(this)">
+                    <i class="bi {{ cat.icon }}"></i> {{ cat.name }}
+                    <i class="bi bi-chevron-down chevron"></i>
+                </button>
+                <div class="nav-items">
+                    {% for tool in cat.tools %}
+                    <a href="/{{ cat.id }}/{{ tool.id }}" class="nav-item">
+                        <i class="bi {{ tool.icon }}"></i> {{ tool.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="sidebar-footer" style="padding: 1rem; border-top: 1px solid var(--glass-border); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+            <div style="margin-bottom: 0.3rem;">Ide asli oleh <a href="https://twitter.com/listyantidewi" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@listyantidewi</a></div>
+            <div>Developed by <a href="https://instagram.com/mufathz" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@mufathz</a></div>
+        </div>
+    </nav>
+
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-btn" onclick="openSidebar()"><i class="bi bi-list"></i></button>
+                <span class="top-title">{% block top_title %}Dasbor SerbaBisa{% endblock %}</span>
+            </div>
+            
+            <div class="top-bar-right">
+                <div class="search-bar">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="global-search" placeholder="Cari alat...">
+                </div>
+                
+                <div class="user-profile" onclick="changeUserName()" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" title="Klik untuk ganti nama">
+                    <div class="user-avatar" id="avatar-initial">S</div>
+                    <div class="user-info">
+                        <span class="user-name" id="display-name" style="color: var(--text); font-weight: 600;">Sobat</span>
+                        <span class="user-role">Profil Pengguna</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="content-area">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
+    <script>
+        function updateNameUI(name) {
+            let disp = document.getElementById('display-name');
+            if(disp) disp.textContent = name;
+            
+            let av = document.getElementById('avatar-initial');
+            if(av) av.textContent = name.charAt(0).toUpperCase();
+            
+            let dashName = document.getElementById('dash-username');
+            if (dashName) dashName.textContent = name;
+        }
+
+        function changeUserName() {
+            let current = localStorage.getItem('serbabisa_user') || 'Sobat';
+            let newName = prompt('Halo! Siapa nama panggilanmu?', current);
+            if (newName && newName.trim() !== '') {
+                localStorage.setItem('serbabisa_user', newName.trim());
+                updateNameUI(newName.trim());
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let saved = localStorage.getItem('serbabisa_user');
+            if (saved) updateNameUI(saved);
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

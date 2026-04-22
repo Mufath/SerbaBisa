@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}JSONPath Tester - SerbaBisa{% endblock %}
+{% block top_title %}JSONPath Tester{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>JSONPath Tester</h1>
+        <p>Gunakan ekspresi JSONPath untuk memfilter dan mengambil data spesifik dari struktur JSON yang kompleks.</p>
+    </div>
+
+    <div style="display:flex; gap:0.8rem; margin-bottom:1rem; flex-wrap:wrap; align-items:flex-end; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
+        <div style="flex:1; min-width:280px;">
+            <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.4rem;">JSONPath Expression:</label>
+            <input type="text" id="jp-path" value="$.store.book[*].title" 
+                style="font-family:'Consolas', monospace; width:100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
+        </div>
+        <button class="btn btn-primary" onclick="runPath()" style="height: 42px;">
+            <i class="bi bi-play-circle"></i> Jalankan Query
+        </button>
+    </div>
+
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+        <button class="btn btn-small" onclick="setExample()"><i class="bi bi-lightbulb"></i> Load Contoh</button>
+        <button class="btn btn-small" onclick="setPath('$..author')">Semua Penulis</button>
+        <button class="btn btn-small" onclick="setPath('$.store.book[?(@.price < 10)]')">Buku Murah (<10)</button>
+        <button class="btn btn-small" onclick="setPath('$..book[0,1]')">2 Buku Pertama</button>
+        <button class="btn btn-small" onclick="setPath('$..*')">Ambil Semua</button>
+    </div>
+
+    <div class="split-pane" style="display: flex; gap: 1rem; height: 500px; margin-bottom: 1rem;">
+        <div class="pane" style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+            <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); font-weight: 600;">
+                <span><i class="bi bi-filetype-json"></i> JSON Input</span>
+            </div>
+            <div class="pane-body" style="flex: 1;">
+                <textarea id="jp-input" placeholder='{"key": "value"}' 
+                    style="width: 100%; height: 100%; border: none; padding: 1rem; font-family: 'Consolas', monospace; resize: none; outline: none; font-size: 0.9rem;"></textarea>
+            </div>
+        </div>
+
+        <div class="pane" style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fafafa;">
+            <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600;"><i class="bi bi-braces"></i> Hasil Filter (Matches)</span>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+            </div>
+            <div class="pane-body" style="flex: 1; padding: 1rem; overflow-y: auto;">
+                <pre id="jp-output" style="margin: 0; font-size: 0.85rem; color: #2c3e50;"></pre>
+            </div>
+        </div>
+    </div>
+
+    <div id="jp-status" style="font-size:0.9rem; font-weight: 500; min-height: 24px;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/**
+ * Data contoh untuk memudahkan testing
+ */
+const EXAMPLE_DATA = {
+    store: {
+        book: [
+            {category: "fiction", author: "J.R.R. Tolkien", title: "The Hobbit", price: 14.99},
+            {category: "fiction", author: "George Orwell", title: "1984", price: 9.99},
+            {category: "reference", author: "Nigel Rees", title: "Sayings of the Century", price: 8.95},
+            {category: "fiction", author: "Evelyn Waugh", title: "Sword of Honour", price: 12.99}
+        ],
+        bicycle: {color: "red", price: 19.95}
+    }
+};
+
+/**
+ * Memasukkan data contoh ke textarea
+ */
+function setExample() {
+    document.getElementById("jp-input").value = JSON.stringify(EXAMPLE_DATA, null, 2);
+}
+
+/**
+ * Mengatur path secara instan dan langsung mengevaluasi
+ */
+function setPath(p) {
+    document.getElementById("jp-path").value = p;
+    runPath();
+}
+
+/**
+ * Mengirim data ke backend untuk dievaluasi menggunakan library JSONPath
+ */
+async function runPath() {
+    const data = document.getElementById("jp-input").value;
+    const path = document.getElementById("jp-path").value;
+    const status = document.getElementById("jp-status");
+    const outputElement = document.getElementById("jp-output");
+
+    if (!data.trim()) { status.innerHTML = '<span style="color:var(--danger)">Berikan data JSON terlebih dahulu.</span>'; return; }
+    if (!path.trim()) { status.innerHTML = '<span style="color:var(--danger)">Masukkan ekspresi JSONPath.</span>'; return; }
+
+    try { 
+        JSON.parse(data); 
+    } catch (e) {
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> JSON tidak valid: ${e.message}</span>`;
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("data", data);
+    formData.append("path", path);
+
+    status.innerHTML = '<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> Mengevaluasi...</span>';
+    
+    try {
+        const response = await fetch("/dev/jsonpath", { method: "POST", body: formData });
+        const result = await response.json();
+        
+        if (result.error) {
+            status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Error: ${result.error}</span>`;
+            outputElement.textContent = "";
+        } else {
+            outputElement.textContent = JSON.stringify(result.matches, null, 2);
+            status.innerHTML = `<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Ditemukan ${result.count} data yang cocok.</span>`;
+        }
+    } catch (e) {
+        status.innerHTML = `<span style="color:var(--danger)">Network error: ${e.message}</span>`;
+    }
+}
+
+/**
+ * Menyalin hasil output ke clipboard
+ */
+function copyOutput() {
+    const content = document.getElementById("jp-output").textContent;
+    if (!content) return;
+    navigator.clipboard.writeText(content).then(() => {
+        alert("Hasil berhasil disalin!");
+    });
+}
+
+// Inisialisasi awal saat halaman dibuka
+document.addEventListener('DOMContentLoaded', () => {
+    setExample();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Markdown to PDF - SerbaBisa{% endblock %}
+{% block top_title %}Markdown to PDF{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>Markdown to PDF</h1>
+        <p>Ubah draf Markdown kamu menjadi dokumen PDF profesional dalam sekejap.</p>
+    </div>
+
+    <div style="display:flex; gap:.8rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; flex: 1;">
+            <label style="font-size: 0.9rem; font-weight: 600;">Kertas:
+                <select id="page-size" style="padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">
+                    <option value="A4" selected>A4</option>
+                    <option value="letter">Letter</option>
+                    <option value="legal">Legal</option>
+                    <option value="A5">A5</option>
+                </select>
+            </label>
+            <label style="font-size: 0.9rem; font-weight: 600;">Ukuran Font:
+                <input type="number" id="font-size" value="11" min="8" max="18" style="width:60px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">
+            </label>
+            <label style="font-size: 0.9rem; font-weight: 600;">Nama File:
+                <input type="text" id="file-name" value="dokumen_mufath" style="width:180px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">
+            </label>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem;">
+            <input type="file" id="md-upload" accept=".md,.markdown,.txt" style="display:none" onchange="loadFile(this.files[0])">
+            <button type="button" class="btn btn-small" onclick="document.getElementById('md-upload').click()">
+                <i class="bi bi-folder2-open"></i> Buka File
+            </button>
+            <button class="btn btn-primary" onclick="convertMD()">
+                <i class="bi bi-file-pdf-fill"></i> Konversi ke PDF
+            </button>
+        </div>
+    </div>
+
+    <textarea id="md-input" placeholder="# Judul Dokumen UNAIR
+
+Tulis catatan kuliah atau laporan praktikum kamu di sini menggunakan format **Markdown**.
+
+### Fitur yang didukung:
+- Pembuatan list otomatis
+- Penulisan rumus (jika didukung backend)
+- Kode program: `print('Hello SI!')`
+- Gambar dan Link
+
+> Masukkan teks dan klik konversi untuk mengunduh PDF." 
+style="min-height:450px; width:100%; font-family: 'Consolas', 'Monaco', monospace; padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); line-height: 1.6; font-size: 1rem;"></textarea>
+
+    <div id="md-status" style="margin-top:1rem; font-size:.9rem; font-weight: 500; min-height: 24px;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/**
+ * Memuat konten dari file lokal ke dalam textarea
+ */
+function loadFile(f) {
+    if (!f) return;
+    const name = f.name.replace(/\.[^.]+$/, "");
+    document.getElementById("file-name").value = name;
+    
+    const reader = new FileReader();
+    const status = document.getElementById("md-status");
+    
+    reader.onload = e => { 
+        document.getElementById("md-input").value = e.target.result; 
+        status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-info-circle"></i> File "${f.name}" berhasil dimuat.</span>`;
+    };
+    
+    reader.onerror = () => {
+        status.innerHTML = `<span style="color:var(--danger)">Gagal membaca file.</span>`;
+    };
+    
+    reader.readAsText(f);
+}
+
+/**
+ * Mengirim data ke backend untuk dikonversi menjadi PDF
+ */
+async function convertMD() {
+    const md = document.getElementById("md-input").value;
+    const status = document.getElementById("md-status");
+    const fileNameInput = document.getElementById("file-name").value || "dokumen";
+
+    if (!md.trim()) { 
+        status.innerHTML = `<span style="color:var(--danger)">Wah, kontennya masih kosong nih! Isi dulu ya.</span>`; 
+        return; 
+    }
+
+    const fd = new FormData();
+    fd.append("markdown", md);
+    fd.append("page_size", document.getElementById("page-size").value);
+    fd.append("font_size", document.getElementById("font-size").value);
+    fd.append("file_name", fileNameInput);
+
+    status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> Sedang meracik PDF kamu...</span>`;
+    
+    try {
+        const response = await fetch("/convert/md-to-pdf", { 
+            method: "POST", 
+            body: fd 
+        });
+        
+        if (!response.ok) {
+            const data = await response.json().catch(() => ({}));
+            throw new Error(data.error || "Gagal melakukan konversi.");
+        }
+        
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        
+        link.href = url;
+        link.download = fileNameInput + ".pdf";
+        document.body.appendChild(link); 
+        link.click(); 
+        link.remove();
+        
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        status.innerHTML = `<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Berhasil! PDF siap dibuka.</span>`;
+        
+    } catch (error) {
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> Terjadi kesalahan: ${error.message}</span>`;
+    }
+}
+</script>
+{% endblock %}

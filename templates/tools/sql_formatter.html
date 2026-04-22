@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}SQL Formatter - SerbaBisa{% endblock %}
+{% block top_title %}SQL Formatter{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>SQL Formatter</h1>
+        <p>Rapikan sintaks SQL dengan indentasi yang benar dan pengaturan huruf kapital pada keyword.</p>
+    </div>
+
+    <div style="display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:center">
+        <label>Huruf Keyword:
+            <select id="sql-keyword">
+                <option value="upper" selected>HURUF BESAR</option>
+                <option value="lower">huruf kecil</option>
+                <option value="capitalize">Kapital Depan</option>
+            </select>
+        </label>
+        <label>Indentasi:
+            <select id="sql-indent">
+                <option value="2" selected>2 Spasi</option>
+                <option value="4">4 Spasi</option>
+                <option value="tab">Tab</option>
+            </select>
+        </label>
+        <button class="btn btn-primary" onclick="formatSQL()"><i class="bi bi-magic"></i> Rapikan SQL</button>
+    </div>
+
+    <div class="split-pane">
+        <div class="pane">
+            <div class="pane-header"><span>Input Query</span></div>
+            <div class="pane-body">
+                <textarea id="sql-input" placeholder="Contoh: select * from users where id=1"></textarea>
+            </div>
+        </div>
+        <div class="pane">
+            <div class="pane-header">
+                <span>Hasil Output</span>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+            </div>
+            <div class="pane-body"><pre id="sql-output" style="white-space: pre-wrap; word-break: break-all;"></pre></div>
+        </div>
+    </div>
+    <div id="sql-status" style="margin-top:.5rem;font-size:.85rem"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function formatSQL() {
+    const input = document.getElementById("sql-input").value;
+    const status = document.getElementById("sql-status");
+    if (!input.trim()) { 
+        status.innerHTML = '<span style="color:var(--text-light)">Masukkan query SQL terlebih dahulu.</span>'; 
+        return; 
+    }
+
+    const fd = new FormData();
+    fd.append("sql", input);
+    fd.append("keyword_case", document.getElementById("sql-keyword").value);
+    fd.append("indent", document.getElementById("sql-indent").value);
+
+    status.textContent = "Sedang merapikan...";
+    try {
+        // Pastikan endpoint /dev/sql-format tersedia di backend Flask kamu
+        const r = await fetch("/dev/sql-format", { method: "POST", body: fd });
+        const j = await r.json();
+        
+        if (j.error) {
+            status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Error: ${j.error}</span>`;
+        } else {
+            document.getElementById("sql-output").textContent = j.text;
+            status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Selesai dirapikan!</span>';
+        }
+    } catch (e) {
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamatriangle"></i> Gagal terhubung ke server: ${e.message}</span>`;
+    }
+}
+
+function copyOutput() {
+    const output = document.getElementById("sql-output").textContent;
+    if (output) {
+        navigator.clipboard.writeText(output);
+    }
+}
+</script>
+{% endblock %}

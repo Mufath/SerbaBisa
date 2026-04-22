@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Kalkulator Persen - SerbaBisa{% endblock %}
+{% block top_title %}Kalkulator Persen{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>Kalkulator Persentase</h1>
+        <p>Hitung persentase, kenaikan/penurunan, dan perubahan nilai dengan cepat.</p>
+    </div>
+
+    <div class="calc-section">
+        <h3>Berapa X% dari Y?</h3>
+        <div class="inline-form">
+            <span>Berapa</span>
+            <input type="number" id="p1-pct" style="width:80px" placeholder="10" oninput="calc1()">
+            <span>% dari</span>
+            <input type="number" id="p1-val" style="width:120px" placeholder="100000" oninput="calc1()">
+            <span>?</span>
+        </div>
+        <div class="calc-result-inline" id="p1-result">&mdash;</div>
+    </div>
+
+    <div class="calc-section">
+        <h3>X adalah berapa % dari Y?</h3>
+        <div class="inline-form">
+            <input type="number" id="p2-x" style="width:100px" placeholder="50" oninput="calc2()">
+            <span>adalah berapa % dari</span>
+            <input type="number" id="p2-y" style="width:100px" placeholder="200" oninput="calc2()">
+            <span>?</span>
+        </div>
+        <div class="calc-result-inline" id="p2-result">&mdash;</div>
+    </div>
+
+    <div class="calc-section">
+        <h3>Perubahan Persentase (X ke Y)</h3>
+        <div class="inline-form">
+            <span>Dari nilai</span>
+            <input type="number" id="p3-from" style="width:120px" placeholder="Harga beli" oninput="calc3()">
+            <span>ke nilai</span>
+            <input type="number" id="p3-to" style="width:120px" placeholder="Harga jual" oninput="calc3()">
+        </div>
+        <div class="calc-result-inline" id="p3-result">&mdash;</div>
+    </div>
+
+    <div class="calc-section">
+        <h3>Tambah/Kurang Berdasarkan Persen</h3>
+        <div class="inline-form">
+            <input type="number" id="p4-val" style="width:120px" placeholder="Nilai awal" oninput="calc4()">
+            <select id="p4-dir" onchange="calc4()" style="width:auto">
+                <option value="increase">+ Naik</option>
+                <option value="decrease">− Turun</option>
+            </select>
+            <input type="number" id="p4-pct" style="width:80px" placeholder="%" oninput="calc4()">
+            <span>%</span>
+        </div>
+        <div class="calc-result-inline" id="p4-result">&mdash;</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function calc1() {
+    const pct = parseFloat(document.getElementById("p1-pct").value);
+    const val = parseFloat(document.getElementById("p1-val").value);
+    const res = document.getElementById("p1-result");
+    if (isNaN(pct) || isNaN(val)) { res.textContent = "\u2014"; return; }
+    res.textContent = Number((pct / 100 * val).toPrecision(10));
+}
+
+function calc2() {
+    const x = parseFloat(document.getElementById("p2-x").value);
+    const y = parseFloat(document.getElementById("p2-y").value);
+    const res = document.getElementById("p2-result");
+    if (isNaN(x) || isNaN(y) || y === 0) { res.textContent = "\u2014"; return; }
+    res.textContent = Number((x / y * 100).toPrecision(10)) + "%";
+}
+
+function calc3() {
+    const from = parseFloat(document.getElementById("p3-from").value);
+    const to = parseFloat(document.getElementById("p3-to").value);
+    const res = document.getElementById("p3-result");
+    if (isNaN(from) || isNaN(to) || from === 0) { res.textContent = "\u2014"; return; }
+    
+    const change = ((to - from) / Math.abs(from)) * 100;
+    const sign = change > 0 ? "+" : "";
+    
+    // Memberi warna: hijau jika naik, merah jika turun
+    res.style.color = change > 0 ? "#28a745" : (change < 0 ? "#dc3545" : "inherit");
+    res.textContent = sign + Number(change.toPrecision(10)) + "%";
+}
+
+function calc4() {
+    const val = parseFloat(document.getElementById("p4-val").value);
+    const pct = parseFloat(document.getElementById("p4-pct").value);
+    const dir = document.getElementById("p4-dir").value;
+    const res = document.getElementById("p4-result");
+    if (isNaN(val) || isNaN(pct)) { res.textContent = "\u2014"; return; }
+    
+    const factor = dir === "increase" ? 1 + pct / 100 : 1 - pct / 100;
+    res.textContent = Number((val * factor).toPrecision(10));
+}
+</script>
+{% endblock %}

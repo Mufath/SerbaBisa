@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Cron Parser - SerbaBisa{% endblock %}
+{% block top_title %}Cron Parser{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>Cron Expression Parser</h1>
+        <p>Cek jadwal otomatis (Cron) kamu dan liat kapan jadwal eksekusi berikutnya</p>
+    </div>
+
+    <div style="display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:center">
+        <label>Ekspresi:
+            <input type="text" id="cron-expr" value="*/5 * * * *" style="font-family:monospace;min-width:200px">
+        </label>
+        <label>Jumlah:
+            <input type="number" id="cron-count" value="10" min="1" max="50" style="width:70px">
+        </label>
+        <button class="btn btn-primary" onclick="parseCron()"><i class="bi bi-play-circle"></i> Cek Jadwal</button>
+    </div>
+
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem">
+        <button class="btn btn-small" onclick="setExpr('* * * * *')">Tiap menit</button>
+        <button class="btn btn-small" onclick="setExpr('*/5 * * * *')">Tiap 5 menit</button>
+        <button class="btn btn-small" onclick="setExpr('0 * * * *')">Tiap jam</button>
+        <button class="btn btn-small" onclick="setExpr('0 0 * * *')">Tiap tengah malam</button>
+        <button class="btn btn-small" onclick="setExpr('0 9 * * 1-5')">Hari kerja jam 9 pagi</button>
+        <button class="btn btn-small" onclick="setExpr('0 0 1 * *')">Tiap tanggal 1</button>
+        <button class="btn btn-small" onclick="setExpr('0 0 * * 0')">Tiap hari Minggu</button>
+    </div>
+
+    <div id="cron-status" style="margin:.5rem 0;font-size:.9rem"></div>
+
+    <div class="split-pane">
+        <div class="pane">
+            <div class="pane-header"><span>Deskripsi Jadwal</span></div>
+            <div class="pane-body"><pre id="cron-desc"></pre></div>
+        </div>
+        <div class="pane">
+            <div class="pane-header"><span>Jadwal Jalan Berikutnya</span></div>
+            <div class="pane-body"><pre id="cron-next"></pre></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function setExpr(e) {
+    document.getElementById("cron-expr").value = e;
+    parseCron();
+}
+
+async function parseCron() {
+    const expr = document.getElementById("cron-expr").value;
+    const count = document.getElementById("cron-count").value;
+    const status = document.getElementById("cron-status");
+
+    if (!expr.trim()) { status.textContent = "Masukin dulu ekspresi cron-nya."; return; }
+
+    const fd = new FormData();
+    fd.append("expr", expr);
+    fd.append("count", count);
+
+    status.textContent = "Lagi ngecek...";
+    try {
+        const r = await fetch("/dev/cron", { method: "POST", body: fd });
+        const j = await r.json();
+        if (j.error) {
+            status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Waduh, kodenya salah: ${j.error}</span>`;
+            document.getElementById("cron-desc").textContent = "";
+            document.getElementById("cron-next").textContent = "";
+        } else {
+            status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Ekspresi valid!</span>';
+            document.getElementById("cron-desc").textContent = j.description;
+            document.getElementById("cron-next").textContent = j.next.join("\n");
+        }
+    } catch (e) {
+        status.innerHTML = `<span style="color:var(--danger)">Ada masalah jaringan: ${e.message}</span>`;
+    }
+}
+
+parseCron();
+</script>
+{% endblock %}

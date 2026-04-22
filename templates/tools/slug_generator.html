@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Slug Generator - SerbaBisa{% endblock %}
+{% block top_title %}Slug Generator{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>Slug Generator</h1>
+        <p>Ubah judul atau teks jadi format URL yang bersih dan ramah SEO.</p>
+    </div>
+    <div class="form-group">
+        <label>Input Teks</label>
+        <textarea id="slug-input" class="text-input" rows="3" placeholder="Contoh: Cara Membuat Website di Universitas Airlangga!" oninput="generateSlug()"></textarea>
+    </div>
+    <div class="form-group">
+        <label>Pemisah (Separator)</label>
+        <div class="radio-group">
+            <label class="radio-label"><input type="radio" name="sep" value="-" checked onchange="generateSlug()"><span>Strip/Hyphen (-)</span></label>
+            <label class="radio-label"><input type="radio" name="sep" value="_" onchange="generateSlug()"><span>Underscore (_)</span></label>
+        </div>
+    </div>
+    <div class="pane" style="margin-top:1rem">
+        <div class="pane-header">
+            <span>Hasil Slug</span>
+            <button class="btn btn-small" onclick="copySlug()"><i class="bi bi-clipboard"></i> Salin</button>
+        </div>
+        <div class="pane-body">
+            <pre id="slug-output" style="min-height:2em;font-size:1.1rem;color:var(--primary); font-weight: 600;"></pre>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function generateSlug() {
+    const input = document.getElementById("slug-input").value;
+    const sep = document.querySelector('input[name="sep"]:checked').value;
+    
+    const slug = input
+        .normalize("NFD") // Menghapus aksen (seperti di bahasa Spanyol/Prancis)
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "") // Menghapus karakter khusus kecuali angka, huruf, dan spasi
+        .trim()
+        .replace(/[\s-]+/g, sep) // Mengganti spasi atau strip ganda jadi separator pilihan
+        .replace(new RegExp(`^${sep}+|${sep}+$`, 'g'), ''); // Hapus separator di awal/akhir
+
+    document.getElementById("slug-output").textContent = slug;
+}
+
+function copySlug() {
+    const slugText = document.getElementById('slug-output').textContent;
+    if (slugText) {
+        navigator.clipboard.writeText(slugText);
+    }
+}
+</script>
+{% endblock %}

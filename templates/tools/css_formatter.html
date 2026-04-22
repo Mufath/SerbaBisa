@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}CSS Formatter - SerbaBisa{% endblock %}
+{% block top_title %}CSS Formatter{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>CSS Formatter</h1>
+        <p>Rapiin kode CSS yang berantakan atau buat jadi padat (minify) biar loading web makin kenceng</p>
+    </div>
+    <div class="split-pane">
+        <div class="pane">
+            <div class="pane-header">
+                <span>Input Kode</span>
+                <div>
+                    <button class="btn btn-small" onclick="formatCSS()">Rapiin (Beautify)</button>
+                    <button class="btn btn-small" onclick="minifyCSS()">Padatkan (Minify)</button>
+                </div>
+            </div>
+            <div class="pane-body">
+                <textarea id="css-input" placeholder=".contoh { color: red; background: #fff; }"></textarea>
+            </div>
+        </div>
+        <div class="pane">
+            <div class="pane-header">
+                <span>Hasilnya</span>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+            </div>
+            <div class="pane-body">
+                <pre id="css-output"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function formatCSS() {
+    let src = document.getElementById("css-input").value;
+    if (!src.trim()) return;
+    
+    src = src.replace(/\/\*[\s\S]*?\*\//g, m => "\u0000COMMENT" + btoa(unescape(encodeURIComponent(m))) + "\u0000");
+
+    const out = [];
+    let depth = 0;
+    let i = 0;
+    let buf = "";
+    const pad = () => "  ".repeat(depth);
+
+    while (i < src.length) {
+        const ch = src[i];
+        if (ch === "{") {
+            out.push(pad() + buf.trim() + " {");
+            depth++;
+            buf = "";
+        } else if (ch === "}") {
+            if (buf.trim()) out.push(pad() + buf.trim() + (buf.trim().endsWith(";") ? "" : ";"));
+            depth = Math.max(0, depth - 1);
+            out.push(pad() + "}");
+            buf = "";
+        } else if (ch === ";") {
+            const line = buf.trim();
+            if (line) out.push(pad() + line + ";");
+            buf = "";
+        } else {
+            buf += ch;
+        }
+        i++;
+    }
+    if (buf.trim()) out.push(pad() + buf.trim());
+
+    let result = out.join("\n").replace(/\u0000COMMENT([A-Za-z0-9+/=]+)\u0000/g, (_, b) => {
+        try { return decodeURIComponent(escape(atob(b))); } catch (e) { return ""; }
+    });
+    document.getElementById("css-output").textContent = result;
+}
+
+function minifyCSS() {
+    const src = document.getElementById("css-input").value;
+    if (!src.trim()) return;
+    
+    const out = src
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/\s*([{}:;,>~+])\s*/g, "$1")
+        .replace(/;}/g, "}")
+        .replace(/\s+/g, " ")
+        .trim();
+    document.getElementById("css-output").textContent = out;
+}
+
+function copyOutput() {
+    const output = document.getElementById("css-output").textContent;
+    if (output) {
+        navigator.clipboard.writeText(output);
+    }
+}
+</script>
+{% endblock %}

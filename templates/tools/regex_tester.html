@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Regex Tester - SerbaBisa{% endblock %}
+{% block top_title %}Regex Tester{% endblock %}
+
+{% block content %}
+<div class="client-tool">
+    <div class="tool-header">
+        <h1>Uji Regex (Regex Tester)</h1>
+        <p>Tes pola Regular Expression kamu secara langsung dengan fitur highlight pencocokan teks.</p>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem;align-items:flex-end">
+        <div class="form-group" style="flex:1;margin-bottom:0">
+            <label>Pola Regex (Pattern)</label>
+            <input type="text" id="regex-pattern" placeholder="Contoh: \b\w+@\w+\.\w+\b" oninput="testRegex()">
+        </div>
+        <div class="form-group" style="width:100px;margin-bottom:0">
+            <label>Flags</label>
+            <input type="text" id="regex-flags" value="gi" placeholder="gi" oninput="testRegex()" style="width:100%">
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Teks untuk Dites</label>
+        <textarea id="regex-input" class="text-input" rows="5" placeholder="Masukkan teks di sini untuk diuji pola regex-nya..." oninput="testRegex()"></textarea>
+    </div>
+    <div id="regex-error" style="color:var(--danger);font-size:.85rem;margin-bottom:.5rem; font-weight: 500;"></div>
+    
+    <div class="pane" style="margin-bottom:1rem">
+        <div class="pane-header">
+            <span>Highlight Hasil</span>
+            <span id="regex-count" style="font-size:.8rem;color:var(--text-light)">0 ditemukan</span>
+        </div>
+        <div class="pane-body">
+            <div id="regex-output" style="min-height:80px;white-space:pre-wrap;word-break:break-word;font-family:Consolas,Monaco,monospace;font-size:.9rem;line-height:1.6"></div>
+        </div>
+    </div>
+    
+    <div class="pane">
+        <div class="pane-header"><span>Detail Hasil Pencocokan</span></div>
+        <div class="pane-body">
+            <div id="regex-matches" style="font-size:.85rem;max-height:250px;overflow:auto"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.regex-hl { background: #fff3cd; border-bottom: 2px solid var(--warning); border-radius: 2px; font-weight: 600; }
+.regex-hl:nth-of-type(even) { background: #d1ecf1; border-bottom-color: #17a2b8; }
+.match-row { padding: .4rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 1rem; align-items: center; }
+.match-idx { color: var(--text-light); min-width: 2.5rem; font-weight: bold; }
+.match-val { font-family: Consolas,Monaco,monospace; color: var(--primary); background: var(--bg); padding: 0.1rem 0.3rem; border-radius: 4px; }
+.match-pos { color: var(--text-light); font-size: .8rem; }
+</style>
+<script>
+function testRegex() {
+    const pattern = document.getElementById("regex-pattern").value;
+    const flags = document.getElementById("regex-flags").value;
+    const input = document.getElementById("regex-input").value;
+    const output = document.getElementById("regex-output");
+    const errEl = document.getElementById("regex-error");
+    const countEl = document.getElementById("regex-count");
+    const matchesEl = document.getElementById("regex-matches");
+
+    errEl.textContent = "";
+    if (!pattern) {
+        output.textContent = input;
+        countEl.textContent = "0 ditemukan";
+        matchesEl.innerHTML = '<span style="color:var(--text-light)">Masukkan pola regex untuk melihat hasil.</span>';
+        return;
+    }
+
+    let regex;
+    try {
+        regex = new RegExp(pattern, flags);
+    } catch (e) {
+        errEl.textContent = "Regex Error: " + e.message;
+        output.textContent = input;
+        countEl.textContent = "0 ditemukan";
+        matchesEl.innerHTML = "";
+        return;
+    }
+
+    const matches = [];
+    let match;
+    let count = 0;
+    
+    // Logic for global vs non-global match
+    let allMatches;
+    try {
+        allMatches = flags.includes("g") ? [...input.matchAll(regex)] : ((match = regex.exec(input)) ? [match] : []);
+    } catch (e) {
+        allMatches = [];
+    }
+
+    let highlighted = "";
+    let lastIdx = 0;
+
+    for (const m of allMatches) {
+        const start = m.index;
+        const end = start + m[0].length;
+        
+        // Safety for zero-length matches (e.g. ^ or $)
+        if (start === end && start === lastIdx && count > 0) continue;
+
+        highlighted += escapeHtml(input.slice(lastIdx, start));
+        highlighted += `<span class="regex-hl">${escapeHtml(m[0])}</span>`;
+        lastIdx = end;
+        matches.push({ index: count, value: m[0], start, end, groups: m.slice(1) });
+        count++;
+        if (count > 500) break; // Limit to 500 matches for performance
+    }
+    highlighted += escapeHtml(input.slice(lastIdx));
+
+    output.innerHTML = highlighted || escapeHtml(input);
+    countEl.textContent = count + " ditemukan";
+
+    if (matches.length === 0) {
+        matchesEl.innerHTML = '<span style="color:var(--text-light)">Tidak ada yang cocok.</span>';
+    } else {
+        matchesEl.innerHTML = matches.map(m => {
+            let groups = "";
+            if (m.groups.length) {
+                groups = " &nbsp; <span style='font-size:.75rem'>Grup: " + m.groups.map((g,i) => `<span style="color:var(--primary)">[${i+1}]</span> ${escapeHtml(g||"")}`).join(", ") + "</span>";
+            }
+            return `<div class="match-row"><span class="match-idx">#${m.index+1}</span><span class="match-val">${escapeHtml(m.value)}</span><span class="match-pos">[indeks ${m.start}:${m.end}]</span>${groups}</div>`;
+        }).join("");
+    }
+}
+
+function escapeHtml(s) { 
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); 
+}
+
+// Jalankan tes pertama kali jika ada isinya
+testRegex();
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Number Base Converter - SerbaBisa{% endblock %}
+{% block top_title %}Konversi Basis Bilangan{% endblock %}
+
+{% block content %}
+<div class="client-tool" style="max-width:520px; margin: 0 auto;">
+    <div class="tool-header">
+        <h1>Number Base Converter</h1>
+        <p>Konversi instan antar sistem bilangan Desimal, Biner, Oktal, dan Heksadesimal.</p>
+    </div>
+    
+    <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+        <label style="font-weight: 600;">Desimal (Basis 10)</label>
+        <input type="text" id="nb-dec" placeholder="Contoh: 255" oninput="fromBase('dec')" style="font-family: monospace; font-size: 1.1rem;">
+    </div>
+    
+    <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+        <label style="font-weight: 600;">Biner (Basis 2)</label>
+        <input type="text" id="nb-bin" placeholder="Contoh: 11111111" oninput="fromBase('bin')" style="font-family: monospace; font-size: 1.1rem;">
+    </div>
+    
+    <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+        <label style="font-weight: 600;">Oktal (Basis 8)</label>
+        <input type="text" id="nb-oct" placeholder="Contoh: 377" oninput="fromBase('oct')" style="font-family: monospace; font-size: 1.1rem;">
+    </div>
+    
+    <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+        <label style="font-weight: 600;">Heksadesimal (Basis 16)</label>
+        <input type="text" id="nb-hex" placeholder="Contoh: FF" oninput="fromBase('hex')" style="font-family: monospace; font-size: 1.1rem;">
+    </div>
+    
+    <div id="nb-error" style="color:var(--danger); font-size:.85rem; margin-top:.5rem; text-align: center; font-weight: 500;"></div>
+    
+    <button class="btn btn-small" onclick="clearAll()" style="width: 100%; margin-top: 1rem; background: var(--border);">
+        <i class="bi bi-eraser"></i> Bersihkan Semua
+    </button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fromBase(source) {
+    const val = document.getElementById(`nb-${source}`).value.trim();
+    const err = document.getElementById("nb-error");
+    err.textContent = "";
+    
+    if (!val) {
+        ["dec","bin","oct","hex"].forEach(b => { 
+            if (b !== source) document.getElementById(`nb-${b}`).value = ""; 
+        });
+        return;
+    }
+
+    let num;
+    try {
+        switch (source) {
+            case "dec": num = BigInt(val); break;
+            case "bin": num = BigInt("0b" + val); break;
+            case "oct": num = BigInt("0o" + val); break;
+            case "hex": num = BigInt("0x" + val); break;
+        }
+    } catch (e) {
+        err.textContent = "Input tidak valid untuk basis ini.";
+        return;
+    }
+
+    const isNeg = num < 0n;
+    const abs = isNeg ? -num : num;
+    const prefix = isNeg ? "-" : "";
+
+    if (source !== "dec") document.getElementById("nb-dec").value = num.toString(10);
+    if (source !== "bin") document.getElementById("nb-bin").value = prefix + abs.toString(2);
+    if (source !== "oct") document.getElementById("nb-oct").value = prefix + abs.toString(8);
+    if (source !== "hex") document.getElementById("nb-hex").value = prefix + abs.toString(16).toUpperCase();
+}
+
+function clearAll() {
+    ["dec","bin","oct","hex"].forEach(id => document.getElementById(`nb-${id}`).value = "");
+    document.getElementById("nb-error").textContent = "";
+}
+</script>
+{% endblock %}
