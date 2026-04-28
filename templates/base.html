@@ -37,7 +37,7 @@
         </div>
         <div class="sidebar-footer" style="padding: 1rem; border-top: 1px solid var(--glass-border); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
             <div style="margin-bottom: 0.3rem;">Ide asli oleh <a href="https://twitter.com/listyantidewi" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@listyantidewi</a></div>
-            <div>Developed by <a href="https://instagram.com/mufathz" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@mufathz</a></div>
+            <div>Dikembangkan oleh <a href="https://instagram.com/mufathz" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@mufathz</a></div>
         </div>
     </nav>
 
@@ -51,6 +51,9 @@
             </div>
             
             <div class="top-bar-right">
+                <button id="theme-toggle" class="btn btn-small" style="padding: 0.5rem; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Ubah Tema">
+                    <i class="bi bi-moon-fill" id="theme-icon"></i>
+                </button>
                 <div class="search-bar">
                     <i class="bi bi-search"></i>
                     <input type="text" id="global-search" placeholder="Cari alat...">
@@ -93,9 +96,32 @@
             }
         }
 
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            if (body.classList.contains('dark-theme')) {
+                body.classList.remove('dark-theme');
+                localStorage.setItem('serbabisa_theme', 'light');
+                icon.className = 'bi bi-moon-fill';
+            } else {
+                body.classList.add('dark-theme');
+                localStorage.setItem('serbabisa_theme', 'dark');
+                icon.className = 'bi bi-sun-fill';
+            }
+        }
+
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
         document.addEventListener('DOMContentLoaded', () => {
-            let saved = localStorage.getItem('serbabisa_user');
-            if (saved) updateNameUI(saved);
+            let savedUser = localStorage.getItem('serbabisa_user');
+            if (savedUser) updateNameUI(savedUser);
+
+            let savedTheme = localStorage.getItem('serbabisa_theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('theme-icon').className = 'bi bi-sun-fill';
+            }
         });
     </script>
     {% block scripts %}{% endblock %}

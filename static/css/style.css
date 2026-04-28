@@ -881,3 +881,88 @@ textarea:focus {
     .welcome-illus { display: none; }
     .split-pane { grid-template-columns: 1fr; }
 }
+
+/* ── Dark Theme ───────────────────────────────── */
+body.dark-theme {
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --bg-sidebar: rgba(15, 23, 42, 0.98);
+    --glass-border: #334155;
+    --glass-border-hover: #475569;
+    --text: #f8fafc;
+    --text-light: #cbd5e1;
+    --text-muted: #94a3b8;
+    --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .search-bar input[type="text"],
+body.dark-theme .user-profile,
+body.dark-theme .welcome-card,
+body.dark-theme .stats-card,
+body.dark-theme .tool-card,
+body.dark-theme .pane,
+body.dark-theme .pane-header,
+body.dark-theme .file-item,
+body.dark-theme .result-text-box,
+body.dark-theme .result-text-header,
+body.dark-theme .tool-container,
+body.dark-theme input,
+body.dark-theme select,
+body.dark-theme textarea,
+body.dark-theme .btn-small,
+body.dark-theme .calc-section,
+body.dark-theme .calc-display,
+body.dark-theme .calc-btn,
+body.dark-theme .diff-view {
+    background: var(--bg-card);
+    color: var(--text);
+    border-color: var(--glass-border);
+}
+
+body.dark-theme .upload-zone {
+    background: var(--bg-card);
+    border-color: var(--glass-border);
+}
+
+body.dark-theme .upload-zone:hover {
+    background: #334155;
+    border-color: var(--primary);
+}
+
+body.dark-theme .tool-notes {
+    background: rgba(221, 107, 32, 0.1);
+    border-color: rgba(221, 107, 32, 0.3);
+    color: #fbd38d;
+}
+
+body.dark-theme .tool-notes code {
+    background: rgba(221, 107, 32, 0.2);
+    color: #fbd38d;
+}
+
+body.dark-theme .result-success {
+    background: rgba(56, 161, 105, 0.1);
+    border-color: rgba(56, 161, 105, 0.3);
+    color: #9ae6b4;
+}
+
+body.dark-theme .result-error {
+    background: rgba(229, 62, 62, 0.1);
+    border-color: rgba(229, 62, 62, 0.3);
+    color: #feb2b2;
+}
+
+body.dark-theme .diff-stats { background: var(--bg-body); }
+body.dark-theme .diff-add-inline { background: rgba(56, 161, 105, 0.2); color: #68d391; }
+body.dark-theme .diff-del-inline { background: rgba(229, 62, 62, 0.2); color: #fc8181; }
+
+body.dark-theme .stat-item:hover,
+body.dark-theme .nav-item:hover,
+body.dark-theme .nav-category-btn:hover,
+body.dark-theme .calc-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .pane-body textarea {
+    background: transparent;
+}
