@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
 </head>
-<body>
+<body {% if app_config.theme == 'dark' %}class="dark-theme"{% endif %}>
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a href="/" class="logo"><i class="bi bi-box-fill"></i> SerbaBisa</a>
@@ -15,7 +15,7 @@
         <div class="sidebar-nav">
             <div class="nav-category">
                 <a href="/" class="nav-category-btn" style="text-decoration: none;">
-                    <i class="bi bi-grid-1x2-fill"></i> Dasbor
+                    <i class="bi bi-grid-1x2-fill"></i> {{ _t('dashboard') }}
                 </a>
             </div>
             
@@ -34,10 +34,16 @@
                 </div>
             </div>
             {% endfor %}
+            
+            <div class="nav-category" style="margin-top: 1rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                <a href="/settings" class="nav-category-btn" style="text-decoration: none;">
+                    <i class="bi bi-gear-fill"></i> {{ _t('settings') }}
+                </a>
+            </div>
         </div>
         <div class="sidebar-footer" style="padding: 1rem; border-top: 1px solid var(--glass-border); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
-            <div style="margin-bottom: 0.3rem;">Ide asli oleh <a href="https://twitter.com/listyantidewi" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@listyantidewi</a></div>
-            <div>Dikembangkan oleh <a href="https://instagram.com/mufathz" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@mufathz</a></div>
+            <div style="margin-bottom: 0.3rem;">{{ _t('original_idea') }} <a href="https://twitter.com/listyantidewi" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@listyantidewi</a></div>
+            <div>{{ _t('developed_by') }} <a href="https://instagram.com/mufathz" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@mufathz</a></div>
         </div>
     </nav>
 
@@ -56,14 +62,14 @@
                 </button>
                 <div class="search-bar">
                     <i class="bi bi-search"></i>
-                    <input type="text" id="global-search" placeholder="Cari alat...">
+                    <input type="text" id="global-search" placeholder="{{ _t('search_placeholder') }}">
                 </div>
                 
-                <div class="user-profile" onclick="changeUserName()" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" title="Klik untuk ganti nama">
-                    <div class="user-avatar" id="avatar-initial">S</div>
+                <div class="user-profile" onclick="window.location.href='/settings'" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" title="{{ _t('click_to_change_name') }}">
+                    <div class="user-avatar" id="avatar-initial">{{ app_config.username[0] | upper }}</div>
                     <div class="user-info">
-                        <span class="user-name" id="display-name" style="color: var(--text); font-weight: 600;">Sobat</span>
-                        <span class="user-role">Profil Pengguna</span>
+                        <span class="user-name" id="display-name" style="color: var(--text); font-weight: 600;">{{ app_config.username }}</span>
+                        <span class="user-role">{{ _t('user_profile') }}</span>
                     </div>
                 </div>
             </div>
@@ -76,54 +82,46 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
     <script>
-        function updateNameUI(name) {
-            let disp = document.getElementById('display-name');
-            if(disp) disp.textContent = name;
-            
-            let av = document.getElementById('avatar-initial');
-            if(av) av.textContent = name.charAt(0).toUpperCase();
-            
-            let dashName = document.getElementById('dash-username');
-            if (dashName) dashName.textContent = name;
-        }
-
-        function changeUserName() {
-            let current = localStorage.getItem('serbabisa_user') || 'Sobat';
-            let newName = prompt('Halo! Siapa nama panggilanmu?', current);
-            if (newName && newName.trim() !== '') {
-                localStorage.setItem('serbabisa_user', newName.trim());
-                updateNameUI(newName.trim());
-            }
-        }
-
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('theme-icon');
+            const newTheme = body.classList.contains('dark-theme') ? 'light' : 'dark';
             
-            if (body.classList.contains('dark-theme')) {
+            if (newTheme === 'light') {
                 body.classList.remove('dark-theme');
-                localStorage.setItem('serbabisa_theme', 'light');
                 icon.className = 'bi bi-moon-fill';
             } else {
                 body.classList.add('dark-theme');
-                localStorage.setItem('serbabisa_theme', 'dark');
                 icon.className = 'bi bi-sun-fill';
             }
+            
+            fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ theme: newTheme, username: "{{ app_config.username }}", language: "{{ app_config.language }}" })
+            });
         }
 
         document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
 
         document.addEventListener('DOMContentLoaded', () => {
-            let savedUser = localStorage.getItem('serbabisa_user');
-            if (savedUser) updateNameUI(savedUser);
-
-            let savedTheme = localStorage.getItem('serbabisa_theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
+            if (document.body.classList.contains('dark-theme')) {
                 document.getElementById('theme-icon').className = 'bi bi-sun-fill';
             }
         });
     </script>
+    
+    <!-- Command Palette Modal -->
+    <div class="command-palette-overlay" id="cmd-palette-overlay">
+        <div class="command-palette">
+            <div class="cmd-header">
+                <i class="bi bi-search"></i>
+                <input type="text" id="cmd-input" placeholder="Cari alat... (Esc untuk tutup)" autocomplete="off">
+            </div>
+            <div class="cmd-results" id="cmd-results"></div>
+        </div>
+    </div>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

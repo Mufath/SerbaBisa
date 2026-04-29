@@ -6,27 +6,27 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Lorem Ipsum Generator</h1>
-        <p>Hasilkan teks placeholder untuk kebutuhan desain UI, layout, atau tugas kuliah kamu.</p>
+        <p>{{ _t('desc_lorem_ipsum') }}</p>
     </div>
 
     <div style="display:flex; gap:.8rem; align-items:flex-end; margin-bottom:1.5rem; flex-wrap:wrap; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
         <div class="form-group" style="margin-bottom:0">
-            <label style="font-weight: 600; font-size: 0.9rem;">Jumlah</label>
+            <label style="font-weight: 600; font-size: 0.9rem;">{{ _t('amount') }}</label>
             <input type="number" id="li-count" value="3" min="1" max="100" style="width:80px; padding: 6px; border-radius: 6px; border: 1px solid var(--border);" oninput="generate()">
         </div>
         
         <div class="form-group" style="margin-bottom:0">
             <label style="font-weight: 600; font-size: 0.9rem;">Tipe</label>
             <select id="li-type" onchange="generate()" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border); background: white;">
-                <option value="paragraphs">Paragraf</option>
-                <option value="sentences">Kalimat</option>
-                <option value="words">Kata</option>
+                <option value="paragraphs">{{ _t('paragraphs') }}</option>
+                <option value="sentences">{{ _t('sentences') }}</option>
+                <option value="words">{{ _t('words') }}</option>
             </select>
         </div>
 
         <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0.4rem; font-size: 0.9rem;">
             <input type="checkbox" id="li-start" checked onchange="generate()">
-            <span>Mulai dengan "Lorem ipsum..."</span>
+            <span>{{ _t('start') }} dengan "Lorem ipsum..."</span>
         </label>
 
         <button class="btn btn-primary" onclick="generate()" style="margin-left: auto;">
@@ -36,9 +36,9 @@
 
     <div class="pane" style="border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
         <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 600;"><i class="bi bi-text-paragraph"></i> Teks Berhasil Dibuat</span>
+            <span style="font-weight: 600;"><i class="bi bi-text-paragraph"></i> Teks Ber{{ _t('result') }} Dibuat</span>
             <button class="btn btn-small" onclick="copyResult()">
-                <i class="bi bi-clipboard"></i> Salin Teks
+                <i class="bi bi-clipboard"></i> {{ _t('copy') }} Teks
             </button>
         </div>
         <div class="pane-body" style="background: white; padding: 1.5rem;">
@@ -58,7 +58,7 @@ const LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do e
 const WORDS = "a ac accumsan adipiscing aenean aliquam aliquet amet ante aptent arcu at auctor augue bibendum blandit class commodo condimentum congue consectetur consequat conubia convallis cras cubilia cum curabitur cursus dapibus diam dictum dictumst dignissim dis dolor donec dui duis egestas eget eleifend elementum elit enim erat eros est et etiam eu euismod facilisi facilisis fames faucibus felis fermentum feugiat fringilla fusce gravida habitant habitasse hac hendrerit himenaeos iaculis id imperdiet in inceptos integer interdum ipsum justo lacinia lacus laoreet lectus leo libero ligula litora lobortis lorem luctus maecenas magna magnis malesuada massa mas-sa mattis mauris metus mi molestie mollis montes morbi mus nam nascetur natoque nec neque netus nibh nisi nisl non nostra nulla nullam nunc odio orci ornare parturient pellentesque penatibus per pharetra phasellus placerat platea porta porttitor posuere potenti praesent pretium primis proin pulvinar purus quam quis quisque rhoncus ridiculus risus rutrum sagittis sapien scelerisque sed sem semper senectus sit sociis sociosqu sodales sollicitudin suscipit suspendisse taciti tellus tempor tempus tincidunt torquent tortor tristique turpis ullamcorper ultrices ultricies urna ut varius vehicula vel velit venenatis vestibulum vitae vivamus viverra volutpat vulputate".split(" ");
 
 /**
- * Membuat Kalimat Acak
+ * Membuat {{ _t('sentences') }} Acak
  */
 function randomSentence(minWords, maxWords) {
     const len = minWords + Math.floor(Math.random() * (maxWords - minWords));
@@ -72,7 +72,7 @@ function randomSentence(minWords, maxWords) {
 }
 
 /**
- * Membuat Paragraf Acak
+ * Membuat {{ _t('paragraphs') }} Acak
  */
 function randomParagraph() {
     const sentenceCount = 4 + Math.floor(Math.random() * 5);
@@ -136,14 +136,14 @@ function generate() {
 }
 
 /**
- * Fungsi Salin Teks
+ * Fungsi {{ _t('copy') }} Teks
  */
 function copyResult() {
     const text = document.getElementById("li-output").textContent;
     if (!text) return;
     
     navigator.clipboard.writeText(text).then(() => {
-        alert("Teks berhasil disalin ke clipboard!");
+        alert("Teks ber{{ _t('result') }} di{{ _t('copy_lower') }} ke clipboard!");
     });
 }
 

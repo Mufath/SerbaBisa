@@ -6,12 +6,12 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Markdown to PDF</h1>
-        <p>Ubah draf Markdown kamu menjadi dokumen PDF profesional dalam sekejap.</p>
+        <p>{{ _t('desc_md_to_pdf') }}</p>
     </div>
 
     <div style="display:flex; gap:.8rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
         <div style="display: flex; gap: 1rem; flex-wrap: wrap; flex: 1;">
-            <label style="font-size: 0.9rem; font-weight: 600;">Kertas:
+            <label style="font-size: 0.9rem; font-weight: 600;">{{ _t('label_paper') }}
                 <select id="page-size" style="padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">
                     <option value="A4" selected>A4</option>
                     <option value="letter">Letter</option>
@@ -19,10 +19,10 @@
                     <option value="A5">A5</option>
                 </select>
             </label>
-            <label style="font-size: 0.9rem; font-weight: 600;">Ukuran Font:
+            <label style="font-size: 0.9rem; font-weight: 600;">{{ _t('label_font_size') }}
                 <input type="number" id="font-size" value="11" min="8" max="18" style="width:60px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">
             </label>
-            <label style="font-size: 0.9rem; font-weight: 600;">Nama File:
+            <label style="font-size: 0.9rem; font-weight: 600;">{{ _t('label_filename') }}
                 <input type="text" id="file-name" value="dokumen_mufath" style="width:180px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">
             </label>
         </div>
@@ -30,25 +30,25 @@
         <div style="display: flex; gap: 0.5rem;">
             <input type="file" id="md-upload" accept=".md,.markdown,.txt" style="display:none" onchange="loadFile(this.files[0])">
             <button type="button" class="btn btn-small" onclick="document.getElementById('md-upload').click()">
-                <i class="bi bi-folder2-open"></i> Buka File
+                <i class="bi bi-folder2-open"></i> {{ _t('open_file') }}
             </button>
             <button class="btn btn-primary" onclick="convertMD()">
-                <i class="bi bi-file-pdf-fill"></i> Konversi ke PDF
+                <i class="bi bi-file-pdf-fill"></i> {{ _t('convert_to_pdf') }}
             </button>
         </div>
     </div>
 
-    <textarea id="md-input" placeholder="# Judul Dokumen UNAIR
+    <textarea id="md-input" placeholder="# {{ _t('unair_doc_title') }}
 
-Tulis catatan kuliah atau laporan praktikum kamu di sini menggunakan format **Markdown**.
+{{ _t('write_lecture_notes_here') }}
 
-### Fitur yang didukung:
-- Pembuatan list otomatis
-- Penulisan rumus (jika didukung backend)
-- Kode program: `print('Hello SI!')`
-- Gambar dan Link
+### {{ _t('supported_features') }}
+- {{ _t('auto_list_creation') }}
+- {{ _t('formula_writing') }}
+- {{ _t('program_code_si') }}
+- {{ _t('images_and_links') }}
 
-> Masukkan teks dan klik konversi untuk mengunduh PDF." 
+> {{ _t('enter_text_click_convert_pdf') }}" 
 style="min-height:450px; width:100%; font-family: 'Consolas', 'Monaco', monospace; padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); line-height: 1.6; font-size: 1rem;"></textarea>
 
     <div id="md-status" style="margin-top:1rem; font-size:.9rem; font-weight: 500; min-height: 24px;"></div>
@@ -58,7 +58,7 @@ style="min-height:450px; width:100%; font-family: 'Consolas', 'Monaco', monospac
 {% block scripts %}
 <script>
 /**
- * Memuat konten dari file lokal ke dalam textarea
+ * Memuat konten {{ _t('from_of') }} file lokal ke dalam textarea
  */
 function loadFile(f) {
     if (!f) return;
@@ -70,11 +70,11 @@ function loadFile(f) {
     
     reader.onload = e => { 
         document.getElementById("md-input").value = e.target.result; 
-        status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-info-circle"></i> File "${f.name}" berhasil dimuat.</span>`;
+        status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-info-circle"></i> File "${f.name}" ber{{ _t('result') }} dimuat.</span>`;
     };
     
     reader.onerror = () => {
-        status.innerHTML = `<span style="color:var(--danger)">Gagal membaca file.</span>`;
+        status.innerHTML = `<span style="color:var(--danger)">{{ _t('failed_read_file') }}</span>`;
     };
     
     reader.readAsText(f);
@@ -89,7 +89,7 @@ async function convertMD() {
     const fileNameInput = document.getElementById("file-name").value || "dokumen";
 
     if (!md.trim()) { 
-        status.innerHTML = `<span style="color:var(--danger)">Wah, kontennya masih kosong nih! Isi dulu ya.</span>`; 
+        status.innerHTML = `<span style="color:var(--danger)">{{ _t('content_empty') }}</span>`; 
         return; 
     }
 
@@ -99,7 +99,7 @@ async function convertMD() {
     fd.append("font_size", document.getElementById("font-size").value);
     fd.append("file_name", fileNameInput);
 
-    status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> Sedang meracik PDF kamu...</span>`;
+    status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> {{ _t('crafting_pdf') }}</span>`;
     
     try {
         const response = await fetch("/convert/md-to-pdf", { 
@@ -123,7 +123,7 @@ async function convertMD() {
         link.remove();
         
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-        status.innerHTML = `<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Berhasil! PDF siap dibuka.</span>`;
+        status.innerHTML = `<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('success_pdf_ready') }}</span>`;
         
     } catch (error) {
         status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> Terjadi kesalahan: ${error.message}</span>`;

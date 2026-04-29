@@ -6,15 +6,15 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>JSON / YAML Converter</h1>
-        <p>Konversi data antara format JSON dan YAML dengan mudah. Berguna untuk konfigurasi proyek atau draf tugas SI.</p>
+        <p>{{ _t('desc_json_yaml') }}</p>
     </div>
 
     <div style="margin-bottom:1.5rem; display: flex; gap: 0.5rem; background: var(--bg); padding: 0.5rem; border-radius: 12px; border: 1px solid var(--border); width: fit-content;">
         <button class="btn" id="btn-j2y" onclick="setMode('j2y')" style="border: none; padding: 8px 16px;">
-            <i class="bi bi-filetype-json"></i> JSON &rarr; YAML
+            <i class="bi bi-filetype-json"></i> {{ _t('json_to_yaml') }}
         </button>
         <button class="btn" id="btn-y2j" onclick="setMode('y2j')" style="border: none; padding: 8px 16px; opacity: 0.5;">
-            YAML &rarr; JSON <i class="bi bi-filetype-yml"></i>
+            {{ _t('yaml_to_json') }} <i class="bi bi-filetype-yml"></i>
         </button>
     </div>
 
@@ -32,7 +32,7 @@
         <div class="pane" style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fafafa;">
             <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                 <span id="jy-output-label" style="font-weight: 600;">YAML Output</span>
-                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body" style="flex: 1; padding: 1.2rem; overflow-y: auto;">
                 <pre id="jy-output" style="margin: 0; font-family: 'Consolas', monospace; font-size: 0.9rem; color: #2c3e50; white-space: pre-wrap;"></pre>
@@ -42,7 +42,7 @@
 
     <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem;">
         <button class="btn btn-primary" onclick="convert()" style="padding: 10px 24px; font-weight: 600;">
-            <i class="bi bi-arrow-left-right"></i> Jalankan Konversi
+            <i class="bi bi-arrow-left-right"></i> {{ _t('run_conversion') }}
         </button>
         <div id="jy-status" style="font-size: 0.9rem; font-weight: 500;"></div>
     </div>
@@ -83,7 +83,7 @@ function convert() {
     const output = document.getElementById("jy-output");
 
     if (!input) { 
-        status.innerHTML = '<span style="color:var(--danger)">Silakan masukkan data input.</span>'; 
+        status.innerHTML = '<span style="color:var(--danger)">{{ _t('please_enter_input') }}</span>'; 
         return; 
     }
 
@@ -95,7 +95,7 @@ function convert() {
             const obj = yamlToJson(input);
             output.textContent = JSON.stringify(obj, null, 2);
         }
-        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Berhasil dikonversi!</span>';
+        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('successfully_converted') }}</span>';
     } catch (e) {
         status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Error: ${e.message}</span>`;
     }
@@ -217,7 +217,7 @@ function copyOutput() {
     const text = document.getElementById('jy-output').textContent;
     if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
-        alert("Berhasil disalin ke clipboard!");
+        alert("Ber{{ _t('result') }} di{{ _t('copy_lower') }} ke clipboard!");
     });
 }
 

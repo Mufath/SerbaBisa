@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Riwayat Aktivitas - SerbaBisa{% endblock %}
-{% block top_title %}Riwayat Aktivitas{% endblock %}
+{% block title %}{{ _t('activity_history') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('activity_history') }}{% endblock %}
 
 {% block content %}
 <div class="tool-page">
     <div class="tool-header">
-        <h1>Riwayat Penggunaan Alat</h1>
-        <p>Jejak aktivitas alat-alat yang baru saja Anda gunakan.</p>
+        <h1>{{ _t('activity_history') }}</h1>
+        <p>{{ _t('activity_desc') }}</p>
     </div>
 
     <div class="tool-container" style="max-width: 600px; margin: 0 auto; padding: 1.5rem;">
         <div class="stats-header">
-            <h3>Aktivitas Terakhir</h3>
-            <a href="/">Kembali ke Dasbor</a>
+            <h3>{{ _t('recent_tools') }}</h3>
+            <a href="/">{{ _t('dashboard') }}</a>
         </div>
         
         <div class="history-list" style="margin-top: 1.5rem;">
@@ -23,14 +23,14 @@
                         <i class="bi {{ h.icon }}"></i>
                     </div>
                     <div class="stat-info">
-                        <h4>{{ h.tool_name }}</h4>
+                        <h4>{{ translate_tool(h.tool_name) if translate_tool else h.tool_name }}</h4>
                         <p>{{ h.time_str }}</p>
                     </div>
                 </a>
                 {% endfor %}
             {% else %}
                 <p style="font-size: 0.9rem; color: var(--text-muted); text-align: center; padding: 2rem 0;">
-                    Belum ada aktivitas yang tercatat. Silakan gunakan beberapa alat terlebih dahulu.
+                    {{ _t('history_empty') }}
                 </p>
             {% endif %}
         </div>

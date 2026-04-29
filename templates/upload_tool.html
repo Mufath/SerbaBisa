@@ -1,26 +1,26 @@
 {% extends "base.html" %}
-{% block title %}{{ title }} - SerbaBisa{% endblock %}
-{% block top_title %}{{ title }}{% endblock %}
+{% block title %}{{ translate_tool(title) }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ translate_tool(title) }}{% endblock %}
 
 {% block content %}
 <div class="tool-page">
     <div class="tool-header">
-        <h1>{{ title }}</h1>
-        <p>{{ description }}</p>
+        <h1>{{ translate_tool(title) }}</h1>
+        <p>{{ translate_tool(description) }}</p>
     </div>
 
     {% if notes %}
     <div class="tool-notes">
-        {{ notes|safe }}
+        {{ translate_tool(notes)|safe }}
     </div>
     {% endif %}
 
     <form id="tool-form" data-endpoint="{{ endpoint }}">
         {% if text_input %}
         <div class="form-group">
-            <label for="text-input">{{ text_label|default('Masukkan teks') }}</label>
+            <label for="text-input">{{ translate_tool(text_label) if text_label else translate_tool('Masukkan teks') }}</label>
             <textarea id="text-input" name="text" class="text-input" rows="4"
-                placeholder="{{ text_placeholder|default('Ketik atau tempel di sini...') }}"></textarea>
+                placeholder="{{ translate_tool(text_placeholder) if text_placeholder else translate_tool('Ketik atau tempel di sini...') }}"></textarea>
         </div>
         {% else %}
         <div class="upload-zone" id="upload-zone">
@@ -28,9 +28,8 @@
                 accept="{{ accept }}" {{ 'multiple' if multiple }}>
             <div class="upload-prompt" id="upload-prompt">
                 <i class="bi bi-cloud-arrow-up"></i>
-                <p>Tarik &amp; lepas file{{ 'nya' if multiple }} di sini</p>
-                <span>atau klik untuk memilih file</span>
-                {% if accept %}<small>Format yang didukung: {{ accept }}</small>{% endif %}
+                <p>{{ _t('drag_drop') }}</p>
+                {% if accept %}<small>Format: {{ accept }}</small>{% endif %}
             </div>
         </div>
         <div class="file-list" id="file-list"></div>
@@ -44,12 +43,12 @@
                 data-depends-on="{{ opt.depends_on.keys()|list|first }}"
                 data-depends-value="{{ opt.depends_on.values()|list|first }}"
                 {% endif %}>
-                <label for="opt-{{ opt.name }}">{{ opt.label }}</label>
+                <label for="opt-{{ opt.name }}">{{ translate_tool(opt.label) }}</label>
 
                 {% if opt.type == 'select' %}
                 <select id="opt-{{ opt.name }}" name="{{ opt.name }}">
                     {% for c in opt.choices %}
-                    <option value="{{ c.value }}" {{ 'selected' if c.value == opt.get('default','') }}>{{ c.label }}</option>
+                    <option value="{{ c.value }}" {{ 'selected' if c.value == opt.get('default','') }}>{{ translate_tool(c.label) }}</option>
                     {% endfor %}
                 </select>
 
@@ -107,11 +106,21 @@
         {% endif %}
 
         <button type="submit" class="btn btn-primary" id="submit-btn">
-            <span class="btn-text">{{ button_text|default('Proses Sekarang') }}</span>
+            <span class="btn-text">{% if button_text %}{{ translate_tool(button_text) }}{% else %}{{ _t('process_again') if request.endpoint else translate_tool('Proses Sekarang') }}{% endif %}</span>
             <span class="btn-loading" style="display:none">
-                <i class="bi bi-arrow-repeat spin"></i> Sedang memproses...
+                <i class="bi bi-arrow-repeat spin"></i> {{ _t('processing') }}
             </span>
         </button>
+
+        <div id="progress-container" style="display:none; margin-top: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: var(--text-light); margin-bottom: 0.5rem;">
+                <span id="progress-text">Menyiapkan data...</span>
+                <span id="progress-pct">0%</span>
+            </div>
+            <div class="progress-track" style="width: 100%; height: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow: hidden;">
+                <div id="progress-fill" style="width: 0%; height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+            </div>
+        </div>
     </form>
 
     <div id="result-area" class="result-area" style="display:none">

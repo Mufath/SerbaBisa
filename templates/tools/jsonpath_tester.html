@@ -6,7 +6,7 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>JSONPath Tester</h1>
-        <p>Gunakan ekspresi JSONPath untuk memfilter dan mengambil data spesifik dari struktur JSON yang kompleks.</p>
+        <p>{{ _t('desc_jsonpath_tester') }}</p>
     </div>
 
     <div style="display:flex; gap:0.8rem; margin-bottom:1rem; flex-wrap:wrap; align-items:flex-end; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
@@ -16,16 +16,16 @@
                 style="font-family:'Consolas', monospace; width:100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
         </div>
         <button class="btn btn-primary" onclick="runPath()" style="height: 42px;">
-            <i class="bi bi-play-circle"></i> Jalankan Query
+            <i class="bi bi-play-circle"></i> {{ _t('run_query') }}
         </button>
     </div>
 
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
-        <button class="btn btn-small" onclick="setExample()"><i class="bi bi-lightbulb"></i> Load Contoh</button>
-        <button class="btn btn-small" onclick="setPath('$..author')">Semua Penulis</button>
-        <button class="btn btn-small" onclick="setPath('$.store.book[?(@.price < 10)]')">Buku Murah (<10)</button>
-        <button class="btn btn-small" onclick="setPath('$..book[0,1]')">2 Buku Pertama</button>
-        <button class="btn btn-small" onclick="setPath('$..*')">Ambil Semua</button>
+        <button class="btn btn-small" onclick="setExample()"><i class="bi bi-lightbulb"></i> {{ _t('load_example') }}</button>
+        <button class="btn btn-small" onclick="setPath('$..author')">{{ _t('all_authors') }}</button>
+        <button class="btn btn-small" onclick="setPath('$.store.book[?(@.price < 10)]')">{{ _t('cheap_books') }}</button>
+        <button class="btn btn-small" onclick="setPath('$..book[0,1]')">{{ _t('first_2_books') }}</button>
+        <button class="btn btn-small" onclick="setPath('$..*')">{{ _t('get_all') }}</button>
     </div>
 
     <div class="split-pane" style="display: flex; gap: 1rem; height: 500px; margin-bottom: 1rem;">
@@ -42,7 +42,7 @@
         <div class="pane" style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fafafa;">
             <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 600;"><i class="bi bi-braces"></i> Hasil Filter (Matches)</span>
-                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body" style="flex: 1; padding: 1rem; overflow-y: auto;">
                 <pre id="jp-output" style="margin: 0; font-size: 0.85rem; color: #2c3e50;"></pre>
@@ -57,7 +57,7 @@
 {% block scripts %}
 <script>
 /**
- * Data contoh untuk memudahkan testing
+ * Data {{ _t('example') }} untuk memudahkan testing
  */
 const EXAMPLE_DATA = {
     store: {
@@ -72,7 +72,7 @@ const EXAMPLE_DATA = {
 };
 
 /**
- * Memasukkan data contoh ke textarea
+ * Memasukkan data {{ _t('example') }} ke textarea
  */
 function setExample() {
     document.getElementById("jp-input").value = JSON.stringify(EXAMPLE_DATA, null, 2);
@@ -95,8 +95,8 @@ async function runPath() {
     const status = document.getElementById("jp-status");
     const outputElement = document.getElementById("jp-output");
 
-    if (!data.trim()) { status.innerHTML = '<span style="color:var(--danger)">Berikan data JSON terlebih dahulu.</span>'; return; }
-    if (!path.trim()) { status.innerHTML = '<span style="color:var(--danger)">Masukkan ekspresi JSONPath.</span>'; return; }
+    if (!data.trim()) { status.innerHTML = '<span style="color:var(--danger)">{{ _t('provide_json_first') }}</span>'; return; }
+    if (!path.trim()) { status.innerHTML = '<span style="color:var(--danger)">{{ _t('enter_jsonpath_expr') }}</span>'; return; }
 
     try { 
         JSON.parse(data); 
@@ -128,13 +128,13 @@ async function runPath() {
 }
 
 /**
- * Menyalin hasil output ke clipboard
+ * Menyalin {{ _t('result') }} output ke clipboard
  */
 function copyOutput() {
     const content = document.getElementById("jp-output").textContent;
     if (!content) return;
     navigator.clipboard.writeText(content).then(() => {
-        alert("Hasil berhasil disalin!");
+        alert("Hasil ber{{ _t('result') }} di{{ _t('copy_lower') }}!");
     });
 }
 

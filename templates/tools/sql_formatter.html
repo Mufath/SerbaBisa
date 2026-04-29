@@ -1,30 +1,30 @@
 {% extends "base.html" %}
-{% block title %}SQL Formatter - SerbaBisa{% endblock %}
-{% block top_title %}SQL Formatter{% endblock %}
+{% block title %}{{ _t('sql_title') }} {{ _t('format') }}ter - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('sql_title') }} {{ _t('format') }}ter{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>SQL Formatter</h1>
-        <p>Rapikan sintaks SQL dengan indentasi yang benar dan pengaturan huruf kapital pada keyword.</p>
+        <h1>{{ _t('sql_title') }} {{ _t('format') }}ter</h1>
+        <p>{{ _t('desc_sql_formatter') }}</p>
     </div>
 
     <div style="display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:center">
-        <label>Huruf Keyword:
+        <label>Huruf {{ _t('to') }}yword:
             <select id="sql-keyword">
                 <option value="upper" selected>HURUF BESAR</option>
-                <option value="lower">huruf kecil</option>
+                <option value="lower">{{ _t('lowercase_letters') }}</option>
                 <option value="capitalize">Kapital Depan</option>
             </select>
         </label>
-        <label>Indentasi:
+        <label>{{ _t('indentation') }}
             <select id="sql-indent">
                 <option value="2" selected>2 Spasi</option>
                 <option value="4">4 Spasi</option>
                 <option value="tab">Tab</option>
             </select>
         </label>
-        <button class="btn btn-primary" onclick="formatSQL()"><i class="bi bi-magic"></i> Rapikan SQL</button>
+        <button class="btn btn-primary" onclick="format{{ _t('sql_title') }}()"><i class="bi bi-magic"></i> Rapikan {{ _t('sql_title') }}</button>
     </div>
 
     <div class="split-pane">
@@ -36,8 +36,8 @@
         </div>
         <div class="pane">
             <div class="pane-header">
-                <span>Hasil Output</span>
-                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+                <span>{{ _t('output_result') }}</span>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body"><pre id="sql-output" style="white-space: pre-wrap; word-break: break-all;"></pre></div>
         </div>
@@ -48,11 +48,11 @@
 
 {% block scripts %}
 <script>
-async function formatSQL() {
+async function format{{ _t('sql_title') }}() {
     const input = document.getElementById("sql-input").value;
     const status = document.getElementById("sql-status");
     if (!input.trim()) { 
-        status.innerHTML = '<span style="color:var(--text-light)">Masukkan query SQL terlebih dahulu.</span>'; 
+        status.innerHTML = '<span style="color:var(--text-light)">Masukkan query {{ _t('sql_title') }} terlebih dahulu.</span>'; 
         return; 
     }
 
@@ -61,7 +61,7 @@ async function formatSQL() {
     fd.append("keyword_case", document.getElementById("sql-keyword").value);
     fd.append("indent", document.getElementById("sql-indent").value);
 
-    status.textContent = "Sedang merapikan...";
+    status.textContent = "Sedang me{{ _t('tidy_up') }}...";
     try {
         // Pastikan endpoint /dev/sql-format tersedia di backend Flask kamu
         const r = await fetch("/dev/sql-format", { method: "POST", body: fd });
@@ -71,7 +71,7 @@ async function formatSQL() {
             status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Error: ${j.error}</span>`;
         } else {
             document.getElementById("sql-output").textContent = j.text;
-            status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Selesai dirapikan!</span>';
+            status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('formatting_done') }}</span>';
         }
     } catch (e) {
         status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamatriangle"></i> Gagal terhubung ke server: ${e.message}</span>`;

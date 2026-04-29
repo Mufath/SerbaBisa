@@ -6,30 +6,30 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Konverter Satuan</h1>
-        <p>Ubah berbagai satuan ukuran mulai dari panjang, berat, hingga penyimpanan digital.</p>
+        <p>{{ _t('desc_unit_converter') }}</p>
     </div>
     <div class="form-group">
-        <label>Kategori</label>
+        <label>{{ _t('category') }}</label>
         <select id="uc-category" onchange="loadUnits()">
-            <option value="length">Panjang (Length)</option>
-            <option value="weight">Berat (Weight)</option>
-            <option value="temperature">Suhu (Temperature)</option>
-            <option value="area">Luas (Area)</option>
-            <option value="volume">Volume</option>
-            <option value="speed">Kecepatan (Speed)</option>
-            <option value="data">Penyimpanan Digital</option>
-            <option value="time">Waktu (Time)</option>
+            <option value="length">{{ _t('length') }}</option>
+            <option value="weight">{{ _t('weight') }}</option>
+            <option value="temperature">{{ _t('temperature') }}</option>
+            <option value="area">{{ _t('area') }}</option>
+            <option value="volume">{{ _t('volume') }}</option>
+            <option value="speed">{{ _t('speed') }}</option>
+            <option value="data">{{ _t('digital_storage') }}</option>
+            <option value="time">{{ _t('time') }}</option>
         </select>
     </div>
     <div class="converter-row">
         <div class="form-group">
-            <label>Dari</label>
+            <label>{{ _t('from') }}</label>
             <input type="number" id="uc-from-val" value="1" oninput="convertUnit()">
             <select id="uc-from-unit" onchange="convertUnit()" style="margin-top:.3rem"></select>
         </div>
         <button class="converter-swap" onclick="swapUnits()"><i class="bi bi-arrow-left-right"></i></button>
         <div class="form-group">
-            <label>Ke</label>
+            <label>{{ _t('to') }}</label>
             <input type="number" id="uc-to-val" readonly>
             <select id="uc-to-unit" onchange="convertUnit()" style="margin-top:.3rem"></select>
         </div>

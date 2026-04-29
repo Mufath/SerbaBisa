@@ -177,11 +177,34 @@ TOOL_CATEGORIES = [
     },
 ]
 
+from config_manager import load_config, save_config
+from locales import translate_ui, translate_tool
 
 @app.context_processor
 def inject_globals():
-    return {"tool_categories": TOOL_CATEGORIES}
+    config = load_config()
+    lang = config.get("language", "id")
+    
+    # Menerjemahkan kategori dan alat
+    translated_categories = []
+    for cat in TOOL_CATEGORIES:
+        new_cat = cat.copy()
+        new_cat["name"] = translate_tool(cat["name"], lang)
+        new_tools = []
+        for tool in cat["tools"]:
+            new_tool = tool.copy()
+            new_tool["name"] = translate_tool(tool["name"], lang)
+            new_tool["desc"] = translate_tool(tool["desc"], lang)
+            new_tools.append(new_tool)
+        new_cat["tools"] = new_tools
+        translated_categories.append(new_cat)
 
+    return {
+        "tool_categories": translated_categories,
+        "app_config": config,
+        "_t": lambda key, **kwargs: translate_ui(key, lang=lang, **kwargs),
+        "translate_tool": lambda text: translate_tool(text, lang)
+    }
 @app.before_request
 def track_tool_usage():
     if request.method == "GET":
@@ -199,17 +222,34 @@ def track_tool_usage():
 @app.route("/")
 def index():
     recent = get_history()
+    config = load_config()
+    lang = config.get("language", "id")
     for r in recent:
-        r['time_str'] = format_time_ago(r['timestamp'])
+        r['time_str'] = format_time_ago(r['timestamp'], lang=lang)
     weekly_count = get_weekly_count()
     return render_template("index.html", recent_history=recent[:3], weekly_count=weekly_count)
 
 @app.route("/history")
 def history_page():
     recent = get_history()
+    config = load_config()
+    lang = config.get("language", "id")
     for r in recent:
-        r['time_str'] = format_time_ago(r['timestamp'])
+        r['time_str'] = format_time_ago(r['timestamp'], lang=lang)
     return render_template("history.html", history=recent)
+
+@app.route("/settings")
+def settings_page():
+    return render_template("settings.html")
+
+from flask import jsonify
+@app.route("/api/settings", methods=["POST"])
+def api_settings():
+    data = request.json
+    if not data:
+        return jsonify({"success": False}), 400
+    save_config(data)
+    return jsonify({"success": True})
 
 
 @app.errorhandler(413)
@@ -248,12 +288,36 @@ app.register_blueprint(archive_bp, url_prefix="/archive")
 app.register_blueprint(media_bp, url_prefix="/media")
 
 import threading
-import webbrowser
+import webview
+import time
+
+class WebviewApi:
+    def save_file(self, b64data, filename):
+        import base64
+        window = webview.active_window()
+        result = window.create_file_dialog(webview.SAVE_DIALOG, save_filename=filename)
+        if result:
+            try:
+                with open(result[0], 'wb') as f:
+                    f.write(base64.b64decode(b64data))
+                return True
+            except Exception as e:
+                print("Error saving file:", e)
+        return False
 
 if __name__ == "__main__":
-    def open_browser():
-        webbrowser.open_new("http://127.0.0.1:5000")
+    def start_flask():
+        app.run(debug=False, port=5000)
         
-    # Tunggu 1 detik agar server siap, lalu buka browser
-    threading.Timer(1.0, open_browser).start()
-    app.run(debug=False, port=5000)
+    # Jalankan server Flask di thread terpisah agar tidak memblokir UI
+    t = threading.Thread(target=start_flask)
+    t.daemon = True
+    t.start()
+    
+    # Beri sedikit waktu agar server siap sebelum window dibuat
+    time.sleep(1)
+    # Buat jendela aplikasi desktop (Native UI)
+    import os
+    api = WebviewApi()
+    webview.create_window("SerbaBisa", "http://127.0.0.1:5000", width=1200, height=800, min_size=(800, 600), js_api=api)
+    webview.start(private_mode=False)

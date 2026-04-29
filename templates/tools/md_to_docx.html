@@ -6,7 +6,7 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Markdown to Word</h1>
-        <p>Tulis draf dalam format Markdown dan ekspor langsung ke dokumen Word (.docx) yang siap diedit.</p>
+        <p>{{ _t('desc_md_to_docx') }}</p>
     </div>
 
     <div style="display:flex; gap:0.8rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
@@ -20,24 +20,24 @@
                 <i class="bi bi-folder2-open"></i> Impor .md
             </button>
             <button class="btn btn-primary" onclick="convertMD()">
-                <i class="bi bi-file-word-fill"></i> Konversi ke DOCX
+                <i class="bi bi-file-word-fill"></i> {{ _t('convert_to_docx') }}
             </button>
         </div>
     </div>
 
-    <textarea id="md-input" placeholder="# Judul Laporan Praktikum
+    <textarea id="md-input" placeholder="# {{ _t('lab_report_title') }}
 
-Tulis draf laporan atau tugas kamu di sini...
+{{ _t('write_draft_report_here') }}
 
-- Struktur otomatis terjaga
-- Mendukung rumus dan kode teknis SI
-- Ekspor cepat ke format Office
+- {{ _t('auto_structure_maintained') }}
+- {{ _t('support_formula_si_code') }}
+- {{ _t('fast_export_office') }}
 
 ```python
 # Contoh kode program
 def sapa_mufath():
     print('Semangat kuliahnya di Unair!')
-Masukkan teks dan klik tombol Konversi untuk mengunduh file Word." 
+{{ _t('enter_text_click_convert_word') }}" 
 style="min-height:480px; width:100%; font-family: 'Consolas', 'Monaco', monospace; padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); line-height: 1.6; font-size: 1rem;"></textarea>
 
     <div id="md-status" style="margin-top:1rem; font-size:0.9rem; font-weight: 500; min-height: 24px;"></div>
@@ -47,7 +47,7 @@ style="min-height:480px; width:100%; font-family: 'Consolas', 'Monaco', monospac
 {% block scripts %}
 <script>
 /**
- * Memasukkan konten dari file .md yang dipilih ke editor
+ * Memasukkan konten {{ _t('from_of') }} file .md yang dipilih ke editor
  */
 function loadFile(f) {
     if (!f) return;
@@ -59,11 +59,11 @@ function loadFile(f) {
     
     reader.onload = e => { 
         document.getElementById("md-input").value = e.target.result; 
-        status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-check2-circle"></i> Berhasil memuat "${f.name}"</span>`;
+        status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-check2-circle"></i> Ber{{ _t('result') }} memuat "${f.name}"</span>`;
     };
     
     reader.onerror = () => {
-        status.innerHTML = `<span style="color:var(--danger)">Gagal membaca file lokal.</span>`;
+        status.innerHTML = `<span style="color:var(--danger)">{{ _t('failed_read_local_file') }}</span>`;
     };
     
     reader.readAsText(f);
@@ -78,7 +78,7 @@ async function convertMD() {
     const fileName = document.getElementById("file-name").value || "dokumen";
 
     if (!mdContent.trim()) { 
-        statusDisplay.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> Isi teks Markdown dulu, Fath!</span>`; 
+        statusDisplay.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> {{ _t('fill_markdown_first') }}</span>`; 
         return; 
     }
 
@@ -86,7 +86,7 @@ async function convertMD() {
     formData.append("markdown", mdContent);
     formData.append("file_name", fileName);
 
-    statusDisplay.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> Sedang memproses dokumen DOCX...</span>`;
+    statusDisplay.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> {{ _t('processing_docx') }}</span>`;
     
     try {
         const response = await fetch("/convert/md-to-docx", { 
@@ -110,10 +110,10 @@ async function convertMD() {
         link.remove();
         
         setTimeout(() => URL.revokeObjectURL(url), 2000);
-        statusDisplay.innerHTML = `<span style="color:var(--success)"><i class="bi bi-check-circle-fill"></i> Berhasil! File "${fileName}.docx" telah diunduh.</span>`;
+        statusDisplay.innerHTML = `<span style="color:var(--success)"><i class="bi bi-check-circle-fill"></i> Ber{{ _t('result') }}! File "${fileName}.docx" telah diunduh.</span>`;
         
     } catch (err) {
-        statusDisplay.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-octagon-fill"></i> Kesalahan: ${err.message}</span>`;
+        statusDisplay.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-octagon-fill"></i> {{ _t('to') }}salahan: ${err.message}</span>`;
     }
 }
 </script>

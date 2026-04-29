@@ -6,20 +6,20 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Color Converter</h1>
-        <p>Konversi warna HEX, RGB, dan HSL buat kebutuhan desain kamu</p>
+        <p>{{ _t('desc_color_converter') }}</p>
     </div>
     <div class="color-preview" id="color-preview"></div>
     <div class="form-group" style="margin-bottom:1rem">
-        <label>Pilih Warna</label>
+        <label>{{ _t('pick_color') }}</label>
         <input type="color" id="color-picker" value="#4361ee" onchange="fromPicker()" style="width:60px;height:36px;padding:2px;cursor:pointer">
     </div>
     <div class="color-inputs">
         <div class="form-group">
-            <label>Kode HEX</label>
+            <label>{{ _t('hex_code') }}</label>
             <input type="text" id="c-hex" value="#4361ee" oninput="fromHex()">
         </div>
         <div class="form-group">
-            <label>Format RGB</label>
+            <label>{{ _t('format') }} RGB</label>
             <div style="display:flex;gap:.3rem">
                 <input type="number" id="c-r" min="0" max="255" value="67" oninput="fromRGB()" placeholder="R" style="width:33%">
                 <input type="number" id="c-g" min="0" max="255" value="97" oninput="fromRGB()" placeholder="G" style="width:33%">
@@ -27,7 +27,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label>Format HSL</label>
+            <label>{{ _t('format') }} HSL</label>
             <div style="display:flex;gap:.3rem">
                 <input type="number" id="c-h" min="0" max="360" value="229" oninput="fromHSL()" placeholder="H" style="width:33%">
                 <input type="number" id="c-s" min="0" max="100" value="82" oninput="fromHSL()" placeholder="S%" style="width:33%">
@@ -37,7 +37,7 @@
         <div class="form-group">
             <label>Kode CSS (Tinggal Copy)</label>
             <input type="text" id="c-css" readonly>
-            <button class="btn btn-small" style="margin-top:.3rem" onclick="navigator.clipboard.writeText(document.getElementById('c-css').value)"><i class="bi bi-clipboard"></i> Salin Kode</button>
+            <button class="btn btn-small" style="margin-top:.3rem" onclick="navigator.clipboard.writeText(document.getElementById('c-css').value)"><i class="bi bi-clipboard"></i> {{ _t('copy') }} Kode</button>
         </div>
     </div>
 </div>

@@ -36,53 +36,89 @@ document.addEventListener("DOMContentLoaded", () => {
     initGlobalSearch();
 });
 
-/* ── Global Search ────────────────────────────── */
-function initGlobalSearch() {
-    const searchInput = document.getElementById("global-search");
-    if (!searchInput) return;
+/* ── Command Palette ────────────────────────────── */
+let allTools = [];
 
-    // Check URL params for existing query
-    const urlParams = new URLSearchParams(window.location.search);
-    const q = urlParams.get('q');
-    if (q) {
-        searchInput.value = q;
-        filterTools(q);
+function initGlobalSearch() {
+    // Kumpulkan semua alat dari sidebar untuk pencarian
+    document.querySelectorAll('.nav-items .nav-item').forEach(el => {
+        const iconEl = el.querySelector('i');
+        allTools.push({
+            name: el.textContent.trim(),
+            url: el.getAttribute('href'),
+            icon: iconEl ? iconEl.className : 'bi bi-tools'
+        });
+    });
+
+    const overlay = document.getElementById('cmd-palette-overlay');
+    const input = document.getElementById('cmd-input');
+    const results = document.getElementById('cmd-results');
+    
+    if (!overlay || !input) return;
+
+    // Buka dengan Ctrl+K
+    document.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            openCommandPalette();
+        }
+        if (e.key === 'Escape' && overlay.classList.contains('open')) {
+            closeCommandPalette();
+        }
+    });
+
+    // Tutup jika klik di luar modal
+    overlay.addEventListener('click', e => {
+        if (e.target === overlay) closeCommandPalette();
+    });
+
+    input.addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        results.innerHTML = '';
+        if (!q) return;
+
+        const filtered = allTools.filter(t => t.name.toLowerCase().includes(q));
+        if (filtered.length === 0) {
+            results.innerHTML = '<div class="cmd-empty">Tidak ada alat yang cocok.</div>';
+            return;
+        }
+
+        filtered.forEach(t => {
+            const item = document.createElement('a');
+            item.className = 'cmd-item';
+            item.href = t.url;
+            item.innerHTML = `
+                <div class="cmd-item-icon"><i class="${t.icon}"></i></div>
+                <div class="cmd-item-info">
+                    <div class="cmd-item-title">${t.name}</div>
+                    <div class="cmd-item-desc">${t.url}</div>
+                </div>
+            `;
+            results.appendChild(item);
+        });
+    });
+
+    // Hubungkan search bar global di header untuk membuka command palette
+    const headerSearch = document.getElementById('global-search');
+    if (headerSearch) {
+        headerSearch.addEventListener('click', e => {
+            e.preventDefault();
+            headerSearch.blur();
+            openCommandPalette();
+        });
     }
 
-    searchInput.addEventListener("input", (e) => {
-        const val = e.target.value;
-        if (window.location.pathname !== "/") {
-            // Do not filter if not on dashboard, wait for Enter
-        } else {
-            filterTools(val);
-        }
-    });
+    function openCommandPalette() {
+        overlay.classList.add('open');
+        input.value = '';
+        results.innerHTML = '<div class="cmd-empty">Mulai ketik nama alat...</div>';
+        setTimeout(() => input.focus(), 50);
+    }
 
-    searchInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter" && window.location.pathname !== "/") {
-            window.location.href = "/?q=" + encodeURIComponent(e.target.value);
-        }
-    });
-}
-
-function filterTools(query) {
-    query = query.toLowerCase();
-    const toolCards = document.querySelectorAll(".tool-card");
-    if (!toolCards.length) return; // not on dashboard
-    
-    document.querySelectorAll(".category-section").forEach(sec => {
-        let hasVisible = false;
-        sec.querySelectorAll(".tool-card").forEach(card => {
-            const text = card.textContent.toLowerCase();
-            if (text.includes(query)) {
-                card.style.display = "";
-                hasVisible = true;
-            } else {
-                card.style.display = "none";
-            }
-        });
-        sec.style.display = hasVisible ? "" : "none";
-    });
+    function closeCommandPalette() {
+        overlay.classList.remove('open');
+        input.blur();
+    }
 }
 
 
@@ -179,10 +215,37 @@ function initToolForm() {
             return;
         }
 
-        // Show loading
-        if (btnText) btnText.style.display = "none";
-        if (btnLoad) btnLoad.style.display = "inline-flex";
-        submitBtn.disabled = true;
+        // Show loading and progress bar
+        submitBtn.style.display = "none"; // Hide button
+        const progContainer = document.getElementById("progress-container");
+        const progFill = document.getElementById("progress-fill");
+        const progText = document.getElementById("progress-text");
+        const progPct = document.getElementById("progress-pct");
+        
+        if (progContainer) {
+            progContainer.style.display = "block";
+            progFill.style.width = "0%";
+            progPct.textContent = "0%";
+            progText.textContent = "Mengunggah data...";
+            
+            let p = 0;
+            const interval = setInterval(() => {
+                if (p < 85) {
+                    p += Math.random() * 5 + 2;
+                    if (p > 85) p = 85;
+                    progFill.style.width = p + "%";
+                    progPct.textContent = Math.round(p) + "%";
+                    if (p > 30) progText.textContent = "Sedang memproses (mungkin butuh waktu)...";
+                    if (p > 60) progText.textContent = "Hampir selesai, harap bersabar...";
+                }
+            }, 800);
+            form._progInterval = interval;
+        } else {
+            if (btnText) btnText.style.display = "none";
+            if (btnLoad) btnLoad.style.display = "inline-flex";
+            submitBtn.disabled = true;
+        }
+        
         resultArea.style.display = "none";
 
         const formData = new FormData(form);
@@ -227,17 +290,37 @@ function initToolForm() {
 
                 // If image, show preview
                 if (ct.startsWith("image/")) {
-                    showFileResult(url, filename, true);
+                    showFileResult(url, filename, true, blob);
                 } else {
-                    showFileResult(url, filename, false);
+                    showFileResult(url, filename, false, blob);
                 }
             }
         } catch (err) {
             showError("Network error: " + err.message);
         } finally {
-            if (btnText) btnText.style.display = "";
-            if (btnLoad) btnLoad.style.display = "none";
-            submitBtn.disabled = false;
+            if (form._progInterval) {
+                clearInterval(form._progInterval);
+                const progFill = document.getElementById("progress-fill");
+                const progPct = document.getElementById("progress-pct");
+                const progText = document.getElementById("progress-text");
+                if (progFill) {
+                    progFill.style.width = "100%";
+                    progPct.textContent = "100%";
+                    progText.textContent = "Selesai!";
+                    setTimeout(() => {
+                        const progContainer = document.getElementById("progress-container");
+                        if (progContainer) progContainer.style.display = "none";
+                        submitBtn.style.display = "";
+                        submitBtn.disabled = false;
+                        if (btnText) btnText.style.display = "";
+                        if (btnLoad) btnLoad.style.display = "none";
+                    }, 1000);
+                }
+            } else {
+                if (btnText) btnText.style.display = "";
+                if (btnLoad) btnLoad.style.display = "none";
+                submitBtn.disabled = false;
+            }
         }
     });
 }
@@ -252,7 +335,7 @@ function showError(msg) {
     document.getElementById("error-message").textContent = msg;
 }
 
-function showFileResult(url, filename, isImage) {
+function showFileResult(url, filename, isImage, blob = null) {
     const area = document.getElementById("result-area");
     area.style.display = "block";
     document.getElementById("result-error").style.display = "none";
@@ -260,13 +343,32 @@ function showFileResult(url, filename, isImage) {
 
     const success = document.getElementById("result-success");
     success.style.display = "flex";
-    document.getElementById("result-message").textContent = "File ready!";
+    document.getElementById("result-message").textContent = "Selesai!";
 
     const btn = document.getElementById("download-btn");
-    btn.href = url;
-    btn.download = filename;
-    btn.textContent = "";
-    btn.innerHTML = '<i class="bi bi-download"></i> Download ' + filename;
+    btn.innerHTML = '<i class="bi bi-download"></i> Unduh ' + filename;
+    
+    if (window.pywebview && window.pywebview.api && blob) {
+        btn.removeAttribute("download");
+        btn.removeAttribute("href");
+        btn.onclick = (e) => {
+            e.preventDefault();
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Menyimpan...';
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                const b64 = reader.result.split(',')[1];
+                window.pywebview.api.save_file(b64, filename).then((success) => {
+                    btn.innerHTML = originalHtml;
+                });
+            };
+            reader.readAsDataURL(blob);
+        };
+    } else {
+        btn.href = url;
+        btn.download = filename;
+        btn.onclick = null;
+    }
 
     const preview = document.getElementById("result-preview");
     if (isImage) {

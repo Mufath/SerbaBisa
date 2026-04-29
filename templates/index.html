@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Dasbor SerbaBisa{% endblock %}
-{% block top_title %}Dasbor Utama{% endblock %}
+{% block title %}{{ _t('dashboard') }} SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('dashboard') }}{% endblock %}
 
 {% block content %}
 <div class="dashboard-grid">
     <div class="welcome-card">
         <div class="welcome-text">
-            <h1>Halo, <span id="dash-username">Sobat</span>!</h1>
-            <p>Kamu telah menggunakan {{ weekly_count }} alat minggu ini.<br>Jelajahi berbagai alat canggih untuk mempermudah pekerjaanmu.</p>
+            <h1>Halo, <span id="dash-username">{{ app_config.username }}</span>!</h1>
+            <p>{{ _t('weekly_usage', count=weekly_count) }}<br>{{ _t('weekly_desc') }}</p>
         </div>
         <div class="welcome-illus">
             <i class="bi bi-rocket-takeoff-fill"></i>
@@ -16,7 +16,7 @@
     
     <div class="stats-card">
         <div class="stats-header">
-            <h3>Aktivitas Terakhir</h3>
+            <h3>{{ _t('recent_tools') }}</h3>
             <a href="/history">Lihat Semua</a>
         </div>
         {% if recent_history %}
@@ -32,7 +32,7 @@
             </a>
             {% endfor %}
         {% else %}
-            <p style="font-size: 0.9rem; color: var(--text-muted); padding: 1rem 0;">Belum ada aktivitas yang tercatat.</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted); padding: 1rem 0;">{{ _t('no_recent_tools') }}</p>
         {% endif %}
     </div>
 </div>

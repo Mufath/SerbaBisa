@@ -42,7 +42,7 @@ def generate_page():
                  {"value": "#2d6a4f", "label": "Green"},
              ]},
         ],
-        button_text="Generate QR Code")
+        button_text="Buat Kode QR")
 
 
 @bp.route("/read")
@@ -147,7 +147,7 @@ def barcode_page():
             {"type": "number", "name": "module_width", "label": "Bar width (mm)", "default": 0.2, "min": 0.1, "max": 1.0, "step": 0.1},
             {"type": "number", "name": "module_height", "label": "Bar height (mm)", "default": 15, "min": 5, "max": 50},
         ],
-        button_text="Generate Barcode")
+        button_text="Buat Barcode")
 
 
 @bp.route("/barcode", methods=["POST"])

@@ -6,27 +6,27 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Cron Expression Parser</h1>
-        <p>Cek jadwal otomatis (Cron) kamu dan liat kapan jadwal eksekusi berikutnya</p>
+        <p>{{ _t('desc_cron_parser') }}</p>
     </div>
 
     <div style="display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:center">
         <label>Ekspresi:
             <input type="text" id="cron-expr" value="*/5 * * * *" style="font-family:monospace;min-width:200px">
         </label>
-        <label>Jumlah:
+        <label>{{ _t('amount') }}:
             <input type="number" id="cron-count" value="10" min="1" max="50" style="width:70px">
         </label>
         <button class="btn btn-primary" onclick="parseCron()"><i class="bi bi-play-circle"></i> Cek Jadwal</button>
     </div>
 
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem">
-        <button class="btn btn-small" onclick="setExpr('* * * * *')">Tiap menit</button>
-        <button class="btn btn-small" onclick="setExpr('*/5 * * * *')">Tiap 5 menit</button>
-        <button class="btn btn-small" onclick="setExpr('0 * * * *')">Tiap jam</button>
-        <button class="btn btn-small" onclick="setExpr('0 0 * * *')">Tiap tengah malam</button>
+        <button class="btn btn-small" onclick="setExpr('* * * * *')">{{ _t('every_minute') }}</button>
+        <button class="btn btn-small" onclick="setExpr('*/5 * * * *')">{{ _t('every_5_minutes') }}</button>
+        <button class="btn btn-small" onclick="setExpr('0 * * * *')">{{ _t('every_hour') }}</button>
+        <button class="btn btn-small" onclick="setExpr('0 0 * * *')">{{ _t('every_midnight') }}</button>
         <button class="btn btn-small" onclick="setExpr('0 9 * * 1-5')">Hari kerja jam 9 pagi</button>
-        <button class="btn btn-small" onclick="setExpr('0 0 1 * *')">Tiap tanggal 1</button>
-        <button class="btn btn-small" onclick="setExpr('0 0 * * 0')">Tiap hari Minggu</button>
+        <button class="btn btn-small" onclick="setExpr('0 0 1 * *')">{{ _t('every_1st_of_month') }}</button>
+        <button class="btn btn-small" onclick="setExpr('0 0 * * 0')">{{ _t('every_sunday') }}</button>
     </div>
 
     <div id="cron-status" style="margin:.5rem 0;font-size:.9rem"></div>

@@ -6,26 +6,26 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Base64 Encode / Decode</h1>
-        <p>Ubah teks biasa ke Base64 atau terjemahkan Base64 kembali ke teks</p>
+        <p>{{ _t('desc_base64') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
                 <span>Teks Biasa</span>
-                <button class="btn btn-small" onclick="encodeB64()">Encode &rarr;</button>
+                <button class="btn btn-small" onclick="encodeB64()">{{ _t('encode_arrow') }}</button>
             </div>
             <div class="pane-body">
-                <textarea id="b64-text" placeholder="Masukkan teks untuk di-encode..."></textarea>
+                <textarea id="b64-text" placeholder="{{ _t('enter_text_to_encode') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <button class="btn btn-small" onclick="decodeB64()">&larr; Decode</button>
+                <button class="btn btn-small" onclick="decodeB64()">{{ _t('decode_arrow') }}</button>
                 <span>Base64</span>
-                <button class="btn btn-small" onclick="navigator.clipboard.writeText(document.getElementById('b64-encoded').value)" title="Salin"><i class="bi bi-clipboard"></i></button>
+                <button class="btn btn-small" onclick="navigator.clipboard.writeText(document.getElementById('b64-encoded').value)" title="{{ _t('copy') }}"><i class="bi bi-clipboard"></i></button>
             </div>
             <div class="pane-body">
-                <textarea id="b64-encoded" placeholder="Masukkan kode Base64 untuk di-decode..."></textarea>
+                <textarea id="b64-encoded" placeholder="{{ _t('enter_base64_to_decode') }}"></textarea>
             </div>
         </div>
     </div>
@@ -40,7 +40,7 @@ function encodeB64() {
     if (!text) return;
     try {
         document.getElementById("b64-encoded").value = btoa(unescape(encodeURIComponent(text)));
-        document.getElementById("b64-status").innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Berhasil di-encode</span>';
+        document.getElementById("b64-status").innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('successfully_encoded') }}</span>';
     } catch (e) {
         document.getElementById("b64-status").innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Galat: ${e.message}</span>`;
     }
@@ -51,9 +51,9 @@ function decodeB64() {
     if (!encoded) return;
     try {
         document.getElementById("b64-text").value = decodeURIComponent(escape(atob(encoded)));
-        document.getElementById("b64-status").innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Berhasil di-decode</span>';
+        document.getElementById("b64-status").innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('successfully_decoded') }}</span>';
     } catch (e) {
-        document.getElementById("b64-status").innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Format Base64 tidak valid</span>`;
+        document.getElementById("b64-status").innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> {{ _t('format') }} Base64 tidak valid</span>`;
     }
 }
 </script>

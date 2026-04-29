@@ -6,23 +6,23 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Bandingkan Teks (Text Diff)</h1>
-        <p>Cek perbedaan antara dua teks. Sangat berguna untuk melihat revisi atau perubahan kode.</p>
+        <p>{{ _t('desc_text_diff') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
-            <div class="pane-header"><span>Teks Asli (Original)</span></div>
+            <div class="pane-header"><span>{{ _t('original_text') }}</span></div>
             <div class="pane-body">
-                <textarea id="diff-left" placeholder="Tempel teks asli di sini..."></textarea>
+                <textarea id="diff-left" placeholder="{{ _t('paste_original_text_here') }}"></textarea>
             </div>
         </div>
         <div class="pane">
-            <div class="pane-header"><span>Teks Modifikasi (Modified)</span></div>
+            <div class="pane-header"><span>{{ _t('modified_text') }}</span></div>
             <div class="pane-body">
-                <textarea id="diff-right" placeholder="Tempel teks yang sudah diubah di sini..."></textarea>
+                <textarea id="diff-right" placeholder="{{ _t('paste_modified_text_here') }}"></textarea>
             </div>
         </div>
     </div>
-    <button class="btn btn-primary" style="margin-top:1rem" onclick="computeDiff()">Bandingkan Sekarang</button>
+    <button class="btn btn-primary" style="margin-top:1rem" onclick="computeDiff()">{{ _t('compare_now') }}</button>
     <div id="diff-output" style="margin-top:1rem"></div>
 </div>
 {% endblock %}
@@ -49,7 +49,7 @@ function computeDiff() {
     }
 
     if (leftText === rightText) {
-        out.innerHTML = '<div style="color:var(--success);font-weight:500; background: #e6ffed; padding: 1rem; border-radius: 8px;"><i class="bi bi-check-circle"></i> Mantap! Kedua teks identik, tidak ada perbedaan.</div>';
+        out.innerHTML = '<div style="color:var(--success);font-weight:500; background: #e6ffed; padding: 1rem; border-radius: 8px;"><i class="bi bi-check-circle"></i> Mantap! {{ _t('to') }}dua teks identik, tidak ada perbedaan.</div>';
         return;
     }
 
@@ -101,7 +101,7 @@ function computeDiff() {
     }
     html += '</div>';
     
-    let statsHtml = `<div class="diff-stats"><span class="add">+${adds} Kata Ditambahkan</span> &nbsp; <span class="del">-${dels} Kata Dihapus</span></div>`;
+    let statsHtml = `<div class="diff-stats"><span class="add">+${adds} {{ _t('words') }} Ditambahkan</span> &nbsp; <span class="del">-${dels} {{ _t('words') }} Dihapus</span></div>`;
     out.innerHTML = statsHtml + html;
 }
 

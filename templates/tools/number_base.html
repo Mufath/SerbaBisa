@@ -6,33 +6,33 @@
 <div class="client-tool" style="max-width:520px; margin: 0 auto;">
     <div class="tool-header">
         <h1>Number Base Converter</h1>
-        <p>Konversi instan antar sistem bilangan Desimal, Biner, Oktal, dan Heksadesimal.</p>
+        <p>{{ _t('desc_number_base') }}</p>
     </div>
     
     <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-        <label style="font-weight: 600;">Desimal (Basis 10)</label>
+        <label style="font-weight: 600;">{{ _t('decimal_base_10') }}</label>
         <input type="text" id="nb-dec" placeholder="Contoh: 255" oninput="fromBase('dec')" style="font-family: monospace; font-size: 1.1rem;">
     </div>
     
     <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-        <label style="font-weight: 600;">Biner (Basis 2)</label>
+        <label style="font-weight: 600;">{{ _t('binary_base_2') }}</label>
         <input type="text" id="nb-bin" placeholder="Contoh: 11111111" oninput="fromBase('bin')" style="font-family: monospace; font-size: 1.1rem;">
     </div>
     
     <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-        <label style="font-weight: 600;">Oktal (Basis 8)</label>
+        <label style="font-weight: 600;">{{ _t('octal_base_8') }}</label>
         <input type="text" id="nb-oct" placeholder="Contoh: 377" oninput="fromBase('oct')" style="font-family: monospace; font-size: 1.1rem;">
     </div>
     
     <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-        <label style="font-weight: 600;">Heksadesimal (Basis 16)</label>
+        <label style="font-weight: 600;">{{ _t('hex_base_16') }}</label>
         <input type="text" id="nb-hex" placeholder="Contoh: FF" oninput="fromBase('hex')" style="font-family: monospace; font-size: 1.1rem;">
     </div>
     
     <div id="nb-error" style="color:var(--danger); font-size:.85rem; margin-top:.5rem; text-align: center; font-weight: 500;"></div>
     
     <button class="btn btn-small" onclick="clearAll()" style="width: 100%; margin-top: 1rem; background: var(--border);">
-        <i class="bi bi-eraser"></i> Bersihkan Semua
+        <i class="bi bi-eraser"></i> {{ _t('clear_all') }}
     </button>
 </div>
 {% endblock %}

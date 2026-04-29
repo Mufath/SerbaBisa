@@ -99,10 +99,10 @@ def compress_page():
 def convert_page():
     return render_template("upload_tool.html",
         title="Konversi Format",
-        description="Ubah gambar ke JPG, PNG, WebP, dll",
+        description="Ubah banyak gambar sekaligus ke JPG, PNG, WebP, dll",
         endpoint="/image/convert",
         accept=IMAGE_ACCEPT,
-        multiple=False,
+        multiple=True,
         options=[
             {"type": "select", "name": "format", "label": "Convert to",
              "choices": [
@@ -222,7 +222,7 @@ def favicon_page():
                  {"value": "32", "label": "32x32 only"},
              ]},
         ],
-        button_text="Generate Favicon")
+        button_text="Buat Favicon")
 
 
 @bp.route("/animated")
@@ -406,6 +406,7 @@ def compress():
 
 @bp.route("/convert", methods=["POST"])
 def convert():
+    import zipfile
     files = request.files.getlist("files")
     if not files or not files[0].filename:
         return jsonify(error="No file uploaded."), 400
@@ -413,11 +414,25 @@ def convert():
     target = request.form.get("format", "png")
     fmt_info = FORMAT_MAP.get(target, FORMAT_MAP["png"])
 
-    img = get_pil_image(files[0])
-    buf = image_to_bytes(img, fmt_info[0])
-
-    name = files[0].filename.rsplit(".", 1)[0] + f".{fmt_info[2]}"
-    return send_file(buf, mimetype=fmt_info[1], as_attachment=True, download_name=name)
+    if len(files) == 1:
+        img = get_pil_image(files[0])
+        buf = image_to_bytes(img, fmt_info[0])
+        name = files[0].filename.rsplit(".", 1)[0] + f".{fmt_info[2]}"
+        return send_file(buf, mimetype=fmt_info[1], as_attachment=True, download_name=name)
+    else:
+        zip_buf = io.BytesIO()
+        with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as zf:
+            for f in files:
+                if f.filename:
+                    try:
+                        img = get_pil_image(f)
+                        buf = image_to_bytes(img, fmt_info[0])
+                        name = f.filename.rsplit(".", 1)[0] + f".{fmt_info[2]}"
+                        zf.writestr(name, buf.getvalue())
+                    except Exception:
+                        continue
+        zip_buf.seek(0)
+        return send_file(zip_buf, mimetype="application/zip", as_attachment=True, download_name="converted_images.zip")
 
 
 @bp.route("/remove-bg", methods=["POST"])

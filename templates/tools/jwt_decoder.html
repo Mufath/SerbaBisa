@@ -6,11 +6,11 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>JWT Decoder</h1>
-        <p>Dekode Header dan Payload dari JSON Web Token secara instan. <strong>Catatan:</strong> Alat ini hanya mendekode teks, bukan memverifikasi tanda tangan (signature).</p>
+        <p>{{ _t('desc_jwt_decoder') }} <strong>Catatan:</strong> {{ _t('jwt_decode_note') }}</p>
     </div>
 
     <div class="form-group">
-        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Tempelkan JWT di sini:</label>
+        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">{{ _t('paste_jwt_here') }}</label>
         <textarea id="jwt-input" class="text-input" rows="5"
             style="width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid var(--border); font-family: monospace; font-size: 0.9rem;"
             placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -68,7 +68,7 @@ function b64urlDecode(s) {
         const bytes = new Uint8Array([...bin].map(c => c.charCodeAt(0)));
         return new TextDecoder("utf-8").decode(bytes);
     } catch (e) {
-        throw new Error("Format Base64 tidak valid.");
+        throw new Error("{{ _t('format') }} Base64 tidak valid.");
     }
 }
 
@@ -80,7 +80,7 @@ function decode() {
     const status = document.getElementById("jwt-status");
     const claimsDiv = document.getElementById("jwt-claims");
     
-    // Reset output
+    // {{ _t('reset') }} output
     ["jwt-header", "jwt-payload", "jwt-sig"].forEach(i => document.getElementById(i).textContent = "");
     claimsDiv.innerHTML = "";
 
@@ -103,7 +103,7 @@ function decode() {
         document.getElementById("jwt-payload").textContent = JSON.stringify(payload, null, 2);
         document.getElementById("jwt-sig").textContent = parts[2];
 
-        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Berhasil didekode (Signature tidak diverifikasi).</span>';
+        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Ber{{ _t('result') }} didekode (Signature tidak diverifikasi).</span>';
 
         // Analisis Claims (waktu, issuer, dll)
         const notes = [];
@@ -128,7 +128,7 @@ function decode() {
 }
 
 /**
- * Menyalin konten dari blok pre ke clipboard
+ * Menyalin konten {{ _t('from_of') }} blok pre ke clipboard
  */
 function copyField(id) {
     const text = document.getElementById(id).textContent;

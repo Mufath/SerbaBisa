@@ -6,43 +6,43 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Timestamp Converter</h1>
-        <p>Ubah format Unix Timestamp ke tanggal yang bisa dibaca manusia, atau sebaliknya.</p>
+        <p>{{ _t('desc_unix_timestamp') }}</p>
     </div>
 
     <div class="calc-section">
-        <h3>Waktu Sekarang</h3>
+        <h3>{{ _t('current_time') }}</h3>
         <div class="calc-result-inline" id="ts-now"></div>
         <div style="font-size:.85rem;color:var(--text-light)" id="ts-now-date"></div>
     </div>
 
     <div class="calc-section">
-        <h3>Unix Timestamp &rarr; Tanggal</h3>
+        <h3>{{ _t('unix_to_date') }}</h3>
         <div class="inline-form">
-            <input type="number" id="ts-input" placeholder="Contoh: 1700000000" class="wide" oninput="tsToDate()">
+            <input type="number" id="ts-input" placeholder="{{ _t('ts_example') }}" class="wide" oninput="tsToDate()">
             <select id="ts-unit" onchange="tsToDate()" style="width:auto">
-                <option value="s">Detik (Seconds)</option>
-                <option value="ms">Milidetik (Milliseconds)</option>
+                <option value="s">{{ _t('seconds_seconds') }}</option>
+                <option value="ms">{{ _t('milliseconds') }} (Milliseconds)</option>
             </select>
         </div>
         <div id="ts-to-date-result" class="calc-result-inline" style="font-size:1rem;margin-top:.5rem">&mdash;</div>
     </div>
 
     <div class="calc-section">
-        <h3>Tanggal &rarr; Unix Timestamp</h3>
+        <h3>{{ _t('date_to_unix') }}</h3>
         <div class="inline-form">
             <input type="datetime-local" id="ts-date-input" onchange="dateToTs()" step="1">
         </div>
         <div style="display:flex;gap:1rem;margin-top:.5rem">
             <div>
-                <div style="font-size:.8rem;color:var(--text-light)">Detik</div>
+                <div style="font-size:.8rem;color:var(--text-light)">{{ _t('seconds') }}</div>
                 <div class="calc-result-inline" id="ts-from-date-s" style="font-size:1rem">&mdash;</div>
             </div>
             <div>
-                <div style="font-size:.8rem;color:var(--text-light)">Milidetik</div>
+                <div style="font-size:.8rem;color:var(--text-light)">{{ _t('milliseconds') }}</div>
                 <div class="calc-result-inline" id="ts-from-date-ms" style="font-size:1rem">&mdash;</div>
             </div>
         </div>
-        <button class="btn btn-small" style="margin-top:.5rem" onclick="copyTs()"><i class="bi bi-clipboard"></i> Salin Detik</button>
+        <button class="btn btn-small" style="margin-top:.5rem" onclick="copyTs()"><i class="bi bi-clipboard"></i> {{ _t('copy') }} {{ _t('seconds') }}</button>
     </div>
 </div>
 {% endblock %}

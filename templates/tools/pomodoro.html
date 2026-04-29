@@ -6,40 +6,40 @@
 <div class="client-tool" style="max-width:480px; text-align:center; margin: 0 auto;">
     <div class="tool-header">
         <h1>Pomodoro Timer</h1>
-        <p>Kelola fokus belajar dan istirahat kamu dengan teknik Pomodoro.</p>
+        <p>{{ _t('desc_pomodoro') }}</p>
     </div>
 
     <div style="display:flex; gap:.5rem; margin-bottom:1.5rem; justify-content:center">
         <button class="btn" id="tab-work" onclick="setTab('work')" style="background:var(--primary); color:#fff">Fokus</button>
-        <button class="btn" id="tab-short" onclick="setTab('short')" style="background:var(--bg)">Istirahat Pendek</button>
-        <button class="btn" id="tab-long" onclick="setTab('long')" style="background:var(--bg)">Istirahat Panjang</button>
+        <button class="btn" id="tab-short" onclick="setTab('short')" style="background:var(--bg)">{{ _t('short_break') }}</button>
+        <button class="btn" id="tab-long" onclick="setTab('long')" style="background:var(--bg)">{{ _t('long_break') }}</button>
     </div>
 
     <div class="calc-display" style="padding:2.5rem; border-radius: 15px; background: var(--bg); margin-bottom: 1.5rem;">
         <div class="calc-result" id="pom-display" style="font-size:5rem; font-weight:700; letter-spacing:.05em; color: var(--primary)">25:00</div>
-        <div id="pom-label" style="font-size:1.1rem; color:var(--text-light); margin-top:.5rem; text-transform: uppercase; font-weight: 600;">Sesi Kerja</div>
+        <div id="pom-label" style="font-size:1.1rem; color:var(--text-light); margin-top:.5rem; text-transform: uppercase; font-weight: 600;">Sesi {{ _t('to') }}rja</div>
     </div>
 
     <div style="display:flex; gap:.8rem; justify-content:center; margin-bottom:2rem">
         <button class="btn btn-primary" id="pom-start" onclick="toggleTimer()" style="min-width:120px; font-size: 1.1rem;">
-            <i class="bi bi-play-fill"></i> Mulai
+            <i class="bi bi-play-fill"></i> {{ _t('start') }}
         </button>
         <button class="btn btn-small" onclick="resetTimer()" style="padding: 0.5rem 1rem;">
-            <i class="bi bi-arrow-counterclockwise"></i> Reset
+            <i class="bi bi-arrow-counterclockwise"></i> {{ _t('reset') }}
         </button>
     </div>
 
     <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; border-top: 1px solid var(--border); padding-top: 1.5rem;">
         <div class="form-group" style="margin-bottom:0; width:110px">
-            <label style="font-size: 0.8rem;">Kerja (mnt)</label>
+            <label style="font-size: 0.8rem;">{{ _t('to') }}rja (mnt)</label>
             <input type="number" id="pom-work-min" value="25" min="1" max="120" onchange="updateDurations()" style="text-align: center;">
         </div>
         <div class="form-group" style="margin-bottom:0; width:110px">
-            <label style="font-size: 0.8rem;">Pendek (mnt)</label>
+            <label style="font-size: 0.8rem;">{{ _t('short_min') }}</label>
             <input type="number" id="pom-short-min" value="5" min="1" max="30" onchange="updateDurations()" style="text-align: center;">
         </div>
         <div class="form-group" style="margin-bottom:0; width:110px">
-            <label style="font-size: 0.8rem;">Panjang (mnt)</label>
+            <label style="font-size: 0.8rem;">{{ _t('long_min') }}</label>
             <input type="number" id="pom-long-min" value="15" min="1" max="60" onchange="updateDurations()" style="text-align: center;">
         </div>
     </div>
@@ -70,7 +70,7 @@ function setTab(tab) {
         btn.style.background = t === tab ? "var(--primary)" : "var(--bg)";
         btn.style.color = t === tab ? "#fff" : "var(--text)";
     });
-    const labels = { work: "Sesi Kerja", short: "Istirahat Pendek", long: "Istirahat Panjang" };
+    const labels = { work: "Sesi {{ _t('to') }}rja", short: "{{ _t('short_break') }}", long: "{{ _t('long_break') }}" };
     document.getElementById("pom-label").textContent = labels[tab];
 }
 
@@ -113,7 +113,7 @@ function startTimer() {
 function stopTimer() {
     running = false;
     clearInterval(interval);
-    document.getElementById("pom-start").innerHTML = '<i class="bi bi-play-fill"></i> Mulai';
+    document.getElementById("pom-start").innerHTML = '<i class="bi bi-play-fill"></i> {{ _t('start') }}';
 }
 
 function resetTimer() {

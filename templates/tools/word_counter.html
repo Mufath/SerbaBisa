@@ -6,17 +6,17 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Word Counter</h1>
-        <p>Pantau jumlah kata, karakter, kalimat, sampai estimasi waktu baca teks kamu</p>
+        <p>{{ _t('desc_word_counter') }}</p>
     </div>
     <div class="pane" style="margin-bottom:1rem">
         <div class="pane-body">
-            <textarea id="wc-input" style="min-height:200px" placeholder="Ketik atau tempel tulisan kamu di sini..." oninput="countWords()"></textarea>
+            <textarea id="wc-input" style="min-height:200px" placeholder="{{ _t('type_or_paste_text_here') }}" oninput="countWords()"></textarea>
         </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem">
         <div class="calc-section" style="text-align:center">
             <div class="calc-result-inline" id="wc-words">0</div>
-            <div style="font-size:.85rem;color:var(--text-light)">Kata</div>
+            <div style="font-size:.85rem;color:var(--text-light)">{{ _t('words') }}</div>
         </div>
         <div class="calc-section" style="text-align:center">
             <div class="calc-result-inline" id="wc-chars">0</div>
@@ -28,11 +28,11 @@
         </div>
         <div class="calc-section" style="text-align:center">
             <div class="calc-result-inline" id="wc-sentences">0</div>
-            <div style="font-size:.85rem;color:var(--text-light)">Kalimat</div>
+            <div style="font-size:.85rem;color:var(--text-light)">{{ _t('sentences') }}</div>
         </div>
         <div class="calc-section" style="text-align:center">
             <div class="calc-result-inline" id="wc-paragraphs">0</div>
-            <div style="font-size:.85rem;color:var(--text-light)">Paragraf</div>
+            <div style="font-size:.85rem;color:var(--text-light)">{{ _t('paragraphs') }}</div>
         </div>
         <div class="calc-section" style="text-align:center">
             <div class="calc-result-inline" id="wc-reading">0 mnt</div>
@@ -56,7 +56,7 @@ function countWords() {
     // Logika deteksi paragraf
     const paragraphs = text.trim() ? text.split(/\n\s*\n/).filter(p => p.trim()).length : 0;
     
-    // Estimasi waktu baca (rata-rata 200 kata per menit)
+    // Estimasi {{ _t('reading_time') }} (rata-rata 200 kata per menit)
     const readingMin = Math.max(1, Math.ceil(words / 200));
 
     document.getElementById("wc-words").textContent = words;

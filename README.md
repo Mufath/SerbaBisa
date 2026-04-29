@@ -1,6 +1,6 @@
 # 🛠️ SerbaBisa
 
-**SerbaBisa** adalah toolkit serbaguna berbasis web untuk membantu berbagai tugas digital Anda, seperti konversi file, manipulasi gambar, pengolahan teks, dan banyak lagi secara lokal tanpa upload data ke internet.
+**SerbaBisa** adalah toolkit serbaguna berbasis Desktop (Native PyWebView) untuk membantu berbagai tugas digital Anda, seperti konversi file, manipulasi gambar, pengolahan teks, dan banyak lagi secara lokal tanpa upload data ke internet.
 
 ---
 
@@ -16,7 +16,7 @@ Sebelum memulai, pastikan Anda sudah memiliki folder project ini di komputer And
 ### B. Bagi Developer (Menggunakan Git)
 Buka Terminal/CMD, lalu jalankan perintah:
 ```bash
-git clone https://github.com/username/SerbaBisa.git
+git clone https://github.com/Mufath/SerbaBisa.git
 cd SerbaBisa
 ```
 
@@ -38,8 +38,8 @@ Double-klik file **`Shortcut.bat`**.
 
 ### 3. Menjalankan Aplikasi
 Double-klik file **`Start.bat`** (atau pakai shortcut di Desktop).
-*   Jendela hitam (command prompt) akan muncul. **JANGAN DITUTUP** selama Anda menggunakan aplikasi.
-*   Browser Anda akan otomatis terbuka ke alamat `http://localhost:5000`.
+*   Jendela aplikasi SerbaBisa (Desktop App) akan terbuka otomatis.
+*   Anda bisa mengubah profil, tema gelap/terang, dan bahasa (Inggris/Indonesia) melalui menu Pengaturan. Pengaturan Anda akan disimpan secara permanen.
 
 ---
 
@@ -53,9 +53,10 @@ Berikut adalah penjelasan mengenai file-file penting di dalam folder ini:
 *   `Shortcut.bat`: Membuat jalan pintas ke Desktop.
 
 ### Alat Bantu (Utilities)
-*   `rename.py`: Skrip untuk mengganti nama file secara massal.
-*   `translate_buttons.py` & `translate_routes.py`: Skrip internal untuk pengalihan bahasa antarmuka.
+*   `locales.py`: Sistem terjemahan dwibahasa (Inggris & Indonesia).
+*   `config_manager.py`: Manajemen pengaturan aplikasi.
 *   `history.py`: Mengelola riwayat aktivitas Anda di aplikasi.
+*   `AddContextMenu.bat`: Skrip untuk menambahkan SerbaBisa ke menu klik kanan Windows.
 *   `install_ffmpeg.ps1`: Skrip otomatis untuk memasang FFmpeg.
 
 ### Folder Inti

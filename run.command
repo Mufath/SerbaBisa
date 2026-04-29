@@ -34,19 +34,11 @@ pip install --quiet --disable-pip-version-check -r requirements.txt
 echo
 echo "  ============================================================"
 echo "    EveryTools is starting at http://localhost:5000"
-echo "    Your browser will open automatically in a moment."
-echo "    Press Ctrl+C in this window to stop the server."
+echo "    The application window will open in a moment."
+echo "    Keep this window open while using the application."
 echo "  ============================================================"
 echo
 
-# Open the browser after a brief delay, in the background.
-(
-    sleep 2
-    if command -v open >/dev/null 2>&1; then
-        open http://localhost:5000
-    elif command -v xdg-open >/dev/null 2>&1; then
-        xdg-open http://localhost:5000
-    fi
-) &
+# (Browser launch removed because we use PyWebView Native App)
 
 python app.py

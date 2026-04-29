@@ -26,7 +26,7 @@ def file_hash():
             endpoint="/security/file-hash",
             accept="*",
             multiple=False,
-            button_text="Compute",
+            button_text="Hitung",
         )
 
     f = request.files.get("files")

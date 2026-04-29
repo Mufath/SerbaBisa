@@ -5,19 +5,19 @@
 {% block content %}
 <div class="tool-container">
     <div class="tool-header">
-        <h1>Kalkulator Tanggal</h1>
-        <p>Gampang banget hitung selisih hari, tambah/kurang tanggal, atau ngecek hari apa</p>
+        <h1>{{ _t('date_calculator') }}</h1>
+        <p>{{ _t('desc_date_calc') }}</p>
     </div>
 
     <div class="calc-section">
-        <h3>Selisih antara dua tanggal</h3>
+        <h3>{{ _t('diff_between_two_dates') }}</h3>
         <div class="inline-form">
             <div class="form-group">
-                <label>Tanggal Mulai (DD-MM-YYYY)</label>
+                <label>Tanggal {{ _t('start') }} (DD-MM-YYYY)</label>
                 <input type="text" id="d1-start" onchange="calcDiff()" placeholder="Contoh: 17-08-2024">
             </div>
             <div class="form-group">
-                <label>Tanggal Akhir (DD-MM-YYYY)</label>
+                <label>{{ _t('end_date_ddmmyyyy') }}</label>
                 <input type="text" id="d1-end" onchange="calcDiff()" placeholder="Contoh: 25-12-2024">
             </div>
         </div>
@@ -26,10 +26,10 @@
     </div>
 
     <div class="calc-section">
-        <h3>Tambah atau kurang hari</h3>
+        <h3>{{ _t('add_or_subtract_days') }}</h3>
         <div class="inline-form">
             <div class="form-group">
-                <label>Tanggal Awal (DD-MM-YYYY)</label>
+                <label>{{ _t('initial_date') }}</label>
                 <input type="text" id="d2-date" onchange="calcAdd()" placeholder="Contoh: 17-08-2024">
             </div>
             <select id="d2-dir" onchange="calcAdd()" style="width:auto;align-self:flex-end;margin-bottom:.1rem">
@@ -37,7 +37,7 @@
                 <option value="sub">− Kurang</option>
             </select>
             <div class="form-group" style="max-width:80px">
-                <label>Jumlah Hari</label>
+                <label>{{ _t('number_of_days') }}</label>
                 <input type="number" id="d2-days" value="7" min="0" oninput="calcAdd()">
             </div>
         </div>
@@ -45,10 +45,10 @@
     </div>
 
     <div class="calc-section">
-        <h3>Cek hari apa?</h3>
+        <h3>{{ _t('check_what_day') }}</h3>
         <div class="inline-form">
             <div class="form-group">
-                <label>Pilih Tanggal (DD-MM-YYYY)</label>
+                <label>{{ _t('select_date_ddmmyyyy') }}</label>
                 <input type="text" id="d3-date" onchange="calcDay()" placeholder="Contoh: 17-08-2024">
             </div>
         </div>

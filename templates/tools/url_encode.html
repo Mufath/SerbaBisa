@@ -6,26 +6,26 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>URL Encoder / Decoder</h1>
-        <p>Ubah karakter khusus jadi format yang aman untuk URL, atau kembalikan ke teks biasa.</p>
+        <p>{{ _t('desc_url_encode') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
                 <span>Teks Biasa (Decoded)</span>
-                <button class="btn btn-small" onclick="encodeURL()">Encode &rarr;</button>
+                <button class="btn btn-small" onclick="encodeURL()">{{ _t('encode_arrow') }}</button>
             </div>
             <div class="pane-body">
-                <textarea id="url-text" placeholder="Masukkan teks di sini untuk di-encode..."></textarea>
+                <textarea id="url-text" placeholder="{{ _t('enter_text_here_to_encode') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <button class="btn btn-small" onclick="decodeURL()">&larr; Decode</button>
-                <span>Format URL (Encoded)</span>
+                <button class="btn btn-small" onclick="decodeURL()">{{ _t('decode_arrow') }}</button>
+                <span>{{ _t('format') }} URL (Encoded)</span>
                 <button class="btn btn-small" onclick="copyEncoded()"><i class="bi bi-clipboard"></i></button>
             </div>
             <div class="pane-body">
-                <textarea id="url-encoded" placeholder="Masukkan teks URL-encoded di sini untuk di-decode..."></textarea>
+                <textarea id="url-encoded" placeholder="{{ _t('enter_url_encoded_text_here') }}"></textarea>
             </div>
         </div>
     </div>

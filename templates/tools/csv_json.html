@@ -6,23 +6,23 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>CSV / JSON Converter</h1>
-        <p>Tuker format data antara CSV dan JSON tanpa ribet</p>
+        <p>{{ _t('desc_csv_json') }}</p>
     </div>
     <div style="margin-bottom:1rem">
-        <button class="btn btn-primary" id="btn-csv" onclick="setMode('csv')" style="opacity:1">CSV &rarr; JSON</button>
-        <button class="btn btn-primary" id="btn-json" onclick="setMode('json')" style="opacity:.5">JSON &rarr; CSV</button>
+        <button class="btn btn-primary" id="btn-csv" onclick="setMode('csv')" style="opacity:1">{{ _t('csv_to_json') }}</button>
+        <button class="btn btn-primary" id="btn-json" onclick="setMode('json')" style="opacity:.5">{{ _t('json_to_csv') }}</button>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header"><span id="input-label">Input CSV</span></div>
             <div class="pane-body">
-                <textarea id="conv-input" placeholder="Tempel data kamu di sini..."></textarea>
+                <textarea id="conv-input" placeholder="{{ _t('paste_data_here') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
                 <span id="output-label">Hasil JSON</span>
-                <button class="btn btn-small" onclick="navigator.clipboard.writeText(document.getElementById('conv-output').textContent)"><i class="bi bi-clipboard"></i> Salin</button>
+                <button class="btn btn-small" onclick="navigator.clipboard.writeText(document.getElementById('conv-output').textContent)"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body">
                 <pre id="conv-output"></pre>
@@ -50,7 +50,7 @@ function convert() {
     const input = document.getElementById("conv-input").value.trim();
     const status = document.getElementById("conv-status");
     const output = document.getElementById("conv-output");
-    if (!input) { status.innerHTML = '<span style="color:var(--danger)">Datanya diisi dulu, Bos.</span>'; return; }
+    if (!input) { status.innerHTML = '<span style="color:var(--danger)">{{ _t('fill_data_first') }}</span>'; return; }
 
     try {
         if (mode === "csv") {
@@ -65,7 +65,7 @@ function convert() {
             output.textContent = JSON.stringify(result, null, 2);
         } else {
             const arr = JSON.parse(input);
-            if (!Array.isArray(arr) || arr.length === 0) throw new Error("Format JSON harus berupa array of objects.");
+            if (!Array.isArray(arr) || arr.length === 0) throw new Error("{{ _t('format') }} JSON harus berupa array of objects.");
             const headers = Object.keys(arr[0]);
             const lines = [headers.join(",")];
             arr.forEach(obj => {
@@ -77,7 +77,7 @@ function convert() {
             });
             output.textContent = lines.join("\n");
         }
-        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Berhasil dikonversi!</span>';
+        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('successfully_converted') }}</span>';
     } catch (e) {
         status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Waduh, ada yang salah: ${e.message}</span>`;
     }

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}JS Formatter - SerbaBisa{% endblock %}
-{% block top_title %}JS Formatter{% endblock %}
+{% block title %}JS {{ _t('format') }}ter - SerbaBisa{% endblock %}
+{% block top_title %}JS {{ _t('format') }}ter{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>JavaScript Formatter</h1>
-        <p>Gunakan alat ini untuk merapikan kode JS yang berantakan atau mengecilkan ukurannya (Minify). Cocok untuk pembersihan kode cepat.</p>
+        <h1>JavaScript {{ _t('format') }}ter</h1>
+        <p>Gunakan alat ini untuk me{{ _t('tidy_up') }} kode JS yang berantakan atau mengecilkan ukurannya ({{ _t('minify') }}). Cocok untuk pembersihan kode cepat.</p>
     </div>
 
     <div class="split-pane" style="display: flex; gap: 1rem; height: 550px; margin-top: 1.5rem;">
@@ -14,8 +14,8 @@
             <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 600;"><i class="bi bi-code-slash"></i> JS Input</span>
                 <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-small" onclick="formatJS()" style="background: var(--primary); color: white; border: none;">Beautify</button>
-                    <button class="btn btn-small" onclick="minifyJS()">Minify</button>
+                    <button class="btn btn-small" onclick="formatJS()" style="background: var(--primary); color: white; border: none;">{{ _t('beautify') }}</button>
+                    <button class="btn btn-small" onclick="minifyJS()">{{ _t('minify') }}</button>
                 </div>
             </div>
             <div class="pane-body" style="flex: 1;">
@@ -27,7 +27,7 @@
         <div class="pane" style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fafafa;">
             <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 600;"><i class="bi bi-stars"></i> Result</span>
-                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body" style="flex: 1; padding: 1.2rem; overflow-y: auto;">
                 <pre id="js-output" style="margin: 0; font-family: 'Consolas', monospace; font-size: 0.85rem; color: #2c3e50; white-space: pre-wrap; word-break: break-all;"></pre>
@@ -40,7 +40,7 @@
 
 <style>
     #js-output:empty::before {
-        content: "Hasil pemrosesan kode akan muncul di sini...";
+        content: "{{ _t('processing_result_appear_here') }}";
         color: #999;
         font-style: italic;
     }
@@ -91,7 +91,7 @@ function restore(code, stash) {
 }
 
 /**
- * Fungsi untuk mempercantik (Beautify) kode JS
+ * Fungsi untuk mempercantik ({{ _t('beautify') }}) kode JS
  */
 function formatJS() {
     const src = document.getElementById("js-input").value;
@@ -134,7 +134,7 @@ function formatJS() {
     }
 
     document.getElementById("js-output").textContent = restore(out, stash).trim();
-    status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Kode berhasil dirapikan.</span>';
+    status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('code_successfully_formatted') }}</span>';
 }
 
 function skipSpace(s, i) {
@@ -143,7 +143,7 @@ function skipSpace(s, i) {
 }
 
 /**
- * Fungsi untuk mengecilkan (Minify) kode JS
+ * Fungsi untuk mengecilkan ({{ _t('minify') }}) kode JS
  */
 function minifyJS() {
     const src = document.getElementById("js-input").value;
@@ -159,14 +159,14 @@ function minifyJS() {
         .trim();
 
     document.getElementById("js-output").textContent = restore(minified, stash);
-    status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Kode berhasil dikompresi (Minified).</span>';
+    status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('code_successfully_minified') }}</span>';
 }
 
 function copyOutput() {
     const content = document.getElementById("js-output").textContent;
     if (!content) return;
     navigator.clipboard.writeText(content).then(() => {
-        alert("Kode disalin ke clipboard!");
+        alert("Kode di{{ _t('copy_lower') }} ke clipboard!");
     });
 }
 </script>

@@ -39,7 +39,7 @@ def zip_create():
                     "default": "archive",
                 },
             ],
-            button_text="Create ZIP",
+            button_text="Buat ZIP",
         )
 
     files = request.files.getlist("files")
@@ -122,7 +122,7 @@ def zip_info():
             endpoint="/archive/zip-info",
             accept=".zip",
             multiple=False,
-            button_text="Inspect",
+            button_text="Cek Info",
         )
 
     if "files" not in request.files:

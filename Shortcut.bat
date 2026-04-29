@@ -9,14 +9,10 @@ echo.
 set SCRIPT_NAME=Start.bat
 set TARGET_PATH=%~dp0%SCRIPT_NAME%
 set ICON_PATH=%~dp0static\favicon.ico
-set SHORTCUT_PATH=%USERPROFILE%\Desktop\SerbaBisa.lnk
-
-:: Hapus shortcut lama jika ada
-if exist "%SHORTCUT_PATH%" del "%SHORTCUT_PATH%"
-
 :: Buat script VBS sementara
 echo Set oWS = WScript.CreateObject("WScript.Shell") > CreateShortcut.vbs
-echo sLinkFile = "%SHORTCUT_PATH%" >> CreateShortcut.vbs
+echo strDesktop = oWS.SpecialFolders("Desktop") >> CreateShortcut.vbs
+echo sLinkFile = strDesktop ^& "\SerbaBisa.lnk" >> CreateShortcut.vbs
 echo Set oLink = oWS.CreateShortcut(sLinkFile) >> CreateShortcut.vbs
 echo oLink.TargetPath = "%TARGET_PATH%" >> CreateShortcut.vbs
 echo oLink.WorkingDirectory = "%~dp0" >> CreateShortcut.vbs

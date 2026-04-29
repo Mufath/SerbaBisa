@@ -6,7 +6,7 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Uji Regex (Regex Tester)</h1>
-        <p>Tes pola Regular Expression kamu secara langsung dengan fitur highlight pencocokan teks.</p>
+        <p>{{ _t('desc_regex_tester') }}</p>
     </div>
     <div style="display:flex;gap:.5rem;margin-bottom:1rem;align-items:flex-end">
         <div class="form-group" style="flex:1;margin-bottom:0">
@@ -19,8 +19,8 @@
         </div>
     </div>
     <div class="form-group">
-        <label>Teks untuk Dites</label>
-        <textarea id="regex-input" class="text-input" rows="5" placeholder="Masukkan teks di sini untuk diuji pola regex-nya..." oninput="testRegex()"></textarea>
+        <label>{{ _t('text_to_test') }}</label>
+        <textarea id="regex-input" class="text-input" rows="5" placeholder="{{ _t('enter_text_to_test_regex') }}" oninput="testRegex()"></textarea>
     </div>
     <div id="regex-error" style="color:var(--danger);font-size:.85rem;margin-bottom:.5rem; font-weight: 500;"></div>
     
@@ -66,7 +66,7 @@ function testRegex() {
     if (!pattern) {
         output.textContent = input;
         countEl.textContent = "0 ditemukan";
-        matchesEl.innerHTML = '<span style="color:var(--text-light)">Masukkan pola regex untuk melihat hasil.</span>';
+        matchesEl.innerHTML = '<span style="color:var(--text-light)">{{ _t('enter_regex_pattern') }}</span>';
         return;
     }
 
@@ -116,7 +116,7 @@ function testRegex() {
     countEl.textContent = count + " ditemukan";
 
     if (matches.length === 0) {
-        matchesEl.innerHTML = '<span style="color:var(--text-light)">Tidak ada yang cocok.</span>';
+        matchesEl.innerHTML = '<span style="color:var(--text-light)">{{ _t('no_matches') }}</span>';
     } else {
         matchesEl.innerHTML = matches.map(m => {
             let groups = "";

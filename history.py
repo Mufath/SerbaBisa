@@ -59,7 +59,7 @@ def get_weekly_count():
             pass
     return count
 
-def format_time_ago(iso_str):
+def format_time_ago(iso_str, lang="id"):
     try:
         ts = datetime.fromisoformat(iso_str)
         now = datetime.now()
@@ -67,14 +67,19 @@ def format_time_ago(iso_str):
         
         if diff.days == 0:
             if diff.seconds < 60:
-                return "Baru saja"
+                return "Baru saja" if lang == "id" else "Just now"
             elif diff.seconds < 3600:
-                return f"{diff.seconds // 60} menit yang lalu"
+                mins = diff.seconds // 60
+                return f"{mins} menit yang lalu" if lang == "id" else f"{mins} minutes ago"
             elif diff.seconds < 86400:
-                return f"Hari ini, {ts.strftime('%H:%M')}"
+                time_str = ts.strftime('%H:%M')
+                return f"Hari ini, {time_str}" if lang == "id" else f"Today, {time_str}"
         elif diff.days == 1:
-            return f"Kemarin, {ts.strftime('%H:%M')}"
+            time_str = ts.strftime('%H:%M')
+            return f"Kemarin, {time_str}" if lang == "id" else f"Yesterday, {time_str}"
         else:
+            if lang == "en":
+                return ts.strftime('%b %d, %Y')
             return ts.strftime('%d %b %Y')
     except:
         return ""

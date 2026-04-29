@@ -1,30 +1,30 @@
 {% extends "base.html" %}
-{% block title %}HTML Formatter - SerbaBisa{% endblock %}
-{% block top_title %}HTML Formatter{% endblock %}
+{% block title %}HTML {{ _t('format') }}ter - SerbaBisa{% endblock %}
+{% block top_title %}HTML {{ _t('format') }}ter{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>HTML Formatter</h1>
-        <p>Rapiin struktur HTML atau buat jadi satu baris (minify) biar performa web makin oke</p>
+        <h1>HTML {{ _t('format') }}ter</h1>
+        <p>{{ _t('desc_html_formatter') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
-                <span>Input Kode HTML</span>
+                <span>{{ _t('html_code_input') }}</span>
                 <div>
-                    <button class="btn btn-small" onclick="formatHTML()">Rapiin (Beautify)</button>
-                    <button class="btn btn-small" onclick="minifyHTML()">Padatkan (Minify)</button>
+                    <button class="btn btn-small" onclick="formatHTML()">Rapiin ({{ _t('beautify') }})</button>
+                    <button class="btn btn-small" onclick="minifyHTML()">Padatkan ({{ _t('minify') }})</button>
                 </div>
             </div>
             <div class="pane-body">
-                <textarea id="html-input" placeholder="<div><p>Halo UNAIR!</p></div>"></textarea>
+                <textarea id="html-input" placeholder="{{ _t('html_example') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <span>Hasilnya</span>
-                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+                <span>{{ _t('the_result') }}</span>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body">
                 <pre id="html-output"></pre>

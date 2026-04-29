@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Pengaturan - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('settings_title') }}{% endblock %}
+
+{% block content %}
+<div class="tool-page" style="max-width: 600px;">
+    <div class="tool-header">
+        <h1><i class="bi bi-gear-fill" style="color: var(--primary);"></i> {{ _t('settings') }}</h1>
+        <p>{{ _t('app_desc') }}</p>
+    </div>
+
+    <div class="tool-container">
+        <div class="settings-section">
+            <h3 style="margin-bottom: 1rem; color: var(--text); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">{{ _t('profile_language') }}</h3>
+            <div class="form-group">
+                <label>{{ _t('nickname') }}</label>
+                <div style="display: flex; gap: 1rem;">
+                    <input type="text" id="setting-name" value="{{ app_config.username }}" placeholder="{{ _t('nickname_placeholder') }}">
+                </div>
+                <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">{{ _t('nickname_desc') }}</small>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label>{{ _t('language') }}</label>
+                <select id="setting-lang" class="form-control">
+                    <option value="id" {% if app_config.language == 'id' %}selected{% endif %}>Bahasa Indonesia</option>
+                    <option value="en" {% if app_config.language == 'en' %}selected{% endif %}>English</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="saveConfigSetting(this)">{{ _t('save_settings') }}</button>
+        </div>
+
+        <div class="settings-section" style="margin-top: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--text); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">{{ _t('appearance') }}</h3>
+            <div class="form-group">
+                <label>{{ _t('theme_mode') }}</label>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <button class="btn btn-small" id="btn-theme-light" onclick="setThemeSetting('light')"><i class="bi bi-sun-fill"></i> {{ _t('light') }}</button>
+                    <button class="btn btn-small" id="btn-theme-dark" onclick="setThemeSetting('dark')"><i class="bi bi-moon-fill"></i> {{ _t('dark') }}</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section" style="margin-top: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--text); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">{{ _t('about') }}</h3>
+            <div class="form-group">
+                <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
+                    <strong>SerbaBisa</strong><br>
+                    {{ _t('app_desc') }}
+                </p>
+                <a href="https://github.com/Mufath/SerbaBisa" target="_blank" class="btn btn-small"><i class="bi bi-github"></i> {{ _t('check_update') }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const currentTheme = "{{ app_config.theme }}";
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateThemeBtns();
+    });
+
+    async function saveConfigSetting(btn) {
+        const newName = document.getElementById('setting-name').value.trim() || 'Sobat';
+        const newLang = document.getElementById('setting-lang').value;
+        const theme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+        
+        try {
+            const resp = await fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: newName, language: newLang, theme: theme })
+            });
+            if (resp.ok) {
+                if(typeof updateNameUI === 'function') updateNameUI(newName);
+                
+                const oldText = btn.textContent;
+                btn.textContent = 'Tersimpan!';
+                btn.style.background = 'var(--success)';
+                setTimeout(() => {
+                    btn.textContent = oldText;
+                    btn.style.background = '';
+                    // Reload to apply language changes
+                    if (newLang !== "{{ app_config.language }}") {
+                        window.location.reload();
+                    }
+                }, 1000);
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    function updateThemeBtns() {
+        const isDark = document.body.classList.contains('dark-theme');
+        document.getElementById('btn-theme-dark').style.borderColor = isDark ? 'var(--primary)' : 'var(--glass-border)';
+        document.getElementById('btn-theme-dark').style.background = isDark ? 'rgba(49, 130, 206, 0.1)' : '';
+        document.getElementById('btn-theme-light').style.borderColor = !isDark ? 'var(--primary)' : 'var(--glass-border)';
+        document.getElementById('btn-theme-light').style.background = !isDark ? 'rgba(49, 130, 206, 0.1)' : '';
+    }
+
+    function setThemeSetting(mode) {
+        if (mode === 'dark' && !document.body.classList.contains('dark-theme')) {
+            toggleTheme();
+        } else if (mode === 'light' && document.body.classList.contains('dark-theme')) {
+            toggleTheme();
+        }
+        updateThemeBtns();
+        
+        // Simpan tema langsung via API
+        saveConfigSetting(document.createElement('button')); 
+    }
+</script>
+{% endblock %}

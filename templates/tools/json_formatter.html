@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}JSON Formatter - SerbaBisa{% endblock %}
-{% block top_title %}JSON Formatter{% endblock %}
+{% block title %}JSON {{ _t('format') }}ter - SerbaBisa{% endblock %}
+{% block top_title %}JSON {{ _t('format') }}ter{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>JSON Formatter</h1>
-        <p>Rapikan (Prettify), validasi, atau kecilkan (Minify) data JSON kamu agar lebih mudah dibaca atau diproses aplikasi.</p>
+        <h1>JSON {{ _t('format') }}ter</h1>
+        <p>Rapikan (Prettify), validasi, atau kecilkan ({{ _t('minify') }}) data JSON kamu agar lebih mudah dibaca atau diproses aplikasi.</p>
     </div>
 
     <div class="split-pane" style="display: flex; gap: 1rem; height: 550px; margin-top: 1.5rem;">
@@ -14,12 +14,12 @@
             <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 600;"><i class="bi bi-file-earmark-code"></i> JSON Input</span>
                 <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-small" onclick="formatJSON()" style="background: var(--primary); color: white; border: none;">Format</button>
-                    <button class="btn btn-small" onclick="minifyJSON()">Minify</button>
+                    <button class="btn btn-small" onclick="formatJSON()" style="background: var(--primary); color: white; border: none;">{{ _t('format') }}</button>
+                    <button class="btn btn-small" onclick="minifyJSON()">{{ _t('minify') }}</button>
                 </div>
             </div>
             <div class="pane-body" style="flex: 1;">
-                <textarea id="json-input" placeholder='Tempelkan JSON mentah di sini... Contoh: {"nama":"Fath","kampus":"UNAIR"}' 
+                <textarea id="json-input" placeholder='Tempelkan JSON mentah di sini... {{ _t('json_example') }}' 
                     style="width: 100%; height: 100%; border: none; padding: 1.2rem; font-family: 'Consolas', monospace; resize: none; outline: none; font-size: 0.9rem; line-height: 1.5;"></textarea>
             </div>
         </div>
@@ -27,7 +27,7 @@
         <div class="pane" style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fafafa;">
             <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 600;"><i class="bi bi-braces"></i> Result</span>
-                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body" style="flex: 1; padding: 1.2rem; overflow-y: auto;">
                 <pre id="json-output" style="margin: 0; font-family: 'Consolas', monospace; font-size: 0.85rem; color: #2c3e50; white-space: pre-wrap; word-break: break-all;"></pre>
@@ -41,7 +41,7 @@
 <style>
     /* Styling tambahan untuk membedakan teks di dalam pre */
     #json-output:empty::before {
-        content: "Hasil akan muncul di sini...";
+        content: "{{ _t('result_will_appear_here') }}";
         color: #999;
         font-style: italic;
     }
@@ -51,7 +51,7 @@
 {% block scripts %}
 <script>
 /**
- * Merapikan JSON dengan indentasi 2 spasi
+ * Me{{ _t('tidy_up') }} JSON dengan indentasi 2 {{ _t('spaces') }}
  */
 function formatJSON() {
     const input = document.getElementById("json-input").value.trim();
@@ -59,14 +59,14 @@ function formatJSON() {
     const output = document.getElementById("json-output");
 
     if (!input) {
-        status.innerHTML = '<span style="color:var(--text-light)">Input kosong.</span>';
+        status.innerHTML = '<span style="color:var(--text-light)">{{ _t('input_empty') }}</span>';
         return;
     }
 
     try {
         const obj = JSON.parse(input);
         output.textContent = JSON.stringify(obj, null, 2);
-        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle-fill"></i> JSON Valid & Berhasil Dirapikan</span>';
+        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle-fill"></i> JSON Valid & Ber{{ _t('result') }} Di{{ _t('tidy_up') }}</span>';
     } catch (e) {
         output.textContent = "";
         status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-octagon-fill"></i> Error: ${e.message}</span>`;
@@ -74,7 +74,7 @@ function formatJSON() {
 }
 
 /**
- * Menghilangkan spasi dan baris baru (Minify)
+ * Menghilangkan {{ _t('spaces') }} dan baris baru ({{ _t('minify') }})
  */
 function minifyJSON() {
     const input = document.getElementById("json-input").value.trim();
@@ -82,7 +82,7 @@ function minifyJSON() {
     const output = document.getElementById("json-output");
 
     if (!input) {
-        status.innerHTML = '<span style="color:var(--text-light)">Input kosong.</span>';
+        status.innerHTML = '<span style="color:var(--text-light)">{{ _t('input_empty') }}</span>';
         return;
     }
 
@@ -97,7 +97,7 @@ function minifyJSON() {
 }
 
 /**
- * Menyalin hasil ke clipboard
+ * Menyalin {{ _t('result') }} ke clipboard
  */
 function copyOutput() {
     const content = document.getElementById("json-output").textContent;
@@ -106,7 +106,7 @@ function copyOutput() {
     navigator.clipboard.writeText(content).then(() => {
         const status = document.getElementById("json-status");
         const prevStatus = status.innerHTML;
-        status.innerHTML = '<span style="color:var(--primary)"><i class="bi bi-clipboard-check"></i> Tersalin ke clipboard!</span>';
+        status.innerHTML = '<span style="color:var(--primary)"><i class="bi bi-clipboard-check"></i> {{ _t('copied_to_clipboard') }}</span>';
         setTimeout(() => {
             status.innerHTML = prevStatus;
         }, 2000);

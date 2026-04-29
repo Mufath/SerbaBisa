@@ -6,7 +6,7 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Markdown Preview</h1>
-        <p>Tulis Markdown di kiri dan lihat hasilnya secara instan di kanan. Cocok untuk draf laporan SI.</p>
+        <p>{{ _t('desc_md_preview') }}</p>
     </div>
 
     <div class="split-pane" style="display: flex; gap: 1rem; height: 600px; margin-top: 1rem;">
@@ -15,16 +15,16 @@
                 <span><i class="bi bi-pencil-square"></i> Markdown Editor</span>
             </div>
             <div class="pane-body" style="flex: 1;">
-                <textarea id="md-input" oninput="renderMD()" placeholder="# Halo Dunia!
+                <textarea id="md-input" oninput="renderMD()" placeholder="# {{ _t('hello_world') }}
 
-Tulis **Markdown** kamu di sini...
+{{ _t('write_markdown_here') }}
 
-- Praktikum Sistem Informasi
-- Universitas Airlangga
+- {{ _t('is_practicum') }}
+- {{ _t('airlangga_univ') }}
 
-> Fokus pada progres, bukan kesempurnaan.
+> {{ _t('focus_on_progress') }}
 
-`code` dan lainnya..." 
+{{ _t('code_and_others') }}" 
 style="width: 100%; height: 100%; border: none; padding: 1.2rem; font-family: 'Consolas', monospace; resize: none; outline: none; line-height: 1.6;"></textarea>
             </div>
         </div>
@@ -43,7 +43,7 @@ style="width: 100%; height: 100%; border: none; padding: 1.2rem; font-family: 'C
 </div>
 
 <style>
-    /* Styling khusus untuk hasil render preview agar mirip dokumen asli */
+    /* Styling khusus untuk {{ _t('result') }} render preview agar mirip dokumen asli */
     #md-output h1 { border-bottom: 2px solid var(--border); padding-bottom: 0.3rem; margin-top: 0; }
     #md-output h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; }
     #md-output code { background: #f0f0f0; padding: 2px 4px; border-radius: 4px; font-family: monospace; }
@@ -65,13 +65,13 @@ function renderMD() {
 }
 
 /**
- * Menyalin hasil render HTML ke clipboard
+ * Menyalin {{ _t('result') }} render HTML ke clipboard
  */
 function copyHTML() {
     const output = document.getElementById("md-output").innerHTML;
     if (!output) return;
     navigator.clipboard.writeText(output);
-    alert("HTML berhasil disalin!");
+    alert("HTML ber{{ _t('result') }} di{{ _t('copy_lower') }}!");
 }
 
 /**
@@ -113,7 +113,7 @@ function simpleMarkdown(text) {
         .replace(/\n\n/g, '</p><p>')
         .replace(/\n/g, '<br>');
 
-    // Merapikan <li> agar terbungkus <ul>
+    // Me{{ _t('tidy_up') }} <li> agar terbungkus <ul>
     html = html.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
     html = html.replace(/<\/ul>\s*<ul>/g, '');
 

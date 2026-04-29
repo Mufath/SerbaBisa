@@ -1,30 +1,30 @@
 {% extends "base.html" %}
-{% block title %}XML Formatter - SerbaBisa{% endblock %}
-{% block top_title %}XML Formatter{% endblock %}
+{% block title %}XML {{ _t('format') }}ter - SerbaBisa{% endblock %}
+{% block top_title %}XML {{ _t('format') }}ter{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>XML Formatter</h1>
-        <p>Rapiin struktur data XML, validasi, atau perkecil ukurannya (minify)</p>
+        <h1>XML {{ _t('format') }}ter</h1>
+        <p>{{ _t('desc_xml_formatter') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
-                <span>Input Kode XML</span>
+                <span>{{ _t('xml_code_input') }}</span>
                 <div>
-                    <button class="btn btn-small" onclick="formatXML()">Rapiin (Format)</button>
-                    <button class="btn btn-small" onclick="minifyXML()">Padatkan (Minify)</button>
+                    <button class="btn btn-small" onclick="formatXML()">Rapiin ({{ _t('format') }})</button>
+                    <button class="btn btn-small" onclick="minifyXML()">Padatkan ({{ _t('minify') }})</button>
                 </div>
             </div>
             <div class="pane-body">
-                <textarea id="xml-input" placeholder="<root><item>Nilai Contoh</item></root>"></textarea>
+                <textarea id="xml-input" placeholder="{{ _t('xml_example') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <span>Hasilnya</span>
-                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+                <span>{{ _t('the_result') }}</span>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body">
                 <pre id="xml-output"></pre>

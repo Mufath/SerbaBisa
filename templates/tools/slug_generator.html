@@ -6,23 +6,23 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Slug Generator</h1>
-        <p>Ubah judul atau teks jadi format URL yang bersih dan ramah SEO.</p>
+        <p>{{ _t('desc_slug_generator') }}</p>
     </div>
     <div class="form-group">
-        <label>Input Teks</label>
-        <textarea id="slug-input" class="text-input" rows="3" placeholder="Contoh: Cara Membuat Website di Universitas Airlangga!" oninput="generateSlug()"></textarea>
+        <label>{{ _t('text_input') }}</label>
+        <textarea id="slug-input" class="text-input" rows="3" placeholder="Contoh: Cara Membuat Website di {{ _t('airlangga_univ') }}!" oninput="generateSlug()"></textarea>
     </div>
     <div class="form-group">
-        <label>Pemisah (Separator)</label>
+        <label>{{ _t('separator') }}</label>
         <div class="radio-group">
-            <label class="radio-label"><input type="radio" name="sep" value="-" checked onchange="generateSlug()"><span>Strip/Hyphen (-)</span></label>
-            <label class="radio-label"><input type="radio" name="sep" value="_" onchange="generateSlug()"><span>Underscore (_)</span></label>
+            <label class="radio-label"><input type="radio" name="sep" value="-" checked onchange="generateSlug()"><span>{{ _t('hyphen') }}</span></label>
+            <label class="radio-label"><input type="radio" name="sep" value="_" onchange="generateSlug()"><span>{{ _t('underscore') }}</span></label>
         </div>
     </div>
     <div class="pane" style="margin-top:1rem">
         <div class="pane-header">
             <span>Hasil Slug</span>
-            <button class="btn btn-small" onclick="copySlug()"><i class="bi bi-clipboard"></i> Salin</button>
+            <button class="btn btn-small" onclick="copySlug()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
         </div>
         <div class="pane-body">
             <pre id="slug-output" style="min-height:2em;font-size:1.1rem;color:var(--primary); font-weight: 600;"></pre>
@@ -41,9 +41,9 @@ function generateSlug() {
         .normalize("NFD") // Menghapus aksen (seperti di bahasa Spanyol/Prancis)
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, "") // Menghapus karakter khusus kecuali angka, huruf, dan spasi
+        .replace(/[^a-z0-9\s-]/g, "") // Menghapus {{ _t('character') }} khusus kecuali angka, huruf, dan {{ _t('spaces') }}
         .trim()
-        .replace(/[\s-]+/g, sep) // Mengganti spasi atau strip ganda jadi separator pilihan
+        .replace(/[\s-]+/g, sep) // Mengganti {{ _t('spaces') }} atau strip ganda jadi separator pilihan
         .replace(new RegExp(`^${sep}+|${sep}+$`, 'g'), ''); // Hapus separator di awal/akhir
 
     document.getElementById("slug-output").textContent = slug;

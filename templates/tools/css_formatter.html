@@ -1,30 +1,30 @@
 {% extends "base.html" %}
-{% block title %}CSS Formatter - SerbaBisa{% endblock %}
-{% block top_title %}CSS Formatter{% endblock %}
+{% block title %}CSS {{ _t('format') }}ter - SerbaBisa{% endblock %}
+{% block top_title %}CSS {{ _t('format') }}ter{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>CSS Formatter</h1>
-        <p>Rapiin kode CSS yang berantakan atau buat jadi padat (minify) biar loading web makin kenceng</p>
+        <h1>CSS {{ _t('format') }}ter</h1>
+        <p>{{ _t('desc_css_formatter') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
-                <span>Input Kode</span>
+                <span>{{ _t('code_input') }}</span>
                 <div>
-                    <button class="btn btn-small" onclick="formatCSS()">Rapiin (Beautify)</button>
-                    <button class="btn btn-small" onclick="minifyCSS()">Padatkan (Minify)</button>
+                    <button class="btn btn-small" onclick="formatCSS()">Rapiin ({{ _t('beautify') }})</button>
+                    <button class="btn btn-small" onclick="minifyCSS()">Padatkan ({{ _t('minify') }})</button>
                 </div>
             </div>
             <div class="pane-body">
-                <textarea id="css-input" placeholder=".contoh { color: red; background: #fff; }"></textarea>
+                <textarea id="css-input" placeholder=".{{ _t('example') }} { color: red; background: #fff; }"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <span>Hasilnya</span>
-                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+                <span>{{ _t('the_result') }}</span>
+                <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body">
                 <pre id="css-output"></pre>

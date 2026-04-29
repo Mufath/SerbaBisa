@@ -6,40 +6,40 @@
 <div class="client-tool">
     <div class="tool-header">
         <h1>Hash Generator</h1>
-        <p>Generate hash MD5, SHA-1, SHA-256, dan SHA-512 dari teks apa pun secara instan</p>
+        <p>{{ _t('generate') }} hash MD5, SHA-1, SHA-256, dan SHA-512 {{ _t('from_of') }} teks apa pun secara instan</p>
     </div>
 
     <div class="form-group">
-        <label>Input Teks</label>
-        <textarea id="hash-input" class="text-input" rows="4" placeholder="Ketik atau tempel teks di sini..." oninput="computeHashes()"></textarea>
+        <label>{{ _t('text_input') }}</label>
+        <textarea id="hash-input" class="text-input" rows="4" placeholder="{{ _t('type_or_paste_here') }}" oninput="computeHashes()"></textarea>
     </div>
 
     <div id="hash-results" style="display:grid;gap:.8rem">
         <div class="calc-section" id="hash-md5-section">
             <div class="pane-header" style="margin:-1.2rem -1.2rem .5rem;padding:.4rem .8rem">
                 <span>MD5 (Legacy)</span>
-                <button class="btn btn-small" onclick="copyHash('hash-md5')"><i class="bi bi-clipboard"></i> Salin</button>
+                <button class="btn btn-small" onclick="copyHash('hash-md5')"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <code id="hash-md5" style="word-break:break-all;font-size:.85rem;color:var(--text-light)">-</code>
         </div>
         <div class="calc-section">
             <div class="pane-header" style="margin:-1.2rem -1.2rem .5rem;padding:.4rem .8rem">
                 <span>SHA-1</span>
-                <button class="btn btn-small" onclick="copyHash('hash-sha1')"><i class="bi bi-clipboard"></i> Salin</button>
+                <button class="btn btn-small" onclick="copyHash('hash-sha1')"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <code id="hash-sha1" style="word-break:break-all;font-size:.85rem;color:var(--text-light)">-</code>
         </div>
         <div class="calc-section">
             <div class="pane-header" style="margin:-1.2rem -1.2rem .5rem;padding:.4rem .8rem">
                 <span>SHA-256 (Paling Aman)</span>
-                <button class="btn btn-small" onclick="copyHash('hash-sha256')"><i class="bi bi-clipboard"></i> Salin</button>
+                <button class="btn btn-small" onclick="copyHash('hash-sha256')"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <code id="hash-sha256" style="word-break:break-all;font-size:.85rem;color:var(--text-light)">-</code>
         </div>
         <div class="calc-section">
             <div class="pane-header" style="margin:-1.2rem -1.2rem .5rem;padding:.4rem .8rem">
                 <span>SHA-512</span>
-                <button class="btn btn-small" onclick="copyHash('hash-sha512')"><i class="bi bi-clipboard"></i> Salin</button>
+                <button class="btn btn-small" onclick="copyHash('hash-sha512')"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <code id="hash-sha512" style="word-break:break-all;font-size:.85rem;color:var(--text-light)">-</code>
         </div>

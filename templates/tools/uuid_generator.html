@@ -6,27 +6,27 @@
 <div class="client-tool" style="max-width:640px">
     <div class="tool-header">
         <h1>UUID Generator</h1>
-        <p>Buat ID unik (v4 random) secara instan. Bisa buat banyak sekaligus!</p>
+        <p>{{ _t('desc_uuid_gen') }}</p>
     </div>
 
     <div class="form-group" style="display:grid;grid-template-columns:1fr 150px;gap:.6rem;align-items:end">
         <div>
-            <label>Jumlah ID yang dibuat</label>
+            <label>{{ _t('number_of_ids_generated') }}</label>
             <input type="number" id="uuid-count" value="1" min="1" max="1000">
         </div>
-        <button class="btn btn-primary" onclick="generateUUIDs()"><i class="bi bi-arrow-repeat"></i> Generate</button>
+        <button class="btn btn-primary" onclick="generateUUIDs()"><i class="bi bi-arrow-repeat"></i> {{ _t('generate') }}</button>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem">
         <label class="checkbox-label"><input type="checkbox" id="uuid-upper" onchange="generateUUIDs()"><span>Huruf Kapital</span></label>
         <label class="checkbox-label"><input type="checkbox" id="uuid-braces" onchange="generateUUIDs()"><span>Kurung Kurawal { }</span></label>
-        <label class="checkbox-label"><input type="checkbox" id="uuid-nodash" onchange="generateUUIDs()"><span>Hapus Strip (-)</span></label>
+        <label class="checkbox-label"><input type="checkbox" id="uuid-nodash" onchange="generateUUIDs()"><span>{{ _t('remove_hyphen') }}</span></label>
     </div>
 
     <div class="pane">
         <div class="pane-header">
-            <span>Hasil Output</span>
-            <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> Salin</button>
+            <span>{{ _t('output_result') }}</span>
+            <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
         </div>
         <div class="pane-body">
             <pre id="uuid-output" style="white-space:pre-wrap;word-break:break-all"></pre>

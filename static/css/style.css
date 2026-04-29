@@ -966,3 +966,55 @@ body.dark-theme .calc-btn:hover {
 body.dark-theme .pane-body textarea {
     background: transparent;
 }
+
+/* ── Command Palette ──────────────────────────── */
+.command-palette-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+}
+.command-palette-overlay.open { display: flex; }
+.command-palette {
+    width: 100%;
+    max-width: 600px;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+.cmd-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+.cmd-header i { font-size: 1.2rem; color: var(--text-muted); margin-right: 1rem; }
+.cmd-header input {
+    width: 100%; border: none; background: transparent;
+    font-size: 1.1rem; color: var(--text); outline: none;
+}
+.cmd-results { max-height: 350px; overflow-y: auto; }
+.cmd-item {
+    display: flex; align-items: center; padding: 1rem 1.5rem; gap: 1rem;
+    cursor: pointer; border-left: 3px solid transparent; color: var(--text);
+    text-decoration: none;
+}
+.cmd-item:hover, .cmd-item.active {
+    background: rgba(49, 130, 206, 0.05); border-left-color: var(--primary);
+}
+.cmd-item-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(49, 130, 206, 0.1); color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+}
+.cmd-item-info { display: flex; flex-direction: column; }
+.cmd-item-title { font-weight: 600; font-size: 0.95rem; }
+.cmd-item-desc { font-size: 0.8rem; color: var(--text-muted); }
+.cmd-empty { padding: 2rem; text-align: center; color: var(--text-muted); }

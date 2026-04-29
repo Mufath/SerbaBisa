@@ -14,7 +14,7 @@ xlrd
 sqlparse
 croniter
 jsonpath-ng
-
+pywebview
 # Optional (app works without these, shows install message if missing)
 rembg
 pyzbar

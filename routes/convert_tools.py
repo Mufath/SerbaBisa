@@ -58,7 +58,7 @@ def pdf_to_word_page():
     return render_template("upload_tool.html",
         title="PDF ke Word",
         description="Ubah PDF ke Word (.docx) biar bisa diedit",
-        notes="<p><strong>Catatan santai:</strong> Alat ini pakai library gratisan yang udah paling bagus di kelasnya. Hasil teksnya bakal rapi, tapi kalau PDF-mu punya tabel atau *layout* desain yang ribet banget, hasil letak-letaknya mungkin nggak 100% sempurna seperti aslinya. Dimaklumi ya!</p>",
+        notes="<p>Alat ini pakai library gratisan yang udah paling bagus di kelasnya. Hasil teksnya bakal rapi, tapi kalau PDF-mu punya tabel atau *layout* desain yang ribet banget, hasil letak-letaknya mungkin nggak 100% sempurna seperti aslinya. Dimaklumi ya!</p>",
         endpoint="/convert/pdf-to-word",
         accept=".pdf",
         multiple=False,
@@ -240,7 +240,7 @@ def html_to_pdf_page():
         accept="",
         multiple=False,
         options=[],
-        button_text="Convert to PDF")
+        button_text="Ubah ke PDF")
 
 
 # ── Helpers ──────────────────────────────────────
