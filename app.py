@@ -1,6 +1,9 @@
 import os
-from flask import Flask, render_template, request
-from history import get_history, log_history, get_weekly_count, format_time_ago
+import json
+import requests
+import subprocess
+from flask import Flask, render_template, request, jsonify
+from utils.history import get_history, log_history, get_weekly_count, format_time_ago
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100 MB max upload
@@ -194,7 +197,7 @@ TOOL_CATEGORIES = [
     },
 ]
 
-from config_manager import load_config, save_config
+from utils.config_manager import load_config, save_config
 from locales import translate_ui, translate_tool
 
 @app.context_processor
@@ -269,6 +272,56 @@ def api_settings():
         return jsonify({"success": False}), 400
     save_config(data)
     return jsonify({"success": True})
+
+
+@app.route("/api/check-update")
+def check_update():
+    try:
+        # Load local version
+        version_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "version.json")
+        local_version = "1.0.0"
+        if os.path.exists(version_file):
+            with open(version_file, "r") as f:
+                local_data = json.load(f)
+                local_version = local_data.get("version", "1.0.0")
+        
+        # Fetch remote version from GitHub
+        repo_url = "https://raw.githubusercontent.com/Mufath/SerbaBisa/main/version.json"
+        response = requests.get(repo_url, timeout=5)
+        if response.status_code == 200:
+            remote_data = response.json()
+            remote_version = remote_data.get("version", "1.0.0")
+            
+            if remote_version != local_version:
+                return jsonify({
+                    "update_available": True, 
+                    "local": local_version, 
+                    "remote": remote_version
+                })
+        
+        return jsonify({"update_available": False, "local": local_version})
+    except Exception as e:
+        print("Error checking update:", e)
+        return jsonify({"update_available": False, "local": "1.0.0", "error": str(e)})
+
+@app.route("/api/perform-update", methods=["POST"])
+def perform_update():
+    try:
+        updater_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts", "updater.bat")
+        if os.path.exists(updater_path):
+            # Jalankan updater di console baru agar tidak ikut mati saat app mati
+            subprocess.Popen([updater_path], shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE)
+            
+            # Beri sinyal untuk menutup aplikasi
+            def shutdown_later():
+                time.sleep(2)
+                os._exit(0)
+            
+            threading.Thread(target=shutdown_later).start()
+            return jsonify({"success": True})
+        return jsonify({"success": False, "error": "Updater script not found"}), 404
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.errorhandler(413)

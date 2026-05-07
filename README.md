@@ -53,11 +53,14 @@ Berikut adalah penjelasan mengenai file-file penting di dalam folder ini:
 *   `Shortcut.bat`: Membuat jalan pintas ke Desktop.
 
 ### Folder Inti
-*   `/scripts`: Kumpulan alat bantu pendukung instalasi (seperti FFmpeg, FixRembg) dan skrip khusus *developer*.
-*   `/static`: Berisi file gambar, CSS, dan JavaScript untuk tampilan antarmuka.
-*   `/templates`: Berisi file HTML (tampilan UI) untuk setiap halaman fitur.
-*   `/routes`: Kode Python yang berisi logika utama untuk memproses alat di setiap kategori.
-*   `/venv`: Folder lingkungan Python (jangan dihapus agar aplikasi tetap bisa berjalan tanpa terpengaruh aplikasi luar).
+*   `/scripts`: Kumpulan alat bantu pendukung (seperti updater dan skrip perbaikan).
+    *   `/maintenance`: Skrip khusus *developer* untuk audit dan perbaikan otomatis.
+*   `/data`: Tempat penyimpanan data aplikasi secara permanen (riwayat dan pengaturan).
+*   `/utils`: Modul logika internal pendukung aplikasi.
+*   `/static`: File gambar, CSS, dan JavaScript untuk tampilan antarmuka.
+*   `/templates`: File HTML (tampilan UI) untuk setiap halaman fitur.
+*   `/routes`: Logika utama untuk memproses alat di setiap kategori.
+*   `/venv`: Folder lingkungan virtual Python (jangan dihapus agar aplikasi tetap stabil).
 
 ---
 

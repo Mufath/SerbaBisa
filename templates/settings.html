@@ -45,9 +45,16 @@
             <div class="form-group">
                 <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
                     <strong>SerbaBisa</strong><br>
-                    {{ _t('App Desc') }}
+                    {{ _t('App Desc') }}<br>
+                    <span style="color: var(--text-muted); font-size: 0.8rem;">{{ _t('Current Version') }}: <span id="current-version">...</span></span>
                 </p>
-                <a href="https://github.com/Mufath/SerbaBisa" target="_blank" class="btn btn-small"><i class="bi bi-github"></i> {{ _t('Check Update') }}</a>
+                <div id="update-container" style="margin-top: 1rem;">
+                    <button class="btn btn-small" id="btn-check-update" onclick="checkUpdate()"><i class="bi bi-arrow-clockwise"></i> {{ _t('Check Update') }}</button>
+                    <div id="update-status" style="margin-top: 0.5rem; font-size: 0.85rem; display: none;"></div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <a href="https://github.com/Mufath/SerbaBisa" target="_blank" class="btn btn-small"><i class="bi bi-github"></i> GitHub Repository</a>
+                </div>
             </div>
         </div>
     </div>
@@ -60,7 +67,70 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         updateThemeBtns();
+        // Load version info quietly
+        checkUpdate(true);
     });
+
+    async function checkUpdate(quiet = false) {
+        const btn = document.getElementById('btn-check-update');
+        const status = document.getElementById('update-status');
+        const oldText = btn.innerHTML;
+        
+        if (!quiet) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> {{ _t("Checking") }}';
+            status.style.display = 'none';
+        }
+        
+        try {
+            const resp = await fetch('/api/check-update');
+            const data = await resp.json();
+            
+            document.getElementById('current-version').textContent = 'v' + data.local;
+            
+            if (data.update_available) {
+                status.innerHTML = `<span style="color: var(--primary); font-weight: bold;">Update v${data.remote} tersedia!</span><br>
+                                    <button class="btn btn-primary btn-small" style="margin-top: 0.5rem;" onclick="performUpdate(this)">{{ _t("Update Now") }}</button>`;
+                status.style.display = 'block';
+            } else if (!quiet) {
+                status.textContent = '{{ _t("Up To Date") }}';
+                status.style.color = 'var(--success)';
+                status.style.display = 'block';
+            }
+        } catch(e) {
+            console.error(e);
+            if (!quiet) {
+                status.textContent = 'Gagal mengecek update.';
+                status.style.color = 'var(--danger)';
+                status.style.display = 'block';
+            }
+        } finally {
+            if (!quiet) {
+                btn.disabled = false;
+                btn.innerHTML = oldText;
+            }
+        }
+    }
+
+    async function performUpdate(btn) {
+        if (!confirm('Aplikasi akan ditutup untuk melakukan update dan dimulai ulang otomatis. Lanjut?')) return;
+        
+        btn.disabled = true;
+        btn.textContent = '{{ _t("Updating Msg") }}';
+        
+        try {
+            const resp = await fetch('/api/perform-update', { method: 'POST' });
+            if (resp.ok) {
+                setTimeout(() => {
+                    alert('Update dimulai. Jendela ini akan tertutup. Silakan tunggu hingga aplikasi terbuka kembali.');
+                }, 500);
+            }
+        } catch(e) {
+            console.error(e);
+            alert('Gagal memulai update.');
+            btn.disabled = false;
+        }
+    }
 
     async function saveConfigSetting(btn) {
         const newName = document.getElementById('setting-name').value.trim() || 'Sobat';

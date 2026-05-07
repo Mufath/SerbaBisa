@@ -1,5 +1,6 @@
 # Core
 Flask
+requests
 Pillow
 PyMuPDF
 qrcode[pil]

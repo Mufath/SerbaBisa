@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-HISTORY_FILE = "history.json"
+HISTORY_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "history.json")
 
 def get_history():
     if not os.path.exists(HISTORY_FILE):
