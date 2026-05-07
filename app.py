@@ -16,8 +16,11 @@ app.config["SECRET_KEY"] = os.urandom(24) # Diperlukan untuk CSRF
 csrf = SeaSurf(app)
 
 # Masukkan folder bin lokal ke dalam PATH agar FFmpeg dan tool eksternal lainnya langsung dikenali
-bin_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
-os.environ["PATH"] += os.pathsep + bin_path
+# Hanya lakukan di Windows (lokal), di Linux (cloud) kita akan instal via package manager
+if os.name == 'nt':
+    bin_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
+    if os.path.exists(bin_path):
+        os.environ["PATH"] += os.pathsep + bin_path
 
 TOOL_CATEGORIES = [
     {
@@ -347,7 +350,10 @@ app.register_blueprint(media_bp, url_prefix="/media")
 app.register_blueprint(download_bp, url_prefix="/download")
 
 import threading
-import webview
+try:
+    import webview
+except ImportError:
+    webview = None
 import time
 
 class WebviewApi:
@@ -365,18 +371,31 @@ class WebviewApi:
         return False
 
 if __name__ == "__main__":
-    def start_flask():
-        app.run(debug=False, port=5000)
+    # Cek apakah aplikasi dijalankan dalam mode desktop atau server
+    # Jika env SERBABISA_DESKTOP ada, atau jika dijalankan langsung di Windows tanpa env PORT
+    is_desktop = os.environ.get("SERBABISA_DESKTOP", "false").lower() == "true"
+    if os.name == 'nt' and not os.environ.get("PORT"):
+        is_desktop = True
+
+    port = int(os.environ.get("PORT", 5000))
+
+    if is_desktop and webview:
+        def start_flask():
+            # In desktop mode, we run on localhost
+            app.run(debug=False, port=port)
+            
+        # Jalankan server Flask di thread terpisah agar tidak memblokir UI
+        t = threading.Thread(target=start_flask)
+        t.daemon = True
+        t.start()
         
-    # Jalankan server Flask di thread terpisah agar tidak memblokir UI
-    t = threading.Thread(target=start_flask)
-    t.daemon = True
-    t.start()
-    
-    # Beri sedikit waktu agar server siap sebelum window dibuat
-    time.sleep(1)
-    # Buat jendela aplikasi desktop (Native UI)
-    import os
-    api = WebviewApi()
-    webview.create_window("SerbaBisa", "http://127.0.0.1:5000", width=1200, height=800, min_size=(800, 600), js_api=api)
-    webview.start(private_mode=False)
+        # Beri sedikit waktu agar server siap sebelum window dibuat
+        time.sleep(1)
+        # Buat jendela aplikasi desktop (Native UI)
+        api = WebviewApi()
+        webview.create_window("SerbaBisa", f"http://127.0.0.1:{port}", width=1200, height=800, min_size=(800, 600), js_api=api)
+        webview.start(private_mode=False)
+    else:
+        # Server mode (Cloud / Online)
+        print(f"Starting server mode on port {port}...")
+        app.run(host='0.0.0.0', port=port)

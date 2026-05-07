@@ -1,5 +1,6 @@
 # Core
 Flask
+gunicorn
 Flask-SeaSurf
 requests
 Pillow
