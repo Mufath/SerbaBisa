@@ -5,6 +5,7 @@ import subprocess
 import threading
 import time
 import sys
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Tambahkan path aplikasi agar modul lokal (utils, routes, dll) terbaca di Cloud
 app_root = os.path.dirname(os.path.abspath(__file__))
@@ -18,6 +19,7 @@ from locales import m, translate_ui, translate_tool
 from utils.history import get_history, log_history, get_weekly_count, format_time_ago, get_daily_stats
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100 MB max upload
 
 # Gunakan kunci tetap agar CSRF konsisten di semua Gunicorn workers
@@ -33,8 +35,10 @@ csrf = SeaSurf(app)
 
 @app.after_request
 def add_header(response):
-    # Izinkan aplikasi tampil di Iframe Hugging Face
-    response.headers['X-Frame-Options'] = 'ALLOWALL'
+    # Hapus X-Frame-Options agar bisa tampil di Iframe Hugging Face
+    response.headers.pop('X-Frame-Options', None)
+    # Tambahkan CSP untuk mengizinkan embedding dari Hugging Face
+    response.headers['Content-Security-Policy'] = "frame-ancestors 'self' https://huggingface.co https://*.huggingface.co;"
     return response
 
 # Masukkan folder bin lokal ke dalam PATH agar FFmpeg dan tool eksternal lainnya langsung dikenali
