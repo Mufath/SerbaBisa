@@ -20,6 +20,8 @@ jsonpath-ng
 pywebview
 cryptography
 yt-dlp
+rembg[cpu]
+onnxruntime
 # Optional (app works without these, shows install message if missing)
 pyzbar
 pdf2docx
