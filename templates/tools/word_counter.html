@@ -1,16 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Word Counter - SerbaBisa{% endblock %}
-{% block top_title %}Word Counter{% endblock %}
+{% block title %}{{ _t('Word Counter Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Word Counter Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Word Counter</h1>
-        <p>{{ _t('desc_word_counter') }}</p>
+        <h1>{{ _t('Word Counter Title') }}</h1>
+        <p>{{ _t('Desc Word Counter') }}</p>
     </div>
     <div class="pane" style="margin-bottom:1rem">
         <div class="pane-body">
-            <textarea id="wc-input" style="min-height:200px" placeholder="{{ _t('type_or_paste_text_here') }}" oninput="countWords()"></textarea>
+            <textarea id="wc-input" style="min-height:200px" placeholder="{{ _t('Type Or Paste Text Here') }}" oninput="countWords()"></textarea>
         </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem">
@@ -20,11 +20,11 @@
         </div>
         <div class="calc-section" style="text-align:center">
             <div class="calc-result-inline" id="wc-chars">0</div>
-            <div style="font-size:.85rem;color:var(--text-light)">Karakter</div>
+            <div style="font-size:.85rem;color:var(--text-light)">{{ _t('character') }}</div>
         </div>
         <div class="calc-section" style="text-align:center">
             <div class="calc-result-inline" id="wc-chars-ns">0</div>
-            <div style="font-size:.85rem;color:var(--text-light)">Karakter (Tanpa Spasi)</div>
+            <div style="font-size:.85rem;color:var(--text-light)">{{ _t('Characters (No Spaces)') }}</div>
         </div>
         <div class="calc-section" style="text-align:center">
             <div class="calc-result-inline" id="wc-sentences">0</div>
@@ -35,8 +35,8 @@
             <div style="font-size:.85rem;color:var(--text-light)">{{ _t('paragraphs') }}</div>
         </div>
         <div class="calc-section" style="text-align:center">
-            <div class="calc-result-inline" id="wc-reading">0 mnt</div>
-            <div style="font-size:.85rem;color:var(--text-light)">Waktu Baca</div>
+            <div class="calc-result-inline" id="wc-reading">0 {{ _t('min') }}</div>
+            <div style="font-size:.85rem;color:var(--text-light)">{{ _t('Reading Time') }}</div>
         </div>
     </div>
 </div>
@@ -56,7 +56,7 @@ function countWords() {
     // Logika deteksi paragraf
     const paragraphs = text.trim() ? text.split(/\n\s*\n/).filter(p => p.trim()).length : 0;
     
-    // Estimasi {{ _t('reading_time') }} (rata-rata 200 kata per menit)
+    // Estimasi {{ _t('Reading Time') }} (rata-rata 200 kata per menit)
     const readingMin = Math.max(1, Math.ceil(words / 200));
 
     document.getElementById("wc-words").textContent = words;
@@ -64,7 +64,7 @@ function countWords() {
     document.getElementById("wc-chars-ns").textContent = charsNS;
     document.getElementById("wc-sentences").textContent = sentences;
     document.getElementById("wc-paragraphs").textContent = paragraphs || (text.trim() ? 1 : 0);
-    document.getElementById("wc-reading").textContent = words ? readingMin + " mnt" : "0 mnt";
+    document.getElementById("wc-reading").textContent = words ? readingMin + " {{ _t('min') }}" : "0 {{ _t('min') }}";
 }
 </script>
 {% endblock %}

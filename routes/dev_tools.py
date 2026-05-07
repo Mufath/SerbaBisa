@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from flask import Blueprint, render_template, request, jsonify
+from locales import m
 
 try:
     import sqlparse
@@ -77,7 +78,7 @@ def sql_format():
 
     sql = request.form.get("sql", "").strip()
     if not sql:
-        return jsonify({"error": "No SQL provided."}), 400
+        return jsonify({"error": m("No expression provided.")}), 400
 
     keyword_case = request.form.get("keyword_case", "upper")
     indent = request.form.get("indent", "2")
@@ -110,7 +111,7 @@ def sql_format():
             formatted = formatted.replace("  ", "\t")
         return jsonify({"text": formatted})
     except Exception as e:
-        return jsonify({"error": f"Formatting failed: {e}"}), 400
+        return jsonify({"error": m("Formatting failed: {e}", e=e)}), 400
 
 
 @bp.route("/cron", methods=["GET", "POST"])
@@ -125,7 +126,7 @@ def cron_parser():
     count_raw = request.form.get("count", "10")
 
     if not expr:
-        return jsonify({"error": "No expression provided."}), 400
+        return jsonify({"error": m("No expression provided.")}), 400
 
     try:
         count = max(1, min(50, int(count_raw)))
@@ -133,7 +134,7 @@ def cron_parser():
         count = 10
 
     if not croniter.is_valid(expr):
-        return jsonify({"error": "Invalid cron expression."}), 400
+        return jsonify({"error": m("Invalid cron expression.")}), 400
 
     try:
         now = datetime.now(timezone.utc)
@@ -146,7 +147,7 @@ def cron_parser():
         description = _describe_cron(expr)
         return jsonify({"description": description, "next": next_times})
     except Exception as e:
-        return jsonify({"error": f"Parse failed: {e}"}), 400
+        return jsonify({"error": m("Parse failed: {e}", e=e)}), 400
 
 
 def _describe_cron(expr: str) -> str:
@@ -191,22 +192,22 @@ def jsonpath_tester():
     path = request.form.get("path", "").strip()
 
     if not raw:
-        return jsonify({"error": "No JSON data provided."}), 400
+        return jsonify({"error": m("No expression provided.")}), 400
     if not path:
-        return jsonify({"error": "No JSONPath expression provided."}), 400
+        return jsonify({"error": m("No expression provided.")}), 400
 
     try:
         data = _json.loads(raw)
     except _json.JSONDecodeError as e:
-        return jsonify({"error": f"Invalid JSON: {e}"}), 400
+        return jsonify({"error": m("Invalid JSON: {e}", e=e)}), 400
 
     try:
         expr = jsonpath_parse(path)
     except Exception as e:
-        return jsonify({"error": f"Invalid JSONPath: {e}"}), 400
+        return jsonify({"error": m("Invalid JSONPath: {e}", e=e)}), 400
 
     try:
         matches = [m.value for m in expr.find(data)]
         return jsonify({"count": len(matches), "matches": matches})
     except Exception as e:
-        return jsonify({"error": f"Evaluation failed: {e}"}), 400
+        return jsonify({"error": m("Parse failed: {e}", e=e)}), 400

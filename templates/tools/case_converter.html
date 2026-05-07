@@ -1,62 +1,62 @@
 {% extends "base.html" %}
-{% block title %}Case Converter - SerbaBisa{% endblock %}
-{% block top_title %}Case Converter{% endblock %}
+{% block title %}{{ _t('Case Converter') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Case Converter') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Case Converter</h1>
-        <p>{{ _t('desc_case_converter') }}</p>
+        <h1>{{ _t('Case Converter') }}</h1>
+        <p>{{ _t('Desc Case Converter') }}</p>
     </div>
     <div class="form-group">
-        <label>{{ _t('text_input') }}</label>
-        <textarea id="case-input" class="text-input" rows="4" placeholder="{{ _t('type_or_paste_your_text_here') }}" oninput="convertAll()"></textarea>
+        <label>{{ _t('Text Input') }}</label>
+        <textarea id="case-input" class="text-input" rows="4" placeholder="{{ _t('Type Or Paste Your Text Here') }}" oninput="convertAll()"></textarea>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
         <div class="calc-section">
-            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('all_caps') }}</span>
+            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('All Caps') }}</span>
                 <button class="btn btn-small" onclick="copyText('case-upper')"><i class="bi bi-clipboard"></i></button>
             </div>
             <div id="case-upper" style="font-size:.9rem;word-break:break-word;min-height:2em"></div>
         </div>
         <div class="calc-section">
-            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('all_lowercase') }}</span>
+            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('All Lowercase') }}</span>
                 <button class="btn btn-small" onclick="copyText('case-lower')"><i class="bi bi-clipboard"></i></button>
             </div>
             <div id="case-lower" style="font-size:.9rem;word-break:break-word;min-height:2em"></div>
         </div>
         <div class="calc-section">
-            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>Huruf Besar Di Tiap {{ _t('words') }}</span>
+            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('Title Case') }}</span>
                 <button class="btn btn-small" onclick="copyText('case-title')"><i class="bi bi-clipboard"></i></button>
             </div>
             <div id="case-title" style="font-size:.9rem;word-break:break-word;min-height:2em"></div>
         </div>
         <div class="calc-section">
-            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('sentence_case') }}</span>
+            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('Sentence Case') }}</span>
                 <button class="btn btn-small" onclick="copyText('case-sentence')"><i class="bi bi-clipboard"></i></button>
             </div>
             <div id="case-sentence" style="font-size:.9rem;word-break:break-word;min-height:2em"></div>
         </div>
         <div class="calc-section">
-            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('camel_case') }}</span>
+            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('Camel Case') }}</span>
                 <button class="btn btn-small" onclick="copyText('case-camel')"><i class="bi bi-clipboard"></i></button>
             </div>
             <div id="case-camel" style="font-size:.9rem;word-break:break-word;min-height:2em"></div>
         </div>
         <div class="calc-section">
-            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('snake_case') }}</span>
+            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('Snake Case') }}</span>
                 <button class="btn btn-small" onclick="copyText('case-snake')"><i class="bi bi-clipboard"></i></button>
             </div>
             <div id="case-snake" style="font-size:.9rem;word-break:break-word;min-height:2em"></div>
         </div>
         <div class="calc-section">
-            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('kebab_case') }}</span>
+            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('Kebab Case') }}</span>
                 <button class="btn btn-small" onclick="copyText('case-kebab')"><i class="bi bi-clipboard"></i></button>
             </div>
             <div id="case-kebab" style="font-size:.9rem;word-break:break-word;min-height:2em"></div>
         </div>
         <div class="calc-section">
-            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('pascal_case') }}</span>
+            <div class="pane-header" style="margin:-1.2rem -1.2rem .8rem;padding:.5rem .8rem"><span>{{ _t('Pascal Case') }}</span>
                 <button class="btn btn-small" onclick="copyText('case-pascal')"><i class="bi bi-clipboard"></i></button>
             </div>
             <div id="case-pascal" style="font-size:.9rem;word-break:break-word;min-height:2em"></div>

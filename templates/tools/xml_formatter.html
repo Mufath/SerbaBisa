@@ -1,29 +1,29 @@
 {% extends "base.html" %}
-{% block title %}XML {{ _t('format') }}ter - SerbaBisa{% endblock %}
-{% block top_title %}XML {{ _t('format') }}ter{% endblock %}
+{% block title %}{{ _t('XML Formatter') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('XML Formatter') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>XML {{ _t('format') }}ter</h1>
-        <p>{{ _t('desc_xml_formatter') }}</p>
+        <h1>{{ _t('XML Formatter') }}</h1>
+        <p>{{ _t('Desc XML Formatter') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
-                <span>{{ _t('xml_code_input') }}</span>
+                <span>{{ _t('XML Code Input') }}</span>
                 <div>
-                    <button class="btn btn-small" onclick="formatXML()">Rapiin ({{ _t('format') }})</button>
-                    <button class="btn btn-small" onclick="minifyXML()">Padatkan ({{ _t('minify') }})</button>
+                    <button class="btn btn-small" onclick="formatXML()">{{ _t('Tidy Format') }}</button>
+                    <button class="btn btn-small" onclick="minifyXML()">{{ _t('Minify Compress') }}</button>
                 </div>
             </div>
             <div class="pane-body">
-                <textarea id="xml-input" placeholder="{{ _t('xml_example') }}"></textarea>
+                <textarea id="xml-input" placeholder="{{ _t('XML Example') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <span>{{ _t('the_result') }}</span>
+                <span>{{ _t('The Result') }}</span>
                 <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body">
@@ -75,9 +75,9 @@ function formatXML() {
         const result = pretty(doc.documentElement, 0);
         const decl = input.trim().startsWith("<?xml") ? input.trim().match(/^<\?xml[^?]*\?>/)[0] + "\n" : "";
         document.getElementById("xml-output").textContent = decl + result;
-        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> XML Valid</span>';
+        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> ' + (window.SERBABISA_TRANS?.xml_valid || 'XML Valid') + '</span>';
     } catch (e) {
-        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Waduh, XML-nya error: ${e.message}</span>`;
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> ${window.SERBABISA_TRANS?.error || 'Error'}: ${e.message}</span>`;
     }
 }
 
@@ -90,9 +90,9 @@ function minifyXML() {
         parseXML(input);
         const out = input.replace(/>\s+</g, "><").replace(/\s+/g, " ").trim();
         document.getElementById("xml-output").textContent = out;
-        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> XML Valid (Sudah Dipadatkan)</span>';
+        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> ' + (window.SERBABISA_TRANS?.xml_minified || 'XML Minified') + '</span>';
     } catch (e) {
-        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Error pas minify: ${e.message}</span>`;
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> ${window.SERBABISA_TRANS?.error || 'Error'}: ${e.message}</span>`;
     }
 }
 

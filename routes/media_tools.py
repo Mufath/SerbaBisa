@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import tempfile
 from flask import Blueprint, render_template, request, send_file, jsonify
+from locales import m
 
 bp = Blueprint("media", __name__)
 
@@ -13,16 +14,16 @@ AUDIO_FORMATS = ["mp3", "wav", "ogg", "flac", "aac", "m4a", "opus"]
 VIDEO_FORMATS = ["mp4", "webm", "mkv", "mov", "avi"]
 
 FFMPEG_INSTALL_NOTE = (
-    '<p><strong>Aplikasi FFmpeg wajib terinstal buat pakai alat ini.</strong></p>'
-    '<details><summary>Cara install FFmpeg</summary>'
-    '<p><strong>Windows:</strong> Download dari '
-    '<a href="https://www.gyan.dev/ffmpeg/builds/" target="_blank">gyan.dev</a> atau '
+    '<p><strong>{{ _t("Ffmpeg Not Found") }}</strong></p>'
+    '<details><summary>{{ _t("Ffmpeg Install Guide") }}</summary>'
+    '<p><strong>Windows:</strong> Download from '
+    '<a href="https://www.gyan.dev/ffmpeg/builds/" target="_blank">gyan.dev</a> or '
     '<a href="https://github.com/BtbN/FFmpeg-Builds/releases" target="_blank">BtbN builds</a>, '
-    'lalu ekstrak dan tambahkan folder <code>bin</code> ke PATH Windows kamu.</p>'
+    'then extract and add the <code>bin</code> folder to your Windows PATH.</p>'
     '<p><strong>macOS:</strong> <code>brew install ffmpeg</code></p>'
     '<p><strong>Linux:</strong> <code>sudo apt install ffmpeg</code> (Debian/Ubuntu) '
-    'atau <code>sudo dnf install ffmpeg</code> (Fedora).</p>'
-    '<p>Restart aplikasinya setelah install ya biar kedeteksi!</p>'
+    'or <code>sudo dnf install ffmpeg</code> (Fedora).</p>'
+    '<p>{{ _t("Restart aplikasinya setelah install ya biar kedeteksi!") }}</p>'
     '</details>'
 )
 
@@ -30,26 +31,26 @@ def _ffmpeg_available_notes():
     if FFMPEG:
         return ""
     return (
-        '<p><i class="bi bi-exclamation-triangle-fill" style="color:#ffb703"></i> '
-        '<strong>Waduh, FFmpeg nggak ketemu nih.</strong> Alat ini nggak bisa dipake sebelum kamu install FFmpeg.</p>'
+        f'<p><i class="bi bi-exclamation-triangle-fill" style="color:#ffb703"></i> '
+        f'<strong>{m("FFmpeg not found.")}</strong></p>'
         + FFMPEG_INSTALL_NOTE
     )
 
 
 def _run_ffmpeg(args: list[str], timeout: int = 180):
     if not FFMPEG:
-        return None, "Yaaah, FFmpeg belum terinstal atau nggak kedeteksi di PATH nih."
+        return None, m("FFmpeg not found.")
     try:
         proc = subprocess.run(
             [FFMPEG, "-y", "-hide_banner", "-loglevel", "error"] + args,
             capture_output=True, timeout=timeout,
         )
         if proc.returncode != 0:
-            err = proc.stderr.decode("utf-8", errors="replace") or "error misterius"
-            return None, f"FFmpeg gagal jalan: {err[:500]}"
+            err = proc.stderr.decode("utf-8", errors="replace") or "error"
+            return None, m("FFmpeg failed to run: {msg}", msg=err[:500])
         return proc, None
     except subprocess.TimeoutExpired:
-        return None, "Yah, FFmpeg-nya kelamaan (timeout)."
+        return None, m("FFmpeg timed out.")
 
 
 def _save_upload(file_storage, tmpdir: str) -> str:
@@ -74,7 +75,7 @@ def convert_audio():
             options=[
                 {
                     "name": "format",
-                    "label": "Target format",
+                    "label": "Target Format",
                     "type": "select",
                     "default": "mp3",
                     "choices": [{"value": f, "label": f.upper()} for f in AUDIO_FORMATS],
@@ -93,15 +94,15 @@ def convert_audio():
                     ],
                 },
             ],
-            button_text="Konversi",
+            button_text="Convert",
         )
 
     f = request.files.get("files")
     if not f:
-        return jsonify({"error": "No file uploaded."}), 400
+        return jsonify({"error": m("No file uploaded.")}), 400
     fmt = request.form.get("format", "mp3")
     if fmt not in AUDIO_FORMATS:
-        return jsonify({"error": "Unsupported target format."}), 400
+        return jsonify({"error": m("Unsupported audio format.")}), 400
     bitrate = request.form.get("bitrate", "192k")
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -146,7 +147,7 @@ def convert_video():
             options=[
                 {
                     "name": "format",
-                    "label": "Target format",
+                    "label": "Target Format",
                     "type": "select",
                     "default": "mp4",
                     "choices": [{"value": f, "label": f.upper()} for f in VIDEO_FORMATS],
@@ -157,10 +158,10 @@ def convert_video():
 
     f = request.files.get("files")
     if not f:
-        return jsonify({"error": "No file uploaded."}), 400
+        return jsonify({"error": m("No file uploaded.")}), 400
     fmt = request.form.get("format", "mp4")
     if fmt not in VIDEO_FORMATS:
-        return jsonify({"error": "Unsupported target format."}), 400
+        return jsonify({"error": m("Unsupported target format.")}), 400
 
     with tempfile.TemporaryDirectory() as tmp:
         in_path = _save_upload(f, tmp)
@@ -206,7 +207,7 @@ def extract_audio():
             options=[
                 {
                     "name": "format",
-                    "label": "Audio format",
+                    "label": "Audio Format",
                     "type": "select",
                     "default": "mp3",
                     "choices": [
@@ -217,12 +218,12 @@ def extract_audio():
                     ],
                 },
             ],
-            button_text="Ekstrak",
+            button_text="Extract",
         )
 
     f = request.files.get("files")
     if not f:
-        return jsonify({"error": "No file uploaded."}), 400
+        return jsonify({"error": m("No file uploaded.")}), 400
     fmt = request.form.get("format", "mp3")
     if fmt not in ("mp3", "wav", "ogg", "m4a"):
         return jsonify({"error": "Unsupported audio format."}), 400
@@ -281,12 +282,12 @@ def trim():
                     "default": "",
                 },
             ],
-            button_text="Potong",
+            button_text="Trim",
         )
 
     f = request.files.get("files")
     if not f:
-        return jsonify({"error": "No file uploaded."}), 400
+        return jsonify({"error": m("No file uploaded.")}), 400
 
     start = (request.form.get("start") or "0").strip()
     end = (request.form.get("end") or "").strip()
@@ -343,31 +344,31 @@ def compress_video():
                     "type": "select",
                     "default": "28",
                     "choices": [
-                        {"value": "23", "label": "High (23 – larger, better)"},
-                        {"value": "28", "label": "Medium (28 – balanced)"},
-                        {"value": "32", "label": "Low (32 – smaller)"},
-                        {"value": "36", "label": "Very low (36 – smallest)"},
+                        {"value": "23", "label": "Quality High"},
+                        {"value": "28", "label": "Quality Medium"},
+                        {"value": "32", "label": "Quality Low"},
+                        {"value": "36", "label": "Quality Very Low"},
                     ],
                 },
                 {
                     "name": "preset",
-                    "label": "Encoding preset",
+                    "label": "Encoding Preset",
                     "type": "select",
                     "default": "medium",
                     "choices": [
-                        {"value": "ultrafast", "label": "Ultrafast (largest)"},
-                        {"value": "fast", "label": "Fast"},
-                        {"value": "medium", "label": "Medium"},
-                        {"value": "slow", "label": "Slow (smallest)"},
+                        {"value": "ultrafast", "label": "Preset Ultrafast"},
+                        {"value": "fast", "label": "Preset Fast"},
+                        {"value": "medium", "label": "Preset Medium"},
+                        {"value": "slow", "label": "Preset Slow"},
                     ],
                 },
             ],
-            button_text="Kompres",
+            button_text="Compress",
         )
 
     f = request.files.get("files")
     if not f:
-        return jsonify({"error": "No file uploaded."}), 400
+        return jsonify({"error": m("No file uploaded.")}), 400
 
     crf = request.form.get("quality", "28")
     preset = request.form.get("preset", "medium")
@@ -423,7 +424,7 @@ def video_to_gif():
 
     f = request.files.get("files")
     if not f:
-        return jsonify({"error": "No file uploaded."}), 400
+        return jsonify({"error": m("No file uploaded.")}), 400
 
     try:
         fps = max(1, min(30, int(request.form.get("fps", 15))))
@@ -568,7 +569,7 @@ def subtitle_convert():
             options=[
                 {
                     "name": "target",
-                    "label": "Target format",
+                    "label": "Target Format",
                     "type": "select",
                     "default": "srt",
                     "choices": [
@@ -578,7 +579,7 @@ def subtitle_convert():
                 },
                 {
                     "name": "offset",
-                    "label": "Time shift (seconds, can be negative, e.g. -1.5)",
+                    "label": "Time Shift",
                     "type": "text",
                     "default": "0",
                 },
@@ -588,10 +589,10 @@ def subtitle_convert():
 
     f = request.files.get("files")
     if not f:
-        return jsonify({"error": "No file uploaded."}), 400
+        return jsonify({"error": m("No file uploaded.")}), 400
     target = request.form.get("target", "srt").lower()
     if target not in ("srt", "vtt"):
-        return jsonify({"error": "Unsupported target format."}), 400
+        return jsonify({"error": m("Unsupported target format.")}), 400
     try:
         offset = float(request.form.get("offset", "0"))
     except ValueError:
@@ -631,11 +632,11 @@ def burn_subtitles():
             multiple=False,
             options=[
                 {"type": "file", "name": "subtitle",
-                 "label": "Subtitle file (.srt or .vtt)",
+                 "label": "Subtitle File",
                  "accept": ".srt,.vtt", "required": True},
                 {
                     "name": "font_size",
-                    "label": "Font size",
+                    "label": "Font Size",
                     "type": "number",
                     "default": 22,
                     "min": 10,
@@ -643,17 +644,17 @@ def burn_subtitles():
                 },
                 {
                     "name": "quality",
-                    "label": "Output quality (CRF)",
+                    "label": "Output Quality (CRF)",
                     "type": "select",
                     "default": "23",
                     "choices": [
-                        {"value": "18", "label": "Best (18)"},
-                        {"value": "23", "label": "Good (23)"},
-                        {"value": "28", "label": "Smaller (28)"},
+                        {"value": "18", "label": "Quality Best"},
+                        {"value": "23", "label": "Quality Good"},
+                        {"value": "28", "label": "Quality Smaller"},
                     ],
                 },
             ],
-            button_text="Tanam Subtitle",
+            button_text="Burn Subtitles",
         )
 
     if not FFMPEG:
@@ -710,7 +711,147 @@ def burn_subtitles():
     )
 
 
+# ── Normalize audio ────────────────────────────────────
+
+@bp.route("/normalize-audio", methods=["GET", "POST"])
+def normalize_audio():
+    if request.method == "GET":
+        return render_template(
+            "upload_tool.html",
+            title="Normalisasi Audio",
+            description="Seimbangkan volume audio agar pas didengar",
+            notes=_ffmpeg_available_notes()
+                + "<p><strong>Info:</strong> Alat ini menaikkan volume suara yang terlalu pelan tanpa membuatnya pecah.</p>",
+            endpoint="/media/normalize-audio",
+            accept=".mp3,.wav,.ogg,.flac,.m4a",
+            multiple=False,
+            options=[
+                {
+                    "name": "format",
+                    "label": "Output Format",
+                    "type": "select",
+                    "default": "mp3",
+                    "choices": [
+                        {"value": "mp3", "label": "MP3"},
+                        {"value": "wav", "label": "WAV"},
+                    ],
+                },
+            ],
+            button_text="Normalize",
+        )
+
+    f = request.files.get("files")
+    if not f:
+        return jsonify({"error": m("No file uploaded.")}), 400
+
+    fmt = request.form.get("format", "mp3")
+    if fmt not in ("mp3", "wav"):
+        return jsonify({"error": "Unsupported output format."}), 400
+
+    from pydub import AudioSegment, effects
+
+    with tempfile.TemporaryDirectory() as tmp:
+        in_path = _save_upload(f, tmp)
+        out_path = os.path.join(tmp, f"output.{fmt}")
+
+        try:
+            # Pydub automatically detects format and uses ffmpeg
+            audio = AudioSegment.from_file(in_path)
+            normalized_audio = effects.normalize(audio)
+            
+            # Export
+            export_kwargs = {}
+            if fmt == "mp3":
+                export_kwargs["bitrate"] = "192k"
+            
+            normalized_audio.export(out_path, format=fmt, **export_kwargs)
+        except Exception as e:
+            return jsonify({"error": m("Could not normalize audio: {e}", e=str(e))}), 400
+
+        with open(out_path, "rb") as fp:
+            data = fp.read()
+
+    base = f.filename.rsplit(".", 1)[0]
+    return send_file(
+        _bytes_io(data),
+        mimetype=f"audio/{fmt}",
+        as_attachment=True,
+        download_name=f"{base}_normalized.{fmt}",
+    )
+
+
+# ── Speech to Text ─────────────────────────────────────
+
+@bp.route("/speech-to-text", methods=["GET", "POST"])
+def speech_to_text():
+    if request.method == "GET":
+        return render_template(
+            "upload_tool.html",
+            title="Suara ke Teks",
+            description="Ubah rekaman suara menjadi teks tulisan",
+            notes=_ffmpeg_available_notes()
+                + "<p><strong>Info:</strong> Alat ini membutuhkan koneksi internet (menggunakan API Pengenalan Suara Google). Usahakan audio jernih agar hasilnya akurat.</p>",
+            endpoint="/media/speech-to-text",
+            accept=".mp3,.wav,.ogg,.flac,.m4a",
+            multiple=False,
+            options=[
+                {
+                    "name": "language",
+                    "label": "Recognition Language",
+                    "type": "select",
+                    "default": "id-ID",
+                    "choices": [
+                        {"value": "id-ID", "label": "Indonesia"},
+                        {"value": "en-US", "label": "Inggris (US)"},
+                        {"value": "en-GB", "label": "Inggris (UK)"},
+                        {"value": "ja-JP", "label": "Jepang"},
+                        {"value": "ko-KR", "label": "Korea"},
+                        {"value": "ar-SA", "label": "Arab"},
+                    ],
+                },
+            ],
+            button_text="Transkrip",
+        )
+
+    f = request.files.get("files")
+    if not f:
+        return jsonify({"error": m("No file uploaded.")}), 400
+
+    lang = request.form.get("language", "id-ID")
+    import speech_recognition as sr
+
+    with tempfile.TemporaryDirectory() as tmp:
+        in_path = _save_upload(f, tmp)
+        wav_path = os.path.join(tmp, "temp.wav")
+
+        # Convert to WAV first since speech_recognition needs it
+        args = ["-i", in_path, "-ac", "1", "-ar", "16000", wav_path]
+        _, err = _run_ffmpeg(args)
+        if err:
+            return jsonify({"error": err}), 400
+
+        recognizer = sr.Recognizer()
+        
+        try:
+            with sr.AudioFile(wav_path) as source:
+                audio_data = recognizer.record(source)
+            
+            # Recognize using Google Web Speech API
+            text = recognizer.recognize_google(audio_data, language=lang)
+            
+            # Return text directly to frontend result area
+            return jsonify({"text": text})
+            
+        except sr.UnknownValueError:
+            return jsonify({"error": m("Sorry, speech could not be understood. Make sure the audio is clear.")}), 400
+        except sr.RequestError as e:
+            return jsonify({"error": m("Service error or requires internet: {e}", e=e)}), 400
+        except Exception as e:
+            return jsonify({"error": m("Unexpected error: {e}", e=e)}), 400
+
+
 # ── helpers ────────────────────────────────────────────
 
 def _bytes_io(data: bytes):
     return _io.BytesIO(data)
+

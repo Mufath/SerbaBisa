@@ -1,48 +1,48 @@
 {% extends "base.html" %}
-{% block title %}JSON / YAML Converter - SerbaBisa{% endblock %}
-{% block top_title %}JSON / YAML{% endblock %}
+{% block title %}{{ _t('JSON YAML Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('JSON YAML Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>JSON / YAML Converter</h1>
-        <p>{{ _t('desc_json_yaml') }}</p>
+        <h1>{{ _t('JSON YAML Title') }}</h1>
+        <p>{{ _t('Desc JSON Yaml') }}</p>
     </div>
 
     <div style="margin-bottom:1.5rem; display: flex; gap: 0.5rem; background: var(--bg); padding: 0.5rem; border-radius: 12px; border: 1px solid var(--border); width: fit-content;">
-        <button class="btn" id="btn-j2y" onclick="setMode('j2y')" style="border: none; padding: 8px 16px;">
-            <i class="bi bi-filetype-json"></i> {{ _t('json_to_yaml') }}
+        <button class="btn btn-primary" id="btn-j2y" onclick="setMode('j2y')" style="border: none; padding: 8px 20px;">
+            <i class="bi bi-filetype-json"></i> {{ _t('JSON To Yaml') }}
         </button>
-        <button class="btn" id="btn-y2j" onclick="setMode('y2j')" style="border: none; padding: 8px 16px; opacity: 0.5;">
-            {{ _t('yaml_to_json') }} <i class="bi bi-filetype-yml"></i>
+        <button class="btn btn-primary" id="btn-y2j" onclick="setMode('y2j')" style="border: none; padding: 8px 20px; opacity: 0.6;">
+            {{ _t('Yaml To JSON') }} <i class="bi bi-filetype-yml"></i>
         </button>
     </div>
 
     <div class="split-pane" style="display: flex; gap: 1rem; height: 500px;">
         <div class="pane" style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
             <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); font-weight: 600;">
-                <span id="jy-input-label">JSON Input</span>
+                <span id="jy-input-label">{{ _t('JSON Input') }}</span>
             </div>
             <div class="pane-body" style="flex: 1;">
-                <textarea id="jy-input" placeholder="Tempelkan data kamu di sini..." 
+                <textarea id="jy-input" placeholder="{{ _t('Paste Raw Data Here') }}" 
                     style="width: 100%; height: 100%; border: none; padding: 1.2rem; font-family: 'Consolas', monospace; resize: none; outline: none; font-size: 0.9rem; line-height: 1.5;"></textarea>
             </div>
         </div>
 
-        <div class="pane" style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fafafa;">
+        <div class="pane" style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
             <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                <span id="jy-output-label" style="font-weight: 600;">YAML Output</span>
+                <span id="jy-output-label" style="font-weight: 600;">{{ _t('YAML Output') }}</span>
                 <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body" style="flex: 1; padding: 1.2rem; overflow-y: auto;">
-                <pre id="jy-output" style="margin: 0; font-family: 'Consolas', monospace; font-size: 0.9rem; color: #2c3e50; white-space: pre-wrap;"></pre>
+                <pre id="jy-output" style="margin: 0; font-family: 'Consolas', monospace; font-size: 0.9rem; color: var(--text); white-space: pre-wrap;"></pre>
             </div>
         </div>
     </div>
 
     <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem;">
         <button class="btn btn-primary" onclick="convert()" style="padding: 10px 24px; font-weight: 600;">
-            <i class="bi bi-arrow-left-right"></i> {{ _t('run_conversion') }}
+            <i class="bi bi-arrow-left-right"></i> {{ _t('Run Conversion') }}
         </button>
         <div id="jy-status" style="font-size: 0.9rem; font-weight: 500;"></div>
     </div>
@@ -61,14 +61,11 @@ function setMode(m) {
     const btnJ2Y = document.getElementById("btn-j2y");
     const btnY2J = document.getElementById("btn-y2j");
     
-    btnJ2Y.style.opacity = m === "j2y" ? 1 : 0.5;
-    btnJ2Y.classList.toggle("btn-primary", m === "j2y");
+    btnJ2Y.style.opacity = m === "j2y" ? "1" : "0.5";
+    btnY2J.style.opacity = m === "y2j" ? "1" : "0.5";
     
-    btnY2J.style.opacity = m === "y2j" ? 1 : 0.5;
-    btnY2J.classList.toggle("btn-primary", m === "y2j");
-    
-    document.getElementById("jy-input-label").textContent = m === "j2y" ? "JSON Input" : "YAML Input";
-    document.getElementById("jy-output-label").textContent = m === "j2y" ? "YAML Output" : "JSON Output";
+    document.getElementById("jy-input-label").textContent = m === "j2y" ? "{{ _t('JSON Input') }}" : "{{ _t('YAML Input') }}";
+    document.getElementById("jy-output-label").textContent = m === "j2y" ? "{{ _t('YAML Output') }}" : "{{ _t('JSON Output') }}";
     
     // Clear output saat ganti mode agar tidak membingungkan
     document.getElementById("jy-output").textContent = "";
@@ -83,7 +80,7 @@ function convert() {
     const output = document.getElementById("jy-output");
 
     if (!input) { 
-        status.innerHTML = '<span style="color:var(--danger)">{{ _t('please_enter_input') }}</span>'; 
+        status.innerHTML = '<span style="color:var(--danger)">{{ _t('Please Enter Input') }}</span>'; 
         return; 
     }
 
@@ -95,9 +92,9 @@ function convert() {
             const obj = yamlToJson(input);
             output.textContent = JSON.stringify(obj, null, 2);
         }
-        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('successfully_converted') }}</span>';
+        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('Successfully Converted') }}</span>';
     } catch (e) {
-        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Error: ${e.message}</span>`;
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> {{ _t('Error Label') }}: ${e.message}</span>`;
     }
 }
 
@@ -217,7 +214,7 @@ function copyOutput() {
     const text = document.getElementById('jy-output').textContent;
     if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
-        alert("Ber{{ _t('result') }} di{{ _t('copy_lower') }} ke clipboard!");
+        alert("{{ _t('Copied To Clipboard') }}");
     });
 }
 

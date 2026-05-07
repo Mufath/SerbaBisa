@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Lorem Ipsum Generator - SerbaBisa{% endblock %}
-{% block top_title %}Lorem Ipsum{% endblock %}
+{% block title %}{{ _t('Lorem Ipsum Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Lorem Ipsum Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Lorem Ipsum Generator</h1>
-        <p>{{ _t('desc_lorem_ipsum') }}</p>
+        <h1>{{ _t('Lorem Ipsum Title') }}</h1>
+        <p>{{ _t('Desc Lorem Ipsum') }}</p>
     </div>
 
     <div style="display:flex; gap:.8rem; align-items:flex-end; margin-bottom:1.5rem; flex-wrap:wrap; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
@@ -16,8 +16,8 @@
         </div>
         
         <div class="form-group" style="margin-bottom:0">
-            <label style="font-weight: 600; font-size: 0.9rem;">Tipe</label>
-            <select id="li-type" onchange="generate()" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border); background: white;">
+            <label style="font-weight: 600; font-size: 0.9rem;">{{ _t('Type Label') }}</label>
+            <select id="li-type" onchange="generate()" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
                 <option value="paragraphs">{{ _t('paragraphs') }}</option>
                 <option value="sentences">{{ _t('sentences') }}</option>
                 <option value="words">{{ _t('words') }}</option>
@@ -26,26 +26,25 @@
 
         <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0.4rem; font-size: 0.9rem;">
             <input type="checkbox" id="li-start" checked onchange="generate()">
-            <span>{{ _t('start') }} dengan "Lorem ipsum..."</span>
+            <span>{{ _t('Start With Lorem') }}</span>
         </label>
 
         <button class="btn btn-primary" onclick="generate()" style="margin-left: auto;">
-            <i class="bi bi-arrow-clockwise"></i> Acak Ulang
+            <i class="bi bi-arrow-clockwise"></i> {{ _t('regenerate') }}
         </button>
     </div>
 
     <div class="pane" style="border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
         <div class="pane-header" style="background: var(--bg); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 600;"><i class="bi bi-text-paragraph"></i> Teks Ber{{ _t('result') }} Dibuat</span>
+            <span style="font-weight: 600;"><i class="bi bi-text-paragraph"></i> {{ _t('Text Generated') }}</span>
             <button class="btn btn-small" onclick="copyResult()">
-                <i class="bi bi-clipboard"></i> {{ _t('copy') }} Teks
+                <i class="bi bi-clipboard"></i> {{ _t('Copy Text') }}
             </button>
         </div>
-        <div class="pane-body" style="background: white; padding: 1.5rem;">
-            <div id="li-output" style="white-space:pre-wrap; line-height:1.8; font-size:1rem; color: #333; min-height:200px;"></div>
+        <div class="pane-body" style="padding: 1.5rem;">
+            <div id="li-output" style="white-space:pre-wrap; line-height:1.8; font-size:1rem; color: var(--text); min-height:200px;"></div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -143,7 +142,7 @@ function copyResult() {
     if (!text) return;
     
     navigator.clipboard.writeText(text).then(() => {
-        alert("Teks ber{{ _t('result') }} di{{ _t('copy_lower') }} ke clipboard!");
+        alert(window.SERBABISA_TRANS?.copied_to_clipboard || "Copied to clipboard!");
     });
 }
 

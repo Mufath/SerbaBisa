@@ -1,27 +1,27 @@
 {% extends "base.html" %}
-{% block title %}CSV / JSON Converter - SerbaBisa{% endblock %}
-{% block top_title %}CSV / JSON{% endblock %}
+{% block title %}{{ _t('CSV JSON Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('CSV JSON Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>CSV / JSON Converter</h1>
-        <p>{{ _t('desc_csv_json') }}</p>
+        <h1>{{ _t('CSV JSON Title') }}</h1>
+        <p>{{ _t('Desc CSV JSON') }}</p>
     </div>
     <div style="margin-bottom:1rem">
-        <button class="btn btn-primary" id="btn-csv" onclick="setMode('csv')" style="opacity:1">{{ _t('csv_to_json') }}</button>
-        <button class="btn btn-primary" id="btn-json" onclick="setMode('json')" style="opacity:.5">{{ _t('json_to_csv') }}</button>
+        <button class="btn btn-primary" id="btn-csv" onclick="setMode('csv')" style="opacity:1">{{ _t('CSV To JSON') }}</button>
+        <button class="btn btn-primary" id="btn-json" onclick="setMode('json')" style="opacity:.5">{{ _t('JSON To CSV') }}</button>
     </div>
     <div class="split-pane">
         <div class="pane">
-            <div class="pane-header"><span id="input-label">Input CSV</span></div>
+            <div class="pane-header"><span id="input-label">{{ _t('Input CSV') }}</span></div>
             <div class="pane-body">
-                <textarea id="conv-input" placeholder="{{ _t('paste_data_here') }}"></textarea>
+                <textarea id="conv-input" placeholder="{{ _t('Paste Data Here') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <span id="output-label">Hasil JSON</span>
+                <span id="output-label">{{ _t('Output JSON') }}</span>
                 <button class="btn btn-small" onclick="navigator.clipboard.writeText(document.getElementById('conv-output').textContent)"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body">
@@ -29,7 +29,7 @@
             </div>
         </div>
     </div>
-    <button class="btn btn-primary" style="margin-top:1rem" onclick="convert()">Konversi Sekarang</button>
+    <button class="btn btn-primary" style="margin-top:1rem" onclick="convert()">{{ _t('Convert Now') }}</button>
     <div id="conv-status" style="margin-top:.5rem;font-size:.85rem"></div>
 </div>
 {% endblock %}
@@ -42,15 +42,15 @@ function setMode(m) {
     mode = m;
     document.getElementById("btn-csv").style.opacity = m === "csv" ? 1 : .5;
     document.getElementById("btn-json").style.opacity = m === "json" ? 1 : .5;
-    document.getElementById("input-label").textContent = m === "csv" ? "Input CSV" : "Input JSON";
-    document.getElementById("output-label").textContent = m === "csv" ? "Hasil JSON" : "Hasil CSV";
+    document.getElementById("input-label").textContent = m === "csv" ? (window.SERBABISA_TRANS?.input_csv || "Input CSV") : (window.SERBABISA_TRANS?.input_json || "Input JSON");
+    document.getElementById("output-label").textContent = m === "csv" ? (window.SERBABISA_TRANS?.output_json || "JSON Result") : (window.SERBABISA_TRANS?.output_csv || "CSV Result");
 }
 
 function convert() {
     const input = document.getElementById("conv-input").value.trim();
     const status = document.getElementById("conv-status");
     const output = document.getElementById("conv-output");
-    if (!input) { status.innerHTML = '<span style="color:var(--danger)">{{ _t('fill_data_first') }}</span>'; return; }
+    if (!input) { status.innerHTML = '<span style="color:var(--danger)">{{ _t('Fill Data First') }}</span>'; return; }
 
     try {
         if (mode === "csv") {
@@ -65,7 +65,7 @@ function convert() {
             output.textContent = JSON.stringify(result, null, 2);
         } else {
             const arr = JSON.parse(input);
-            if (!Array.isArray(arr) || arr.length === 0) throw new Error("{{ _t('format') }} JSON harus berupa array of objects.");
+            if (!Array.isArray(arr) || arr.length === 0) throw new Error("{{ _t('JSON Array Error') }}");
             const headers = Object.keys(arr[0]);
             const lines = [headers.join(",")];
             arr.forEach(obj => {
@@ -77,9 +77,9 @@ function convert() {
             });
             output.textContent = lines.join("\n");
         }
-        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('successfully_converted') }}</span>';
+        status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('Successfully Converted') }}</span>';
     } catch (e) {
-        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Waduh, ada yang salah: ${e.message}</span>`;
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> ${window.SERBABISA_TRANS?.oops_error || "Error"}: ${e.message}</span>`;
     }
 }
 

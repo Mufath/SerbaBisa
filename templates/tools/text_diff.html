@@ -1,28 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Text Diff - SerbaBisa{% endblock %}
-{% block top_title %}Text Diff{% endblock %}
+{% block title %}{{ _t('Text Diff Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Text Diff Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Bandingkan Teks (Text Diff)</h1>
-        <p>{{ _t('desc_text_diff') }}</p>
+        <h1>{{ _t('Text Diff Title') }}</h1>
+        <p>{{ _t('Desc Text Diff') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
-            <div class="pane-header"><span>{{ _t('original_text') }}</span></div>
+            <div class="pane-header"><span>{{ _t('Original Text') }}</span></div>
             <div class="pane-body">
-                <textarea id="diff-left" placeholder="{{ _t('paste_original_text_here') }}"></textarea>
+                <textarea id="diff-left" placeholder="{{ _t('Paste Original Text Here') }}"></textarea>
             </div>
         </div>
         <div class="pane">
-            <div class="pane-header"><span>{{ _t('modified_text') }}</span></div>
+            <div class="pane-header"><span>{{ _t('Modified Text') }}</span></div>
             <div class="pane-body">
-                <textarea id="diff-right" placeholder="{{ _t('paste_modified_text_here') }}"></textarea>
+                <textarea id="diff-right" placeholder="{{ _t('Paste Modified Text Here') }}"></textarea>
             </div>
         </div>
     </div>
-    <button class="btn btn-primary" style="margin-top:1rem" onclick="computeDiff()">{{ _t('compare_now') }}</button>
+    <button class="btn btn-primary" style="margin-top:1rem" onclick="computeDiff()">{{ _t('Compare Now') }}</button>
     <div id="diff-output" style="margin-top:1rem"></div>
 </div>
 {% endblock %}

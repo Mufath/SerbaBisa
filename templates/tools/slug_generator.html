@@ -1,16 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Slug Generator - SerbaBisa{% endblock %}
-{% block top_title %}Slug Generator{% endblock %}
+{% block title %}{{ _t('Slug Gen Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Slug Gen Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Slug Generator</h1>
-        <p>{{ _t('desc_slug_generator') }}</p>
+        <h1>{{ _t('Slug Gen Title') }}</h1>
+        <p>{{ _t('Desc Slug Generator') }}</p>
     </div>
     <div class="form-group">
-        <label>{{ _t('text_input') }}</label>
-        <textarea id="slug-input" class="text-input" rows="3" placeholder="Contoh: Cara Membuat Website di {{ _t('airlangga_univ') }}!" oninput="generateSlug()"></textarea>
+        <label>{{ _t('Text Input') }}</label>
+        <textarea id="slug-input" class="text-input" rows="3" placeholder="Contoh: Cara Membuat Website di {{ _t('Airlangga Univ') }}!" oninput="generateSlug()"></textarea>
     </div>
     <div class="form-group">
         <label>{{ _t('separator') }}</label>

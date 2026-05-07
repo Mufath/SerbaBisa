@@ -1,23 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Date Calculator - SerbaBisa{% endblock %}
+{% block title %}{{ _t('Date Calculator') }} - SerbaBisa{% endblock %}
 {% block top_title %}Date Calculator{% endblock %}
 
 {% block content %}
 <div class="tool-container">
     <div class="tool-header">
-        <h1>{{ _t('date_calculator') }}</h1>
-        <p>{{ _t('desc_date_calc') }}</p>
+        <h1>{{ _t('Date Calculator') }}</h1>
+        <p>{{ _t('Desc Date Calc') }}</p>
     </div>
 
     <div class="calc-section">
-        <h3>{{ _t('diff_between_two_dates') }}</h3>
+        <h3>{{ _t('Diff Between Two Dates') }}</h3>
         <div class="inline-form">
             <div class="form-group">
                 <label>Tanggal {{ _t('start') }} (DD-MM-YYYY)</label>
                 <input type="text" id="d1-start" onchange="calcDiff()" placeholder="Contoh: 17-08-2024">
             </div>
             <div class="form-group">
-                <label>{{ _t('end_date_ddmmyyyy') }}</label>
+                <label>{{ _t('End Date Ddmmyyyy') }}</label>
                 <input type="text" id="d1-end" onchange="calcDiff()" placeholder="Contoh: 25-12-2024">
             </div>
         </div>
@@ -26,10 +26,10 @@
     </div>
 
     <div class="calc-section">
-        <h3>{{ _t('add_or_subtract_days') }}</h3>
+        <h3>{{ _t('Add Or Subtract Days') }}</h3>
         <div class="inline-form">
             <div class="form-group">
-                <label>{{ _t('initial_date') }}</label>
+                <label>{{ _t('Initial Date') }}</label>
                 <input type="text" id="d2-date" onchange="calcAdd()" placeholder="Contoh: 17-08-2024">
             </div>
             <select id="d2-dir" onchange="calcAdd()" style="width:auto;align-self:flex-end;margin-bottom:.1rem">
@@ -37,7 +37,7 @@
                 <option value="sub">− Kurang</option>
             </select>
             <div class="form-group" style="max-width:80px">
-                <label>{{ _t('number_of_days') }}</label>
+                <label>{{ _t('Number Of Days') }}</label>
                 <input type="number" id="d2-days" value="7" min="0" oninput="calcAdd()">
             </div>
         </div>
@@ -45,10 +45,10 @@
     </div>
 
     <div class="calc-section">
-        <h3>{{ _t('check_what_day') }}</h3>
+        <h3>{{ _t('Check What Day') }}</h3>
         <div class="inline-form">
             <div class="form-group">
-                <label>{{ _t('select_date_ddmmyyyy') }}</label>
+                <label>{{ _t('Select Date Ddmmyyyy') }}</label>
                 <input type="text" id="d3-date" onchange="calcDay()" placeholder="Contoh: 17-08-2024">
             </div>
         </div>

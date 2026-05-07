@@ -79,7 +79,7 @@ function initGlobalSearch() {
 
         const filtered = allTools.filter(t => t.name.toLowerCase().includes(q));
         if (filtered.length === 0) {
-            results.innerHTML = '<div class="cmd-empty">Tidak ada alat yang cocok.</div>';
+            results.innerHTML = `<div class="cmd-empty">${window.SERBABISA_TRANS?.cmd_empty || 'No matching tools found.'}</div>`;
             return;
         }
 
@@ -111,7 +111,7 @@ function initGlobalSearch() {
     function openCommandPalette() {
         overlay.classList.add('open');
         input.value = '';
-        results.innerHTML = '<div class="cmd-empty">Mulai ketik nama alat...</div>';
+        results.innerHTML = `<div class="cmd-empty">${window.SERBABISA_TRANS?.cmd_start || 'Start typing...'}</div>`;
         setTimeout(() => input.focus(), 50);
     }
 
@@ -226,7 +226,7 @@ function initToolForm() {
             progContainer.style.display = "block";
             progFill.style.width = "0%";
             progPct.textContent = "0%";
-            progText.textContent = "Mengunggah data...";
+            progText.textContent = window.SERBABISA_TRANS?.uploading || "Uploading...";
             
             let p = 0;
             const interval = setInterval(() => {
@@ -235,8 +235,8 @@ function initToolForm() {
                     if (p > 85) p = 85;
                     progFill.style.width = p + "%";
                     progPct.textContent = Math.round(p) + "%";
-                    if (p > 30) progText.textContent = "Sedang memproses (mungkin butuh waktu)...";
-                    if (p > 60) progText.textContent = "Hampir selesai, harap bersabar...";
+                    if (p > 30) progText.textContent = window.SERBABISA_TRANS?.processing_wait || "Processing...";
+                    if (p > 60) progText.textContent = window.SERBABISA_TRANS?.almost_done || "Almost done...";
                 }
             }, 800);
             form._progInterval = interval;
@@ -306,7 +306,7 @@ function initToolForm() {
                 if (progFill) {
                     progFill.style.width = "100%";
                     progPct.textContent = "100%";
-                    progText.textContent = "Selesai!";
+                    progText.textContent = window.SERBABISA_TRANS?.done || "Done!";
                     setTimeout(() => {
                         const progContainer = document.getElementById("progress-container");
                         if (progContainer) progContainer.style.display = "none";
@@ -343,10 +343,10 @@ function showFileResult(url, filename, isImage, blob = null) {
 
     const success = document.getElementById("result-success");
     success.style.display = "flex";
-    document.getElementById("result-message").textContent = "Selesai!";
+    document.getElementById("result-message").textContent = window.SERBABISA_TRANS?.done || "Done!";
 
     const btn = document.getElementById("download-btn");
-    btn.innerHTML = '<i class="bi bi-download"></i> Unduh ' + filename;
+    btn.innerHTML = `<i class="bi bi-download"></i> ${(window.SERBABISA_TRANS?.download_prefix || 'Download')} ` + filename;
     
     if (window.pywebview && window.pywebview.api && blob) {
         btn.removeAttribute("download");
@@ -354,7 +354,7 @@ function showFileResult(url, filename, isImage, blob = null) {
         btn.onclick = (e) => {
             e.preventDefault();
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Menyimpan...';
+            btn.innerHTML = `<i class="bi bi-hourglass-split"></i> ${(window.SERBABISA_TRANS?.saving || 'Saving...')}`;
             const reader = new FileReader();
             reader.onloadend = function() {
                 const b64 = reader.result.split(',')[1];

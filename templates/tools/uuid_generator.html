@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}UUID Generator - SerbaBisa{% endblock %}
-{% block top_title %}UUID Generator{% endblock %}
+{% block title %}{{ _t('UUID Gen Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('UUID Gen Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool" style="max-width:640px">
     <div class="tool-header">
-        <h1>UUID Generator</h1>
-        <p>{{ _t('desc_uuid_gen') }}</p>
+        <h1>{{ _t('UUID Gen Title') }}</h1>
+        <p>{{ _t('Desc Uuid Gen') }}</p>
     </div>
 
     <div class="form-group" style="display:grid;grid-template-columns:1fr 150px;gap:.6rem;align-items:end">
         <div>
-            <label>{{ _t('number_of_ids_generated') }}</label>
+            <label>{{ _t('Number Of Ids Generated') }}</label>
             <input type="number" id="uuid-count" value="1" min="1" max="1000">
         </div>
         <button class="btn btn-primary" onclick="generateUUIDs()"><i class="bi bi-arrow-repeat"></i> {{ _t('generate') }}</button>
@@ -20,12 +20,12 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem">
         <label class="checkbox-label"><input type="checkbox" id="uuid-upper" onchange="generateUUIDs()"><span>Huruf Kapital</span></label>
         <label class="checkbox-label"><input type="checkbox" id="uuid-braces" onchange="generateUUIDs()"><span>Kurung Kurawal { }</span></label>
-        <label class="checkbox-label"><input type="checkbox" id="uuid-nodash" onchange="generateUUIDs()"><span>{{ _t('remove_hyphen') }}</span></label>
+        <label class="checkbox-label"><input type="checkbox" id="uuid-nodash" onchange="generateUUIDs()"><span>{{ _t('Remove Hyphen') }}</span></label>
     </div>
 
     <div class="pane">
         <div class="pane-header">
-            <span>{{ _t('output_result') }}</span>
+            <span>{{ _t('Output Result') }}</span>
             <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
         </div>
         <div class="pane-body">

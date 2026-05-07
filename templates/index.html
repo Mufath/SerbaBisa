@@ -6,8 +6,8 @@
 <div class="dashboard-grid">
     <div class="welcome-card">
         <div class="welcome-text">
-            <h1>Halo, <span id="dash-username">{{ app_config.username }}</span>!</h1>
-            <p>{{ _t('weekly_usage', count=weekly_count) }}<br>{{ _t('weekly_desc') }}</p>
+            <h1>{{ _t('hello') }}, <span id="dash-username">{{ app_config.username }}</span>!</h1>
+            <p>{{ _t('Weekly Usage', count=weekly_count) }}<br>{{ _t('Weekly Desc') }}</p>
         </div>
         <div class="welcome-illus">
             <i class="bi bi-rocket-takeoff-fill"></i>
@@ -16,8 +16,8 @@
     
     <div class="stats-card">
         <div class="stats-header">
-            <h3>{{ _t('recent_tools') }}</h3>
-            <a href="/history">Lihat Semua</a>
+            <h3>{{ _t('Recent Tools') }}</h3>
+            <a href="/history">{{ _t('View All') }}</a>
         </div>
         {% if recent_history %}
             {% for h in recent_history %}
@@ -32,7 +32,7 @@
             </a>
             {% endfor %}
         {% else %}
-            <p style="font-size: 0.9rem; color: var(--text-muted); padding: 1rem 0;">{{ _t('no_recent_tools') }}</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted); padding: 1rem 0;">{{ _t('No Recent Tools') }}</p>
         {% endif %}
     </div>
 </div>

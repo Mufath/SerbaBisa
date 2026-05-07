@@ -1,38 +1,38 @@
 {% extends "base.html" %}
-{% block title %}Number Base Converter - SerbaBisa{% endblock %}
-{% block top_title %}Konversi Basis Bilangan{% endblock %}
+{% block title %}{{ _t('Number Base Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Number Base Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool" style="max-width:520px; margin: 0 auto;">
     <div class="tool-header">
-        <h1>Number Base Converter</h1>
-        <p>{{ _t('desc_number_base') }}</p>
+        <h1>{{ _t('Number Base Title') }}</h1>
+        <p>{{ _t('Desc Number Base') }}</p>
     </div>
     
     <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-        <label style="font-weight: 600;">{{ _t('decimal_base_10') }}</label>
+        <label style="font-weight: 600;">{{ _t('Decimal Base 10') }}</label>
         <input type="text" id="nb-dec" placeholder="Contoh: 255" oninput="fromBase('dec')" style="font-family: monospace; font-size: 1.1rem;">
     </div>
     
     <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-        <label style="font-weight: 600;">{{ _t('binary_base_2') }}</label>
+        <label style="font-weight: 600;">{{ _t('Binary Base 2') }}</label>
         <input type="text" id="nb-bin" placeholder="Contoh: 11111111" oninput="fromBase('bin')" style="font-family: monospace; font-size: 1.1rem;">
     </div>
     
     <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-        <label style="font-weight: 600;">{{ _t('octal_base_8') }}</label>
+        <label style="font-weight: 600;">{{ _t('Octal Base 8') }}</label>
         <input type="text" id="nb-oct" placeholder="Contoh: 377" oninput="fromBase('oct')" style="font-family: monospace; font-size: 1.1rem;">
     </div>
     
     <div class="form-group" style="background: var(--bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-        <label style="font-weight: 600;">{{ _t('hex_base_16') }}</label>
+        <label style="font-weight: 600;">{{ _t('Hex Base 16') }}</label>
         <input type="text" id="nb-hex" placeholder="Contoh: FF" oninput="fromBase('hex')" style="font-family: monospace; font-size: 1.1rem;">
     </div>
     
     <div id="nb-error" style="color:var(--danger); font-size:.85rem; margin-top:.5rem; text-align: center; font-weight: 500;"></div>
     
     <button class="btn btn-small" onclick="clearAll()" style="width: 100%; margin-top: 1rem; background: var(--border);">
-        <i class="bi bi-eraser"></i> {{ _t('clear_all') }}
+        <i class="bi bi-eraser"></i> {{ _t('Clear All') }}
     </button>
 </div>
 {% endblock %}
@@ -60,7 +60,7 @@ function fromBase(source) {
             case "hex": num = BigInt("0x" + val); break;
         }
     } catch (e) {
-        err.textContent = "Input tidak valid untuk basis ini.";
+        err.textContent = "{{ _t('Invalid Base Input') }}";
         return;
     }
 

@@ -1,31 +1,31 @@
 {% extends "base.html" %}
-{% block title %}Base64 Encode/Decode - SerbaBisa{% endblock %}
-{% block top_title %}Base64{% endblock %}
+{% block title %}{{ _t('Base64 Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Base64 Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Base64 Encode / Decode</h1>
-        <p>{{ _t('desc_base64') }}</p>
+        <h1>{{ _t('Base64 Title') }}</h1>
+        <p>{{ _t('Desc Base64') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
-                <span>Teks Biasa</span>
-                <button class="btn btn-small" onclick="encodeB64()">{{ _t('encode_arrow') }}</button>
+                <span>{{ _t('Plain Text Label') }}</span>
+                <button class="btn btn-small" onclick="encodeB64()">{{ _t('Encode Arrow') }}</button>
             </div>
             <div class="pane-body">
-                <textarea id="b64-text" placeholder="{{ _t('enter_text_to_encode') }}"></textarea>
+                <textarea id="b64-text" placeholder="{{ _t('Enter Text To Encode') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <button class="btn btn-small" onclick="decodeB64()">{{ _t('decode_arrow') }}</button>
+                <button class="btn btn-small" onclick="decodeB64()">{{ _t('Decode Arrow') }}</button>
                 <span>Base64</span>
                 <button class="btn btn-small" onclick="navigator.clipboard.writeText(document.getElementById('b64-encoded').value)" title="{{ _t('copy') }}"><i class="bi bi-clipboard"></i></button>
             </div>
             <div class="pane-body">
-                <textarea id="b64-encoded" placeholder="{{ _t('enter_base64_to_decode') }}"></textarea>
+                <textarea id="b64-encoded" placeholder="{{ _t('Enter Base64 To Decode') }}"></textarea>
             </div>
         </div>
     </div>
@@ -40,9 +40,9 @@ function encodeB64() {
     if (!text) return;
     try {
         document.getElementById("b64-encoded").value = btoa(unescape(encodeURIComponent(text)));
-        document.getElementById("b64-status").innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('successfully_encoded') }}</span>';
+        document.getElementById("b64-status").innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('Successfully Encoded') }}</span>';
     } catch (e) {
-        document.getElementById("b64-status").innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Galat: ${e.message}</span>`;
+        document.getElementById("b64-status").innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> {{ _t('Error Label') }}: ${e.message}</span>`;
     }
 }
 
@@ -51,9 +51,9 @@ function decodeB64() {
     if (!encoded) return;
     try {
         document.getElementById("b64-text").value = decodeURIComponent(escape(atob(encoded)));
-        document.getElementById("b64-status").innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('successfully_decoded') }}</span>';
+        document.getElementById("b64-status").innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('Successfully Decoded') }}</span>';
     } catch (e) {
-        document.getElementById("b64-status").innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> {{ _t('format') }} Base64 tidak valid</span>`;
+        document.getElementById("b64-status").innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> {{ _t('Invalid Base64') }}</span>`;
     }
 }
 </script>

@@ -44,7 +44,7 @@ def log_history(cat, tool):
     })
     
     with open(HISTORY_FILE, "w") as f:
-        json.dump(history[:500], f)  # Keep up to 500 items in history
+        json.dump(history[:10000], f)  # Keep up to 10,000 items in history
 
 def get_weekly_count():
     history = get_history()

@@ -1,29 +1,29 @@
 {% extends "base.html" %}
-{% block title %}HTML {{ _t('format') }}ter - SerbaBisa{% endblock %}
-{% block top_title %}HTML {{ _t('format') }}ter{% endblock %}
+{% block title %}{{ _t('HTML Formatter') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('HTML Formatter') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>HTML {{ _t('format') }}ter</h1>
-        <p>{{ _t('desc_html_formatter') }}</p>
+        <h1>{{ _t('HTML Formatter') }}</h1>
+        <p>{{ _t('Desc HTML Formatter') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
-                <span>{{ _t('html_code_input') }}</span>
+                <span>{{ _t('HTML Code Input') }}</span>
                 <div>
                     <button class="btn btn-small" onclick="formatHTML()">Rapiin ({{ _t('beautify') }})</button>
                     <button class="btn btn-small" onclick="minifyHTML()">Padatkan ({{ _t('minify') }})</button>
                 </div>
             </div>
             <div class="pane-body">
-                <textarea id="html-input" placeholder="{{ _t('html_example') }}"></textarea>
+                <textarea id="html-input" placeholder="{{ _t('HTML Example') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <span>{{ _t('the_result') }}</span>
+                <span>{{ _t('The Result') }}</span>
                 <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body">

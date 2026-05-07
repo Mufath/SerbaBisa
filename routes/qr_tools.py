@@ -2,6 +2,7 @@ import io
 import re
 import qrcode
 from flask import Blueprint, render_template, request, send_file, jsonify
+from locales import m
 
 try:
     from pyzbar.pyzbar import decode as pyzbar_decode
@@ -60,7 +61,7 @@ def read_page():
 def generate():
     text = request.form.get("text", "").strip()
     if not text:
-        return jsonify(error="Please enter text or a URL."), 400
+        return jsonify(error=m("Please enter text or a URL.")), 400
 
     box_size = int(request.form.get("size", 10))
     border = int(request.form.get("border", 4))
@@ -87,17 +88,17 @@ def generate():
 @bp.route("/read", methods=["POST"])
 def read():
     if not HAS_PYZBAR:
-        return jsonify(error="QR reading requires the 'pyzbar' package. Install with: pip install pyzbar"), 400
+        return jsonify(error=m("QR reading requires the 'pyzbar' package. Install with: pip install pyzbar")), 400
 
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     img = Image.open(io.BytesIO(files[0].read()))
     results = pyzbar_decode(img)
 
     if not results:
-        return jsonify(error="No QR code found in the image."), 400
+        return jsonify(error=m("No QR code found in the image.")), 400
 
     decoded = []
     for r in results:
@@ -153,11 +154,11 @@ def barcode_page():
 @bp.route("/barcode", methods=["POST"])
 def barcode_generate():
     if not HAS_BARCODE:
-        return jsonify(error="Barcode generation requires 'python-barcode'. Install with: pip install python-barcode"), 400
+        return jsonify(error=m("Barcode generation requires 'python-barcode'. Install with: pip install python-barcode")), 400
 
     text = request.form.get("text", "").strip()
     if not text:
-        return jsonify(error="Please enter a value for the barcode."), 400
+        return jsonify(error=m("Please enter a value for the barcode.")), 400
 
     btype = request.form.get("btype", "code128").lower()
     fmt = request.form.get("format", "png").lower()
@@ -174,12 +175,12 @@ def barcode_generate():
 
     valid = {k: v for k, v in [(c["value"], c["label"]) for c in BARCODE_TYPES]}
     if btype not in valid:
-        return jsonify(error=f"Unknown barcode type: {btype}"), 400
+        return jsonify(error=m("Unknown barcode type: {btype}", btype=btype)), 400
 
     try:
         cls = pybarcode.get_barcode_class(btype)
     except pybarcode.errors.BarcodeNotFoundError:
-        return jsonify(error=f"Barcode type {btype} not supported."), 400
+        return jsonify(error=m("Barcode type {btype} not supported.", btype=btype)), 400
 
     writer = SVGWriter() if fmt == "svg" else ImageWriter()
     options = {
@@ -195,15 +196,15 @@ def barcode_generate():
         bc = cls(text, writer=writer)
     except (pybarcode.errors.IllegalCharacterError,
             pybarcode.errors.NumberOfDigitsError) as e:
-        return jsonify(error=f"Invalid value for {valid[btype]}: {e}"), 400
+        return jsonify(error=m("Invalid value for {type}: {e}", type=valid[btype], e=e)), 400
     except Exception as e:
-        return jsonify(error=f"Could not create barcode: {e}"), 400
+        return jsonify(error=m("Could not create barcode: {e}", e=e)), 400
 
     buf = io.BytesIO()
     try:
         bc.write(buf, options=options)
     except Exception as e:
-        return jsonify(error=f"Render failed: {e}"), 400
+        return jsonify(error=m("Render failed: {e}", e=e)), 400
 
     buf.seek(0)
 

@@ -37,12 +37,16 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 echo.
+echo [INFO] Menyiapkan modul khusus (rembg)...
+pip install --no-cache-dir onnxruntime rembg
+
+echo.
 echo [INFO] Menyiapkan FFmpeg (Opsional untuk Audio/Video)...
-powershell -ExecutionPolicy Bypass -File install_ffmpeg.ps1
+powershell -ExecutionPolicy Bypass -File scripts\install_ffmpeg.ps1
 
 echo.
 echo ========================================================
 echo Setup Selesai! 
-echo Silakan jalankan 'Start.bat' untuk membuka aplikasi.
+echo Silakan jalankan 'SerbaBisa.bat' untuk membuka aplikasi.
 echo ========================================================
 pause

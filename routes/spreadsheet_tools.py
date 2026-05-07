@@ -2,6 +2,7 @@ import io
 import csv
 import json
 from flask import Blueprint, render_template, request, send_file, jsonify
+from locales import m
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
@@ -101,10 +102,10 @@ def excel_to_csv_page():
             {"type": "select", "name": "format", "label": "Output Format",
              "choices": [
                  {"value": "csv", "label": "CSV"},
-                 {"value": "json", "label": "JSON (array of objects, first row as keys)"},
+                 {"value": "json", "label": "JSON Result"},
                  {"value": "json_array", "label": "JSON (array of arrays)"},
              ]},
-            {"type": "text", "name": "sheet", "label": "Sheet name (leave blank for all sheets)",
+            {"type": "text", "name": "sheet", "label": "Sheet Name",
              "placeholder": "e.g. Sheet1"},
         ])
 
@@ -118,8 +119,8 @@ def csv_to_excel_page():
         accept=".csv,.json",
         multiple=True,
         options=[
-            {"type": "checkbox", "name": "bold_headers", "label": "Formatting",
-             "check_label": "Bold and shade the header row", "default": True},
+            {"type": "checkbox", "name": "bold_headers", "label": "Formatting Excel",
+             "check_label": "Bold Shade Header", "default": True},
         ])
 
 
@@ -134,15 +135,15 @@ def excel_to_pdf_page():
         options=[
             {"type": "select", "name": "size", "label": "Page Size",
              "choices": [
-                 {"value": "A4", "label": "A4"},
-                 {"value": "letter", "label": "Letter"},
-                 {"value": "A3", "label": "A3 (wide tables)"},
-                 {"value": "legal", "label": "Legal"},
+                 {"value": "A4", "label": "Page Size A4"},
+                 {"value": "letter", "label": "Page Size Letter"},
+                 {"value": "A3", "label": "Page Size A3"},
+                 {"value": "legal", "label": "Page Size Legal"},
              ]},
             {"type": "select", "name": "orientation", "label": "Orientation",
              "choices": [
-                 {"value": "landscape", "label": "Landscape"},
-                 {"value": "portrait", "label": "Portrait"},
+                 {"value": "landscape", "label": "Orientation Landscape"},
+                 {"value": "portrait", "label": "Orientation Portrait"},
              ]},
             {"type": "number", "name": "fontsize", "label": "Font Size",
              "default": 8, "min": 5, "max": 14},
@@ -158,8 +159,8 @@ def merge_page():
         accept=EXCEL_ACCEPT,
         multiple=True,
         options=[
-            {"type": "checkbox", "name": "prefix", "label": "Sheet names",
-             "check_label": "Prefix each sheet with its source filename", "default": True},
+            {"type": "checkbox", "name": "prefix", "label": "Sheet Name",
+             "check_label": "Prefix Sheet Note", "default": True},
         ])
 
 
@@ -183,7 +184,7 @@ def info_page():
         accept=EXCEL_ACCEPT,
         multiple=False,
         options=[
-            {"type": "number", "name": "preview_rows", "label": "Preview rows per sheet",
+            {"type": "number", "name": "preview_rows", "label": "Preview Rows",
              "default": 10, "min": 0, "max": 100},
         ])
 
@@ -193,51 +194,44 @@ def csv_tools_page():
     return render_template("upload_tool.html",
         title="Toolkit CSV",
         description="Filter, urutkan, dan hapus duplikat baris",
-        notes=(
-            "<p>Operations run in order: <strong>filter → dedupe → sort</strong>. "
-            "Use <code>column_name</code> or a 1-based column number. "
-            "Filter operators: <code>=</code>, <code>!=</code>, <code>contains</code>, "
-            "<code>startswith</code>, <code>endswith</code>, <code>&gt;</code>, "
-            "<code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>, "
-            "<code>empty</code>, <code>notempty</code>.</p>"
-        ),
+        notes="CSV Toolkit Note",
         endpoint="/spreadsheet/csv-tools",
         accept=".csv,.tsv,.txt",
         multiple=False,
         options=[
-            {"type": "checkbox", "name": "has_header", "label": "Header row",
-             "default": True, "check_label": "First row is a header"},
+            {"type": "checkbox", "name": "has_header", "label": "Header Row",
+             "default": True, "check_label": "First Row Header"},
             {"type": "select", "name": "delimiter", "label": "Delimiter", "default": "auto",
              "choices": [
-                 {"value": "auto",  "label": "Auto-detect"},
+                 {"value": "auto",  "label": "Auto Detect"},
                  {"value": ",",     "label": "Comma"},
                  {"value": ";",     "label": "Semicolon"},
-                 {"value": "\\t",   "label": "Tab"},
+                 {"value": "\\t",   "label": "tab"},
                  {"value": "|",     "label": "Pipe"},
              ]},
             {"type": "text", "name": "filter", "label": "Filter (optional)",
-             "placeholder": "e.g. status = active    |    age >= 18    |    city contains London"},
+             "placeholder": "CSV Filter Placeholder"},
             {"type": "text", "name": "sort_by", "label": "Sort by (optional)",
-             "placeholder": "column_name or 1-based column number"},
-            {"type": "select", "name": "sort_dir", "label": "Sort direction", "default": "asc",
+             "placeholder": "CSV Sort Placeholder"},
+            {"type": "select", "name": "sort_dir", "label": "Sort Direction", "default": "asc",
              "choices": [
                  {"value": "asc", "label": "Ascending"},
                  {"value": "desc", "label": "Descending"},
              ]},
-            {"type": "select", "name": "sort_type", "label": "Sort as", "default": "smart",
+            {"type": "select", "name": "sort_type", "label": "Sort As", "default": "smart",
              "choices": [
-                 {"value": "smart",  "label": "Smart (number if numeric, else text)"},
-                 {"value": "text",   "label": "Text"},
-                 {"value": "number", "label": "Number"},
+                 {"value": "smart",  "label": "Smart Sort"},
+                 {"value": "text",   "label": "Text Sort"},
+                 {"value": "number", "label": "Number Sort"},
              ]},
-            {"type": "select", "name": "dedupe", "label": "Remove duplicates", "default": "none",
+            {"type": "select", "name": "dedupe", "label": "Remove Duplicates", "default": "none",
              "choices": [
-                 {"value": "none",   "label": "Keep all rows"},
-                 {"value": "full",   "label": "On full row"},
-                 {"value": "bycol",  "label": "On selected columns (below)"},
+                 {"value": "none",   "label": "Keep All Rows"},
+                 {"value": "full",   "label": "On Full Row"},
+                 {"value": "bycol",  "label": "On Selected Columns"},
              ]},
-            {"type": "text", "name": "dedupe_cols", "label": "Dedupe columns (comma-separated)",
-             "placeholder": "e.g. email, phone"},
+            {"type": "text", "name": "dedupe_cols", "label": "Dedupe Columns",
+             "placeholder": "CSV Dedupe Placeholder"},
         ])
 
 
@@ -247,7 +241,7 @@ def csv_tools_page():
 def excel_to_csv():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     fmt = request.form.get("format", "csv")
     target_sheet = (request.form.get("sheet") or "").strip()
@@ -255,11 +249,11 @@ def excel_to_csv():
     try:
         sheets = read_workbook(files[0].read(), files[0].filename)
     except Exception as e:
-        return jsonify(error=f"Could not read workbook: {e}"), 400
+        return jsonify(error=m("Could not read workbook: {e}", e=e)), 400
 
     if target_sheet:
         if target_sheet not in sheets:
-            return jsonify(error=f"Sheet '{target_sheet}' not found. Available: {', '.join(sheets.keys())}"), 400
+            return jsonify(error=m("Sheet '{sheet}' not found. Available: {available}", sheet=target_sheet, available=', '.join(sheets.keys()))), 400
         sheets = {target_sheet: sheets[target_sheet]}
 
     outputs = []
@@ -300,7 +294,7 @@ def _rows_to_dicts(rows):
 def csv_to_excel():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     bold_headers = request.form.get("bold_headers") == "on"
 
@@ -328,9 +322,9 @@ def csv_to_excel():
                 parsed = json.loads(data.decode("utf-8", errors="replace"))
                 rows = _json_to_rows(parsed)
             else:
-                return jsonify(error=f"Unsupported file type: {name}"), 400
+                return jsonify(error=m("Unsupported file type: {name}", name=name)), 400
         except Exception as e:
-            return jsonify(error=f"Failed to parse {name}: {e}"), 400
+            return jsonify(error=m("Failed to parse {name}: {e}", name=name, e=e)), 400
 
         for row in rows:
             ws.append([_coerce(v) for v in row])
@@ -410,7 +404,7 @@ def _autosize_columns(ws, rows, max_width=60):
 def excel_to_pdf():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     size_name = request.form.get("size", "A4")
     orientation = request.form.get("orientation", "landscape")
@@ -424,7 +418,7 @@ def excel_to_pdf():
     try:
         sheets = read_workbook(files[0].read(), files[0].filename)
     except Exception as e:
-        return jsonify(error=f"Could not read workbook: {e}"), 400
+        return jsonify(error=m("Could not read workbook: {e}", e=e)), 400
 
     buf = io.BytesIO()
     pdf = SimpleDocTemplate(buf, pagesize=page_size,
@@ -482,7 +476,7 @@ def excel_to_pdf():
     try:
         pdf.build(story)
     except Exception as e:
-        return jsonify(error=f"PDF layout failed (table too wide?). Try a larger page size or smaller font. Details: {str(e)[:150]}"), 400
+        return jsonify(error=m("PDF layout failed (table too wide?). Try a larger page size or smaller font. Details: {e}", e=str(e)[:150])), 400
 
     buf.seek(0)
     base = files[0].filename.rsplit(".", 1)[0]
@@ -502,8 +496,8 @@ def _pdf_cell(v):
 @bp.route("/merge", methods=["POST"])
 def merge():
     files = request.files.getlist("files")
-    if not files or not files[0].filename:
-        return jsonify(error="No files uploaded."), 400
+    if not files or not any(f.filename for f in files):
+        return jsonify(error=m("No files uploaded.")), 400
 
     use_prefix = request.form.get("prefix") == "on"
 
@@ -517,7 +511,7 @@ def merge():
         try:
             sheets = read_workbook(data, f.filename)
         except Exception as e:
-            return jsonify(error=f"Failed to read {f.filename}: {e}"), 400
+            return jsonify(error=m("Failed to read {filename}: {e}", filename=f.filename, e=e)), 400
 
         for sheet_name, rows in sheets.items():
             desired = f"{source}_{sheet_name}" if use_prefix else sheet_name
@@ -546,15 +540,15 @@ def _coerce_keep(v):
 def split():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     try:
         sheets = read_workbook(files[0].read(), files[0].filename)
     except Exception as e:
-        return jsonify(error=f"Could not read workbook: {e}"), 400
+        return jsonify(error=m("Could not read workbook: {e}", e=e)), 400
 
     if not sheets:
-        return jsonify(error="Workbook contains no sheets."), 400
+        return jsonify(error=m("Workbook contains no sheets.")), 400
 
     base = files[0].filename.rsplit(".", 1)[0]
     outputs = []
@@ -587,14 +581,14 @@ def _safe_filename(name: str) -> str:
 def info():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     preview = int(request.form.get("preview_rows", 10))
 
     try:
         sheets = read_workbook(files[0].read(), files[0].filename)
     except Exception as e:
-        return jsonify(error=f"Could not read workbook: {e}"), 400
+        return jsonify(error=m("Could not read workbook: {e}", e=e)), 400
 
     lines = [f"File: {files[0].filename}", f"Sheets: {len(sheets)}", ""]
     for name, rows in sheets.items():
@@ -617,7 +611,7 @@ def csv_tools():
 
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     raw = files[0].read()
     try:
@@ -638,7 +632,7 @@ def csv_tools():
     reader = csv.reader(io.StringIO(text), delimiter=delim)
     rows = [row for row in reader]
     if not rows:
-        return jsonify(error="CSV appears to be empty."), 400
+        return jsonify(error=m("CSV appears to be empty.")), 400
 
     has_header = request.form.get("has_header") == "on"
     header = rows[0] if has_header else [f"col{i + 1}" for i in range(len(rows[0]))]
@@ -752,7 +746,7 @@ def csv_tools():
     if sort_by:
         si = _col_idx(sort_by)
         if si < 0:
-            return jsonify(error=f"Sort column '{sort_by}' not found."), 400
+            return jsonify(error=m("Sort column '{column}' not found.", column=sort_by)), 400
         sort_type = request.form.get("sort_type", "smart")
         desc = request.form.get("sort_dir", "asc") == "desc"
 

@@ -1,54 +1,123 @@
 {% extends "base.html" %}
-{% block title %}Markdown to PDF - SerbaBisa{% endblock %}
-{% block top_title %}Markdown to PDF{% endblock %}
+{% block title %}{{ _t('Md To PDF Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Md To PDF Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Markdown to PDF</h1>
-        <p>{{ _t('desc_md_to_pdf') }}</p>
+        <h1>{{ _t('Md To PDF Title') }}</h1>
+        <p>{{ _t('Desc Md To PDF') }}</p>
     </div>
 
-    <div style="display:flex; gap:.8rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; flex: 1;">
-            <label style="font-size: 0.9rem; font-weight: 600;">{{ _t('label_paper') }}
-                <select id="page-size" style="padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">
+    <style>
+        #page-size {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem !important;
+        }
+        #page-size option {
+            background-color: #1e293b; /* Fallback dark color */
+            color: #f8fafc;
+        }
+        /* Style for number input controls */
+        .qty-input {
+            display: flex;
+            align-items: center;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            height: 38px;
+        }
+        .qty-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            width: 32px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .qty-btn:hover {
+            color: var(--primary);
+            background: rgba(255,255,255,0.05);
+        }
+        #font-size {
+            border: none !important;
+            background: transparent !important;
+            width: 40px !important;
+            text-align: center;
+            padding: 0 !important;
+            font-weight: 600;
+            -moz-appearance: textfield;
+        }
+        #font-size::-webkit-outer-spin-button,
+        #font-size::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+
+    <div style="display:flex; gap:1.2rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; background: var(--bg-card); padding: 1rem 1.2rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+        <div style="display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; flex: 1;">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <label for="page-size" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; margin: 0;">{{ _t('Label Paper') }}</label>
+                <select id="page-size" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-dark); color: var(--text); outline: none; cursor: pointer;">
                     <option value="A4" selected>A4</option>
                     <option value="letter">Letter</option>
                     <option value="legal">Legal</option>
                     <option value="A5">A5</option>
                 </select>
-            </label>
-            <label style="font-size: 0.9rem; font-weight: 600;">{{ _t('label_font_size') }}
-                <input type="number" id="font-size" value="11" min="8" max="18" style="width:60px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">
-            </label>
-            <label style="font-size: 0.9rem; font-weight: 600;">{{ _t('label_filename') }}
-                <input type="text" id="file-name" value="dokumen_mufath" style="width:180px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">
-            </label>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <label for="font-size" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; margin: 0;">{{ _t('Label Font Size') }}</label>
+                <div class="qty-input">
+                    <button type="button" class="qty-btn" onclick="document.getElementById('font-size').stepDown()"><i class="bi bi-dash"></i></button>
+                    <input type="number" id="font-size" value="11" min="8" max="18" readonly>
+                    <button type="button" class="qty-btn" onclick="document.getElementById('font-size').stepUp()"><i class="bi bi-plus"></i></button>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <label for="file-name" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; margin: 0;">{{ _t('Label Filename') }}</label>
+            <input type="text" id="file-name" value="dokumen_{{ app_config.username|lower|replace(' ', '_') }}" style="width:180px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-dark); color: var(--text); outline: none;">
+            </div>
         </div>
         
-        <div style="display: flex; gap: 0.5rem;">
+        <div style="display: flex; gap: 0.8rem; align-items: center;">
             <input type="file" id="md-upload" accept=".md,.markdown,.txt" style="display:none" onchange="loadFile(this.files[0])">
-            <button type="button" class="btn btn-small" onclick="document.getElementById('md-upload').click()">
-                <i class="bi bi-folder2-open"></i> {{ _t('open_file') }}
+            <button type="button" class="btn btn-outline" style="padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;" onclick="document.getElementById('md-upload').click()">
+                <i class="bi bi-folder2-open"></i> {{ _t('Open File') }}
             </button>
-            <button class="btn btn-primary" onclick="convertMD()">
-                <i class="bi bi-file-pdf-fill"></i> {{ _t('convert_to_pdf') }}
+            <button class="btn btn-primary" style="padding: 0.6rem 1.2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;" onclick="convertMD()">
+                <i class="bi bi-file-pdf-fill"></i> {{ _t('Convert To PDF') }}
             </button>
         </div>
     </div>
 
-    <textarea id="md-input" placeholder="# {{ _t('unair_doc_title') }}
+    <textarea id="md-input" placeholder="# {{ _t('Lab Report Title') }}
 
-{{ _t('write_lecture_notes_here') }}
+{{ _t('Write Lecture Notes Here') }}
 
-### {{ _t('supported_features') }}
-- {{ _t('auto_list_creation') }}
-- {{ _t('formula_writing') }}
-- {{ _t('program_code_si') }}
-- {{ _t('images_and_links') }}
+### {{ _t('Supported Features') }}
+- {{ _t('Auto List Creation') }}
+- {{ _t('Formula Writing') }}
+- {{ _t('Program Code Example') }}
+- {{ _t('Images And Links') }}
 
-> {{ _t('enter_text_click_convert_pdf') }}" 
+```python
+{{ _t('Example Code Comment') }}
+def sapa_{{ app_config.username|lower|replace(' ', '_') }}():
+    print('{{ _t('Example Print Message') }}')
+```
+
+{{ _t('Enter Text Click Convert PDF') }}" 
 style="min-height:450px; width:100%; font-family: 'Consolas', 'Monaco', monospace; padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); line-height: 1.6; font-size: 1rem;"></textarea>
 
     <div id="md-status" style="margin-top:1rem; font-size:.9rem; font-weight: 500; min-height: 24px;"></div>
@@ -58,7 +127,7 @@ style="min-height:450px; width:100%; font-family: 'Consolas', 'Monaco', monospac
 {% block scripts %}
 <script>
 /**
- * Memuat konten {{ _t('from_of') }} file lokal ke dalam textarea
+ * Memuat konten {{ _t('From Of') }} file lokal ke dalam textarea
  */
 function loadFile(f) {
     if (!f) return;
@@ -74,7 +143,7 @@ function loadFile(f) {
     };
     
     reader.onerror = () => {
-        status.innerHTML = `<span style="color:var(--danger)">{{ _t('failed_read_file') }}</span>`;
+        status.innerHTML = `<span style="color:var(--danger)">{{ _t('Failed Read File') }}</span>`;
     };
     
     reader.readAsText(f);
@@ -89,7 +158,7 @@ async function convertMD() {
     const fileNameInput = document.getElementById("file-name").value || "dokumen";
 
     if (!md.trim()) { 
-        status.innerHTML = `<span style="color:var(--danger)">{{ _t('content_empty') }}</span>`; 
+        status.innerHTML = `<span style="color:var(--danger)">{{ _t('Content Empty') }}</span>`; 
         return; 
     }
 
@@ -99,7 +168,7 @@ async function convertMD() {
     fd.append("font_size", document.getElementById("font-size").value);
     fd.append("file_name", fileNameInput);
 
-    status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> {{ _t('crafting_pdf') }}</span>`;
+    status.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> {{ _t('Crafting PDF') }}</span>`;
     
     try {
         const response = await fetch("/convert/md-to-pdf", { 
@@ -123,7 +192,7 @@ async function convertMD() {
         link.remove();
         
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-        status.innerHTML = `<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('success_pdf_ready') }}</span>`;
+        status.innerHTML = `<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('Success PDF Ready') }}</span>`;
         
     } catch (error) {
         status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> Terjadi kesalahan: ${error.message}</span>`;

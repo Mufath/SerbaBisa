@@ -37,7 +37,7 @@ Double-klik file **`Shortcut.bat`**.
 *   Ini akan membuat ikon **SerbaBisa** di layar Desktop Anda agar aplikasi mudah dibuka kapan saja.
 
 ### 3. Menjalankan Aplikasi
-Double-klik file **`Start.bat`** (atau pakai shortcut di Desktop).
+Double-klik file **`SerbaBisa.bat`** (atau pakai shortcut di Desktop).
 *   Jendela aplikasi SerbaBisa (Desktop App) akan terbuka otomatis.
 *   Anda bisa mengubah profil, tema gelap/terang, dan bahasa (Inggris/Indonesia) melalui menu Pengaturan. Pengaturan Anda akan disimpan secara permanen.
 
@@ -48,22 +48,16 @@ Double-klik file **`Start.bat`** (atau pakai shortcut di Desktop).
 Berikut adalah penjelasan mengenai file-file penting di dalam folder ini:
 
 ### Skrip Peluncur (Launchers)
-*   `Setup.bat`: Digunakan saat pertama kali install atau jika ada error library.
-*   `Start.bat`: Cara utama menjalankan aplikasi.
+*   `Setup.bat`: Digunakan saat pertama kali install atau jika ada error library. Skrip ini bisa otomatis melakukan perbaikan *error* pada saat instalasi.
+*   `SerbaBisa.bat`: Skrip utama untuk menjalankan aplikasi.
 *   `Shortcut.bat`: Membuat jalan pintas ke Desktop.
 
-### Alat Bantu (Utilities)
-*   `locales.py`: Sistem terjemahan dwibahasa (Inggris & Indonesia).
-*   `config_manager.py`: Manajemen pengaturan aplikasi.
-*   `history.py`: Mengelola riwayat aktivitas Anda di aplikasi.
-*   `AddContextMenu.bat`: Skrip untuk menambahkan SerbaBisa ke menu klik kanan Windows.
-*   `install_ffmpeg.ps1`: Skrip otomatis untuk memasang FFmpeg.
-
 ### Folder Inti
-*   `/static`: Berisi file gambar, CSS, dan JavaScript untuk tampilan.
-*   `/templates`: Berisi file HTML untuk setiap halaman fitur.
-*   `/routes`: Logika utama untuk setiap fitur aplikasi.
-*   `/venv`: Folder lingkungan Python (jangan dihapus agar aplikasi tetap jalan).
+*   `/scripts`: Kumpulan alat bantu pendukung instalasi (seperti FFmpeg, FixRembg) dan skrip khusus *developer*.
+*   `/static`: Berisi file gambar, CSS, dan JavaScript untuk tampilan antarmuka.
+*   `/templates`: Berisi file HTML (tampilan UI) untuk setiap halaman fitur.
+*   `/routes`: Kode Python yang berisi logika utama untuk memproses alat di setiap kategori.
+*   `/venv`: Folder lingkungan Python (jangan dihapus agar aplikasi tetap bisa berjalan tanpa terpengaruh aplikasi luar).
 
 ---
 

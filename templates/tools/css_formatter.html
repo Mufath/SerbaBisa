@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}CSS {{ _t('format') }}ter - SerbaBisa{% endblock %}
-{% block top_title %}CSS {{ _t('format') }}ter{% endblock %}
+{% block title %}{{ _t('Css Formatter') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Css Formatter') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>CSS {{ _t('format') }}ter</h1>
-        <p>{{ _t('desc_css_formatter') }}</p>
+        <h1>{{ _t('Css Formatter') }}</h1>
+        <p>{{ _t('Desc Css Formatter') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
-                <span>{{ _t('code_input') }}</span>
+                <span>{{ _t('Code Input') }}</span>
                 <div>
                     <button class="btn btn-small" onclick="formatCSS()">Rapiin ({{ _t('beautify') }})</button>
                     <button class="btn btn-small" onclick="minifyCSS()">Padatkan ({{ _t('minify') }})</button>
@@ -23,7 +23,7 @@
         </div>
         <div class="pane">
             <div class="pane-header">
-                <span>{{ _t('the_result') }}</span>
+                <span>{{ _t('The Result') }}</span>
                 <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body">

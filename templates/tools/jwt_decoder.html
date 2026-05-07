@@ -1,16 +1,16 @@
 {% extends "base.html" %}
-{% block title %}JWT Decoder - SerbaBisa{% endblock %}
-{% block top_title %}JWT Decoder{% endblock %}
+{% block title %}{{ _t('JWT Decoder Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('JWT Decoder Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>JWT Decoder</h1>
-        <p>{{ _t('desc_jwt_decoder') }} <strong>Catatan:</strong> {{ _t('jwt_decode_note') }}</p>
+        <h1>{{ _t('JWT Decoder Title') }}</h1>
+        <p>{{ _t('Desc JWT Decoder') }} <strong>Catatan:</strong> {{ _t('JWT Decode Note') }}</p>
     </div>
 
     <div class="form-group">
-        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">{{ _t('paste_jwt_here') }}</label>
+        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">{{ _t('Paste JWT Here') }}</label>
         <textarea id="jwt-input" class="text-input" rows="5"
             style="width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid var(--border); font-family: monospace; font-size: 0.9rem;"
             placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -25,7 +25,7 @@
                 <span style="font-weight: 600;">Header <small style="font-weight: 400; color: #666;">(Algoritma & Tipe)</small></span>
                 <button class="btn btn-small" onclick="copyField('jwt-header')"><i class="bi bi-clipboard"></i></button>
             </div>
-            <div class="pane-body" style="padding: 1rem; background: #fafafa; min-height: 120px;">
+            <div class="pane-body" style="padding: 1rem; background: var(--bg-body); min-height: 120px;">
                 <pre id="jwt-header" style="margin: 0; font-size: 0.85rem; color: #e83e8c;"></pre>
             </div>
         </div>
@@ -35,7 +35,7 @@
                 <span style="font-weight: 600;">Payload <small style="font-weight: 400; color: #666;">(Data/Claims)</small></span>
                 <button class="btn btn-small" onclick="copyField('jwt-payload')"><i class="bi bi-clipboard"></i></button>
             </div>
-            <div class="pane-body" style="padding: 1rem; background: #fafafa; min-height: 120px;">
+            <div class="pane-body" style="padding: 1rem; background: var(--bg-body); min-height: 120px;">
                 <pre id="jwt-payload" style="margin: 0; font-size: 0.85rem; color: #3b82f6;"></pre>
             </div>
         </div>
@@ -46,8 +46,8 @@
             <span style="font-weight: 600;">Signature</span>
             <button class="btn btn-small" onclick="copyField('jwt-sig')"><i class="bi bi-clipboard"></i></button>
         </div>
-        <div class="pane-body" style="padding: 1rem; background: #fafafa;">
-            <pre id="jwt-sig" style="margin: 0; font-size: 0.85rem; word-break: break-all; color: #6c757d;"></pre>
+        <div class="pane-body" style="padding: 1rem; background: var(--bg-body);">
+            <pre id="jwt-sig" style="margin: 0; font-size: 0.85rem; word-break: break-all; color: var(--text-light);"></pre>
         </div>
     </div>
 
@@ -68,7 +68,7 @@ function b64urlDecode(s) {
         const bytes = new Uint8Array([...bin].map(c => c.charCodeAt(0)));
         return new TextDecoder("utf-8").decode(bytes);
     } catch (e) {
-        throw new Error("{{ _t('format') }} Base64 tidak valid.");
+        throw new Error("{{ _t('Invalid Base64 Format') }}");
     }
 }
 
@@ -91,7 +91,7 @@ function decode() {
 
     const parts = val.split(".");
     if (parts.length !== 3) {
-        status.innerHTML = '<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Token tidak valid: JWT harus memiliki 3 bagian yang dipisah titik.</span>';
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> {{ _t('Invalid JWT Parts') }}</span>`;
         return;
     }
 
@@ -123,12 +123,12 @@ function decode() {
             claimsDiv.innerHTML = '<p style="margin-bottom:0.5rem; border-bottom:1px solid var(--border); font-weight:bold;">Interpretasi Data:</p>' + notes.join("<br>");
         }
     } catch (e) {
-        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> Gagal mendekode: ${e.message}</span>`;
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> {{ _t('Failed To Decode') }}: ${e.message}</span>`;
     }
 }
 
 /**
- * Menyalin konten {{ _t('from_of') }} blok pre ke clipboard
+ * Menyalin konten {{ _t('From Of') }} blok pre ke clipboard
  */
 function copyField(id) {
     const text = document.getElementById(id).textContent;

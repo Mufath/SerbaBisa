@@ -15,10 +15,14 @@ sqlparse
 croniter
 jsonpath-ng
 pywebview
+cryptography
+yt-dlp
 # Optional (app works without these, shows install message if missing)
-rembg
 pyzbar
 pdf2docx
 pytesseract
 ezdxf
 matplotlib
+python-pptx
+SpeechRecognition
+pydub

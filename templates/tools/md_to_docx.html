@@ -1,43 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Markdown to Word - SerbaBisa{% endblock %}
-{% block top_title %}Markdown to Word{% endblock %}
+{% block title %}{{ _t('Md To Docx Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Md To Docx Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Markdown to Word</h1>
-        <p>{{ _t('desc_md_to_docx') }}</p>
+        <h1>{{ _t('Md To Docx Title') }}</h1>
+        <p>{{ _t('Desc Md To Docx') }}</p>
     </div>
 
-    <div style="display:flex; gap:0.8rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; background: var(--bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border);">
-        <label style="font-weight: 600; font-size: 0.9rem;">Nama File Output:
-            <input type="text" id="file-name" value="laporan_mufath" style="width:200px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);">
-        </label>
+    <div style="display:flex; gap:1.2rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; background: var(--bg-card); padding: 1rem 1.2rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 0.8rem; flex: 1;">
+            <label for="file-name" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; margin: 0;">{{ _t('Label Output Filename') }}</label>
+            <input type="text" id="file-name" value="laporan_{{ app_config.username|lower|replace(' ', '_') }}" style="width:200px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-dark); color: var(--text); outline: none;">
+        </div>
         
-        <div style="margin-left:auto; display: flex; gap: 0.6rem;">
+        <div style="display: flex; gap: 0.8rem; align-items: center;">
             <input type="file" id="md-upload" accept=".md,.markdown,.txt" style="display:none" onchange="loadFile(this.files[0])">
-            <button type="button" class="btn btn-small" onclick="document.getElementById('md-upload').click()">
-                <i class="bi bi-folder2-open"></i> Impor .md
+            <button type="button" class="btn btn-outline" style="padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;" onclick="document.getElementById('md-upload').click()">
+                <i class="bi bi-folder2-open"></i> {{ _t('Open File') }}
             </button>
-            <button class="btn btn-primary" onclick="convertMD()">
-                <i class="bi bi-file-word-fill"></i> {{ _t('convert_to_docx') }}
+            <button class="btn btn-primary" style="padding: 0.6rem 1.2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;" onclick="convertMD()">
+                <i class="bi bi-file-word-fill"></i> {{ _t('Convert To Docx') }}
             </button>
         </div>
     </div>
 
-    <textarea id="md-input" placeholder="# {{ _t('lab_report_title') }}
+    <textarea id="md-input" placeholder="# {{ _t('Lab Report Title') }}
 
-{{ _t('write_draft_report_here') }}
+{{ _t('Write Draft Report Here') }}
 
-- {{ _t('auto_structure_maintained') }}
-- {{ _t('support_formula_si_code') }}
-- {{ _t('fast_export_office') }}
+- {{ _t('Auto Structure Maintained') }}
+- {{ _t('Support Formula Code') }}
+- {{ _t('Fast Export Office') }}
 
 ```python
-# Contoh kode program
-def sapa_mufath():
-    print('Semangat kuliahnya di Unair!')
-{{ _t('enter_text_click_convert_word') }}" 
+{{ _t('Example Code Comment') }}
+def sapa_{{ app_config.username|lower|replace(' ', '_') }}():
+    print('{{ _t('Example Print Message') }}')
+```
+
+{{ _t('Enter Text Click Convert Word') }}"
 style="min-height:480px; width:100%; font-family: 'Consolas', 'Monaco', monospace; padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); line-height: 1.6; font-size: 1rem;"></textarea>
 
     <div id="md-status" style="margin-top:1rem; font-size:0.9rem; font-weight: 500; min-height: 24px;"></div>
@@ -47,7 +50,7 @@ style="min-height:480px; width:100%; font-family: 'Consolas', 'Monaco', monospac
 {% block scripts %}
 <script>
 /**
- * Memasukkan konten {{ _t('from_of') }} file .md yang dipilih ke editor
+ * Memasukkan konten {{ _t('From Of') }} file .md yang dipilih ke editor
  */
 function loadFile(f) {
     if (!f) return;
@@ -63,7 +66,7 @@ function loadFile(f) {
     };
     
     reader.onerror = () => {
-        status.innerHTML = `<span style="color:var(--danger)">{{ _t('failed_read_local_file') }}</span>`;
+        status.innerHTML = `<span style="color:var(--danger)">{{ _t('Failed Read Local File') }}</span>`;
     };
     
     reader.readAsText(f);
@@ -78,7 +81,7 @@ async function convertMD() {
     const fileName = document.getElementById("file-name").value || "dokumen";
 
     if (!mdContent.trim()) { 
-        statusDisplay.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> {{ _t('fill_markdown_first') }}</span>`; 
+        statusDisplay.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamation-triangle"></i> {{ _t('Fill Markdown First') }}</span>`; 
         return; 
     }
 
@@ -86,7 +89,7 @@ async function convertMD() {
     formData.append("markdown", mdContent);
     formData.append("file_name", fileName);
 
-    statusDisplay.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> {{ _t('processing_docx') }}</span>`;
+    statusDisplay.innerHTML = `<span style="color:var(--primary)"><i class="bi bi-hourglass-split"></i> {{ _t('Processing Docx') }}</span>`;
     
     try {
         const response = await fetch("/convert/md-to-docx", { 

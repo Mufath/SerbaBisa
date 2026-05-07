@@ -25,6 +25,8 @@ TOOL_CATEGORIES = [
             {"id": "md-to-docx", "name": "Markdown ke Word", "desc": "Ubah Markdown jadi file Word", "icon": "bi-file-word-fill"},
             {"id": "ocr-pdf", "name": "OCR PDF", "desc": "Bikin PDF hasil scan jadi bisa dicopy teksnya", "icon": "bi-file-earmark-text-fill"},
             {"id": "cad-to-pdf", "name": "CAD ke PDF", "desc": "Ubah file gambar CAD (DXF/DWG) ke PDF", "icon": "bi-rulers"},
+            {"id": "pdf-to-ppt", "name": "PDF ke PPT", "desc": "Ubah halaman PDF jadi slide presentasi PowerPoint", "icon": "bi-file-earmark-slides-fill"},
+            {"id": "ppt-to-pdf", "name": "PPT ke PDF", "desc": "Ubah file presentasi PowerPoint jadi PDF", "icon": "bi-file-pdf-fill"},
         ],
     },
     {
@@ -42,6 +44,7 @@ TOOL_CATEGORIES = [
             {"id": "protect", "name": "Kunci PDF", "desc": "Pasang password biar PDF aman", "icon": "bi-lock-fill"},
             {"id": "unlock", "name": "Buka Kunci PDF", "desc": "Hilangkan password dari PDF", "icon": "bi-unlock-fill"},
             {"id": "sign", "name": "Tanda Tangan", "desc": "Tempel foto tanda tanganmu ke PDF", "icon": "bi-pen-fill"},
+            {"id": "fill-form", "name": "Isi Formulir", "desc": "Isi data formulir PDF secara otomatis", "icon": "bi-ui-radios"},
         ],
     },
     {
@@ -131,6 +134,8 @@ TOOL_CATEGORIES = [
             {"id": "password-generator", "name": "Pembuat Password", "desc": "Buat password acak yang kuat", "icon": "bi-key-fill"},
             {"id": "hash-generator", "name": "Pembuat Hash", "desc": "Buat hash MD5, SHA-256", "icon": "bi-fingerprint"},
             {"id": "file-hash", "name": "Hash File", "desc": "Cek integritas file yang diunggah", "icon": "bi-file-earmark-lock-fill"},
+            {"id": "file-vault", "name": "Brankas File", "desc": "Kunci dan sembunyikan file apa saja dengan password", "icon": "bi-safe-fill"},
+            {"id": "steganography", "name": "Pesan Rahasia Gambar", "desc": "Sembunyikan pesan rahasia di dalam gambar biasa", "icon": "bi-incognito"},
         ],
     },
     {
@@ -173,6 +178,18 @@ TOOL_CATEGORIES = [
             {"id": "video-to-gif", "name": "Video ke GIF", "desc": "Bikin meme GIF dari video", "icon": "bi-file-earmark-play-fill"},
             {"id": "subtitle-convert", "name": "Konversi Subtitle", "desc": "Ubah format subtitle SRT ke VTT atau sebaliknya", "icon": "bi-badge-cc-fill"},
             {"id": "burn-subtitles", "name": "Tanam Subtitle", "desc": "Patenkan subtitle langsung ke dalam video", "icon": "bi-fire"},
+            {"id": "speech-to-text", "name": "Suara ke Teks", "desc": "Ubah rekaman suara menjadi teks tulisan", "icon": "bi-mic-fill"},
+            {"id": "normalize-audio", "name": "Normalisasi Audio", "desc": "Seimbangkan volume audio agar pas didengar", "icon": "bi-sliders"},
+        ],
+    },
+    {
+        "id": "download",
+        "name": "Pengunduh",
+        "icon": "bi-cloud-download-fill",
+        "tools": [
+            {"id": "video", "name": "Pengunduh Video", "desc": "Unduh video dari YouTube, TikTok, Instagram, dan ribuan platform lainnya", "icon": "bi-camera-video-fill"},
+            {"id": "audio", "name": "Pengunduh Audio", "desc": "Unduh audio/musik dalam format MP3 dari platform apapun", "icon": "bi-music-note-beamed"},
+            {"id": "image", "name": "Pengunduh Gambar", "desc": "Unduh foto atau thumbnail dari media sosial", "icon": "bi-image-fill"},
         ],
     },
 ]
@@ -226,6 +243,7 @@ def index():
     lang = config.get("language", "id")
     for r in recent:
         r['time_str'] = format_time_ago(r['timestamp'], lang=lang)
+        r['tool_name'] = translate_tool(r['tool_name'], lang)
     weekly_count = get_weekly_count()
     return render_template("index.html", recent_history=recent[:3], weekly_count=weekly_count)
 
@@ -236,6 +254,7 @@ def history_page():
     lang = config.get("language", "id")
     for r in recent:
         r['time_str'] = format_time_ago(r['timestamp'], lang=lang)
+        r['tool_name'] = translate_tool(r['tool_name'], lang)
     return render_template("history.html", history=recent)
 
 @app.route("/settings")
@@ -254,12 +273,12 @@ def api_settings():
 
 @app.errorhandler(413)
 def too_large(e):
-    return {"error": "Waduh, ukuran file-nya kegedean nih! Maksimal cuma 100 MB ya."}, 413
+    return {"error": m("File is too large. Maximum size is 100 MB.")}, 413
 
 
 @app.errorhandler(500)
 def server_error(e):
-    return {"error": "Yah, ada error dari server nih. Coba lagi atau periksa file-mu ya!"}, 500
+    return {"error": m("Server error. Please try again or check your file.")}, 500
 
 
 # Register blueprints
@@ -274,6 +293,7 @@ from routes.spreadsheet_tools import bp as spreadsheet_bp
 from routes.dev_tools import bp as dev_bp
 from routes.archive_tools import bp as archive_bp
 from routes.media_tools import bp as media_bp
+from routes.downloader_tools import bp as download_bp
 
 app.register_blueprint(convert_bp, url_prefix="/convert")
 app.register_blueprint(pdf_bp, url_prefix="/pdf")
@@ -286,6 +306,7 @@ app.register_blueprint(spreadsheet_bp, url_prefix="/spreadsheet")
 app.register_blueprint(dev_bp, url_prefix="/dev")
 app.register_blueprint(archive_bp, url_prefix="/archive")
 app.register_blueprint(media_bp, url_prefix="/media")
+app.register_blueprint(download_bp, url_prefix="/download")
 
 import threading
 import webview

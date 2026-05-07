@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Kalkulator Persen - SerbaBisa{% endblock %}
-{% block top_title %}Kalkulator Persen{% endblock %}
+{% block title %}{{ _t('Percentage Calc Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Percentage Calc Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Kalkulator Persentase</h1>
-        <p>{{ _t('desc_percentage_calc') }}</p>
+        <h1>{{ _t('Percentage Calc Title') }}</h1>
+        <p>{{ _t('Desc Percentage Calc') }}</p>
     </div>
 
     <div class="calc-section">
-        <h3>{{ _t('what_is_x_percent_of_y') }}</h3>
+        <h3>{{ _t('What Is X Percent Of Y') }}</h3>
         <div class="inline-form">
             <span>Berapa</span>
             <input type="number" id="p1-pct" style="width:80px" placeholder="10" oninput="calc1()">
-            <span>% {{ _t('from_of') }}</span>
+            <span>% {{ _t('From Of') }}</span>
             <input type="number" id="p1-val" style="width:120px" placeholder="100000" oninput="calc1()">
             <span>?</span>
         </div>
@@ -22,10 +22,10 @@
     </div>
 
     <div class="calc-section">
-        <h3>{{ _t('x_is_what_percent_of_y') }}</h3>
+        <h3>{{ _t('X Is What Percent Of Y') }}</h3>
         <div class="inline-form">
             <input type="number" id="p2-x" style="width:100px" placeholder="50" oninput="calc2()">
-            <span>adalah {{ _t('how_much') }} % {{ _t('from_of') }}</span>
+            <span>adalah {{ _t('How Much') }} % {{ _t('From Of') }}</span>
             <input type="number" id="p2-y" style="width:100px" placeholder="200" oninput="calc2()">
             <span>?</span>
         </div>
@@ -33,7 +33,7 @@
     </div>
 
     <div class="calc-section">
-        <h3>{{ _t('percentage_change_x_to_y') }}</h3>
+        <h3>{{ _t('Percentage Change X To Y') }}</h3>
         <div class="inline-form">
             <span>{{ _t('from') }} {{ _t('value') }}</span>
             <input type="number" id="p3-from" style="width:120px" placeholder="Harga beli" oninput="calc3()">
@@ -46,7 +46,7 @@
     <div class="calc-section">
         <h3>Tambah/Kurang Berdasarkan Persen</h3>
         <div class="inline-form">
-            <input type="number" id="p4-val" style="width:120px" placeholder="{{ _t('initial_value') }}" oninput="calc4()">
+            <input type="number" id="p4-val" style="width:120px" placeholder="{{ _t('Initial Value') }}" oninput="calc4()">
             <select id="p4-dir" onchange="calc4()" style="width:auto">
                 <option value="increase">+ Naik</option>
                 <option value="decrease">− Turun</option>

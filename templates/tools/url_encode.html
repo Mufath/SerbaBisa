@@ -1,31 +1,31 @@
 {% extends "base.html" %}
-{% block title %}URL Encode/Decode - SerbaBisa{% endblock %}
-{% block top_title %}URL Encoder{% endblock %}
+{% block title %}{{ _t('URL Encode Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('URL Encode Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>URL Encoder / Decoder</h1>
-        <p>{{ _t('desc_url_encode') }}</p>
+        <h1>{{ _t('URL Encode Title') }}</h1>
+        <p>{{ _t('Desc URL Encode') }}</p>
     </div>
     <div class="split-pane">
         <div class="pane">
             <div class="pane-header">
                 <span>Teks Biasa (Decoded)</span>
-                <button class="btn btn-small" onclick="encodeURL()">{{ _t('encode_arrow') }}</button>
+                <button class="btn btn-small" onclick="encodeURL()">{{ _t('Encode Arrow') }}</button>
             </div>
             <div class="pane-body">
-                <textarea id="url-text" placeholder="{{ _t('enter_text_here_to_encode') }}"></textarea>
+                <textarea id="url-text" placeholder="{{ _t('Enter Text Here To Encode') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <button class="btn btn-small" onclick="decodeURL()">{{ _t('decode_arrow') }}</button>
+                <button class="btn btn-small" onclick="decodeURL()">{{ _t('Decode Arrow') }}</button>
                 <span>{{ _t('format') }} URL (Encoded)</span>
                 <button class="btn btn-small" onclick="copyEncoded()"><i class="bi bi-clipboard"></i></button>
             </div>
             <div class="pane-body">
-                <textarea id="url-encoded" placeholder="{{ _t('enter_url_encoded_text_here') }}"></textarea>
+                <textarea id="url-encoded" placeholder="{{ _t('Enter URL Encoded Text Here') }}"></textarea>
             </div>
         </div>
     </div>
@@ -44,7 +44,7 @@ function decodeURL() {
     try {
         document.getElementById("url-text").value = decodeURIComponent(input);
     } catch (e) {
-        alert("Waduh, format URL-encoded tidak valid.");
+        alert("{{ _t('Invalid URL Format') }}");
     }
 }
 

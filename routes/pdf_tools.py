@@ -2,6 +2,7 @@ import io
 import fitz  # PyMuPDF
 from flask import Blueprint, render_template, request, send_file, jsonify
 from utils.file_utils import make_zip
+from locales import m
 
 bp = Blueprint("pdf", __name__)
 
@@ -66,7 +67,7 @@ def rotate_page():
                  {"value": "180", "label": "180°"},
                  {"value": "270", "label": "90° Counter-clockwise"},
              ]},
-            {"type": "text", "name": "pages", "label": "Pages to rotate (leave empty for all)",
+            {"type": "text", "name": "pages", "label": "Pages To Rotate Detailed",
              "placeholder": "e.g. 1, 3, 5-7"},
         ])
 
@@ -142,10 +143,10 @@ def protect_page():
         accept=".pdf",
         multiple=False,
         options=[
-            {"type": "password", "name": "user_password", "label": "User Password (to open)",
-             "placeholder": "Enter password"},
-            {"type": "password", "name": "owner_password", "label": "Owner Password (optional, for editing)",
-             "placeholder": "Leave empty to use same password"},
+            {"type": "password", "name": "user_password", "label": "Enter User Password",
+             "placeholder": "Enter Password"},
+            {"type": "password", "name": "owner_password", "label": "Enter Owner Password",
+             "placeholder": "Leave Empty Same Password"},
         ])
 
 
@@ -154,18 +155,14 @@ def sign_page():
     return render_template("upload_tool.html",
         title="Tanda Tangan",
         description="Tempel foto tanda tanganmu ke PDF",
-        notes=(
-            "<p><strong>Tip:</strong> upload a transparent PNG of your signature for best results. "
-            "A white-background JPG will look like a sticker on the page.</p>"
-            "<p>This tool stamps a visible signature — it does <em>not</em> apply a cryptographic digital signature.</p>"
-        ),
+        notes="Signature Tip",
         endpoint="/pdf/sign",
         accept=".pdf",
         multiple=False,
         options=[
-            {"type": "file", "name": "signature", "label": "Signature image (PNG / JPG)",
+            {"type": "file", "name": "signature", "label": "Signature Image Label",
              "accept": "image/png,image/jpeg", "required": True},
-            {"type": "text", "name": "pages", "label": "Pages to sign (leave empty for all)",
+            {"type": "text", "name": "pages", "label": "Pages To Rotate Detailed",
              "placeholder": "e.g. 1, 3, 5-7"},
             {"type": "select", "name": "position", "label": "Position", "default": "bottom-right",
              "choices": [
@@ -176,8 +173,8 @@ def sign_page():
                  {"value": "top-center", "label": "Top Center"},
                  {"value": "top-left", "label": "Top Left"},
              ]},
-            {"type": "number", "name": "width", "label": "Signature width (points)", "default": 140, "min": 30, "max": 400},
-            {"type": "number", "name": "margin", "label": "Margin from edge (points)", "default": 36, "min": 0, "max": 200},
+            {"type": "number", "name": "width", "label": "Signature Width", "default": 140, "min": 30, "max": 400},
+            {"type": "number", "name": "margin", "label": "Margin Edge", "default": 36, "min": 0, "max": 200},
             {"type": "number", "name": "opacity", "label": "Opacity (%)", "default": 100, "min": 10, "max": 100},
         ])
 
@@ -192,8 +189,18 @@ def unlock_page():
         multiple=False,
         options=[
             {"type": "password", "name": "password", "label": "PDF Password",
-             "placeholder": "Enter the current password"},
+             "placeholder": "Enter Current Password"},
         ])
+
+
+@bp.route("/fill-form")
+def fill_form_page():
+    return render_template("tools/pdf_fill_form.html",
+        title="Isi Formulir",
+        description="Isi data formulir PDF secara otomatis",
+        endpoint="/pdf/fill-form",
+        accept=".pdf",
+        multiple=False)
 
 
 # ── Processing Routes ────────────────────────────
@@ -231,7 +238,7 @@ PAPER_SIZES = {
 def merge():
     files = request.files.getlist("files")
     if len(files) < 2:
-        return jsonify(error="Please upload at least 2 PDF files."), 400
+        return jsonify(error=m("Please upload at least 2 PDF files.")), 400
 
     result = fitz.open()
     for f in files:
@@ -240,7 +247,7 @@ def merge():
             result.insert_pdf(doc)
             doc.close()
         except Exception as e:
-            return jsonify(error=f"Error reading {f.filename}: {str(e)}"), 400
+            return jsonify(error=m("Error reading {filename}: {e}", filename=f.filename, e=str(e))), 400
 
     output = io.BytesIO()
     result.save(output)
@@ -254,7 +261,7 @@ def merge():
 def split():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     page_spec = request.form.get("pages", "").strip()
     doc = fitz.open(stream=files[0].read(), filetype="pdf")
@@ -262,10 +269,10 @@ def split():
     try:
         pages = parse_page_ranges(page_spec, len(doc))
     except ValueError:
-        return jsonify(error="Invalid page range format."), 400
+        return jsonify(error=m("Invalid page range format.")), 400
 
     if not pages:
-        return jsonify(error="No valid pages selected."), 400
+        return jsonify(error=m("No valid pages selected.")), 400
 
     if len(pages) == 1:
         single = fitz.open()
@@ -297,7 +304,7 @@ def split():
 def compress():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     quality = request.form.get("quality", "medium")
     
@@ -352,7 +359,7 @@ def compress():
 def rotate():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     angle = int(request.form.get("angle", 90))
     page_spec = request.form.get("pages", "").strip()
@@ -377,7 +384,7 @@ def rotate():
 def resize():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     mode = request.form.get("mode", "scale")
     doc = fitz.open(stream=files[0].read(), filetype="pdf")
@@ -391,7 +398,7 @@ def resize():
         if scale <= 0:
             doc.close()
             new_doc.close()
-            return jsonify(error="Scale must be greater than 0."), 400
+            return jsonify(error=m("Scale must be greater than 0.")), 400
 
         for page in doc:
             r = page.rect
@@ -443,7 +450,7 @@ def resize():
 def page_numbers():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     position = request.form.get("position", "bottom-center")
     start = int(request.form.get("start", 1))
@@ -484,7 +491,7 @@ def page_numbers():
 def extract_images():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     doc = fitz.open(stream=files[0].read(), filetype="pdf")
     images = []
@@ -504,7 +511,7 @@ def extract_images():
     doc.close()
 
     if not images:
-        return jsonify(error="No images found in the PDF."), 400
+        return jsonify(error=m("No images found in the PDF.")), 400
 
     if len(images) == 1:
         ext = images[0][0].rsplit(".", 1)[1]
@@ -522,13 +529,13 @@ def extract_images():
 def protect():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     user_pw = request.form.get("user_password", "")
     owner_pw = request.form.get("owner_password", "") or user_pw
 
     if not user_pw:
-        return jsonify(error="Please enter a password."), 400
+        return jsonify(error=m("Please enter a password.")), 400
 
     doc = fitz.open(stream=files[0].read(), filetype="pdf")
     perm = fitz.PDF_PERM_PRINT | fitz.PDF_PERM_COPY
@@ -553,11 +560,11 @@ def sign():
 
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No PDF uploaded."), 400
+        return jsonify(error=m("No PDF uploaded.")), 400
 
     sig_file = request.files.get("signature")
     if not sig_file or not sig_file.filename:
-        return jsonify(error="Please upload a signature image (PNG or JPG)."), 400
+        return jsonify(error=m("Please upload a signature image (PNG or JPG).")), 400
 
     position = request.form.get("position", "bottom-right")
     try:
@@ -565,7 +572,7 @@ def sign():
         margin = float(request.form.get("margin", 36))
         opacity = max(10, min(100, int(request.form.get("opacity", 100)))) / 100.0
     except ValueError:
-        return jsonify(error="Invalid numeric option."), 400
+        return jsonify(error=m("Invalid numeric option.")), 400
 
     page_spec = request.form.get("pages", "").strip()
 
@@ -573,7 +580,7 @@ def sign():
     try:
         sig_img = Image.open(sig_file).convert("RGBA")
     except Exception as e:
-        return jsonify(error=f"Could not read signature image: {e}"), 400
+        return jsonify(error=m("Could not read signature image: {e}", e=e)), 400
 
     if opacity < 1.0:
         r, g, b, a = sig_img.split()
@@ -593,10 +600,10 @@ def sign():
         target = parse_page_ranges(page_spec, len(doc))
     except ValueError:
         doc.close()
-        return jsonify(error="Invalid page range format."), 400
+        return jsonify(error=m("Invalid page range format.")), 400
     if not target:
         doc.close()
-        return jsonify(error="No valid pages selected."), 400
+        return jsonify(error=m("No valid pages selected.")), 400
 
     for pno in target:
         page = doc[pno]
@@ -633,7 +640,7 @@ def sign():
 def unlock():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     password = request.form.get("password", "")
     pdf_data = files[0].read()
@@ -643,7 +650,7 @@ def unlock():
     if doc.needs_pass:
         if not doc.authenticate(password):
             doc.close()
-            return jsonify(error="Incorrect password."), 400
+            return jsonify(error=m("Incorrect password.")), 400
 
     output = io.BytesIO()
     doc.save(output)
@@ -651,5 +658,58 @@ def unlock():
     output.seek(0)
 
     name = files[0].filename.rsplit(".", 1)[0] + "_unlocked.pdf"
+    return send_file(output, mimetype="application/pdf",
+                     as_attachment=True, download_name=name)
+
+
+@bp.route("/read-fields", methods=["POST"])
+def read_fields():
+    files = request.files.getlist("files")
+    if not files or not files[0].filename:
+        return jsonify(error=m("No file uploaded.")), 400
+
+    doc = fitz.open(stream=files[0].read(), filetype="pdf")
+    fields = []
+    
+    for page in doc:
+        for field in page.widgets():
+            if field.field_name and field.field_name not in [f["name"] for f in fields]:
+                fields.append({
+                    "name": field.field_name,
+                    "type": field.field_type_string,
+                    "value": field.field_value
+                })
+    doc.close()
+    
+    return jsonify(fields=fields)
+
+
+@bp.route("/fill-form", methods=["POST"])
+def fill_form():
+    files = request.files.getlist("files")
+    if not files or not files[0].filename:
+        return jsonify(error=m("No file uploaded.")), 400
+
+    import json
+    form_data_str = request.form.get("form_data", "{}")
+    try:
+        form_data = json.loads(form_data_str)
+    except Exception:
+        form_data = {}
+
+    doc = fitz.open(stream=files[0].read(), filetype="pdf")
+    
+    for page in doc:
+        for field in page.widgets():
+            if field.field_name in form_data:
+                field.field_value = str(form_data[field.field_name])
+                field.update()
+
+    output = io.BytesIO()
+    doc.save(output)
+    doc.close()
+    output.seek(0)
+
+    name = files[0].filename.rsplit(".", 1)[0] + "_filled.pdf"
     return send_file(output, mimetype="application/pdf",
                      as_attachment=True, download_name=name)

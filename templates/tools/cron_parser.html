@@ -1,43 +1,43 @@
 {% extends "base.html" %}
-{% block title %}Cron Parser - SerbaBisa{% endblock %}
-{% block top_title %}Cron Parser{% endblock %}
+{% block title %}{{ _t('Cron Parser Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Cron Parser Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Cron Expression Parser</h1>
-        <p>{{ _t('desc_cron_parser') }}</p>
+        <h1>{{ _t('Cron Parser Title') }}</h1>
+        <p>{{ _t('Desc Cron Parser') }}</p>
     </div>
 
     <div style="display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:center">
-        <label>Ekspresi:
+        <label>{{ _t('Expression Label') }}
             <input type="text" id="cron-expr" value="*/5 * * * *" style="font-family:monospace;min-width:200px">
         </label>
         <label>{{ _t('amount') }}:
             <input type="number" id="cron-count" value="10" min="1" max="50" style="width:70px">
         </label>
-        <button class="btn btn-primary" onclick="parseCron()"><i class="bi bi-play-circle"></i> Cek Jadwal</button>
+        <button class="btn btn-primary" onclick="parseCron()"><i class="bi bi-play-circle"></i> {{ _t('Check Schedule') }}</button>
     </div>
 
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem">
-        <button class="btn btn-small" onclick="setExpr('* * * * *')">{{ _t('every_minute') }}</button>
-        <button class="btn btn-small" onclick="setExpr('*/5 * * * *')">{{ _t('every_5_minutes') }}</button>
-        <button class="btn btn-small" onclick="setExpr('0 * * * *')">{{ _t('every_hour') }}</button>
-        <button class="btn btn-small" onclick="setExpr('0 0 * * *')">{{ _t('every_midnight') }}</button>
-        <button class="btn btn-small" onclick="setExpr('0 9 * * 1-5')">Hari kerja jam 9 pagi</button>
-        <button class="btn btn-small" onclick="setExpr('0 0 1 * *')">{{ _t('every_1st_of_month') }}</button>
-        <button class="btn btn-small" onclick="setExpr('0 0 * * 0')">{{ _t('every_sunday') }}</button>
+        <button class="btn btn-small" onclick="setExpr('* * * * *')">{{ _t('Every Minute') }}</button>
+        <button class="btn btn-small" onclick="setExpr('*/5 * * * *')">{{ _t('Every 5 Minutes') }}</button>
+        <button class="btn btn-small" onclick="setExpr('0 * * * *')">{{ _t('Every Hour') }}</button>
+        <button class="btn btn-small" onclick="setExpr('0 0 * * *')">{{ _t('Every Midnight') }}</button>
+        <button class="btn btn-small" onclick="setExpr('0 9 * * 1-5')">{{ _t('Weekday 9am') }}</button>
+        <button class="btn btn-small" onclick="setExpr('0 0 1 * *')">{{ _t('Every 1st Of Month') }}</button>
+        <button class="btn btn-small" onclick="setExpr('0 0 * * 0')">{{ _t('Every Sunday') }}</button>
     </div>
 
     <div id="cron-status" style="margin:.5rem 0;font-size:.9rem"></div>
 
     <div class="split-pane">
         <div class="pane">
-            <div class="pane-header"><span>Deskripsi Jadwal</span></div>
+            <div class="pane-header"><span>{{ _t('Schedule Description') }}</span></div>
             <div class="pane-body"><pre id="cron-desc"></pre></div>
         </div>
         <div class="pane">
-            <div class="pane-header"><span>Jadwal Jalan Berikutnya</span></div>
+            <div class="pane-header"><span>{{ _t('Next Schedules') }}</span></div>
             <div class="pane-body"><pre id="cron-next"></pre></div>
         </div>
     </div>
@@ -56,27 +56,27 @@ async function parseCron() {
     const count = document.getElementById("cron-count").value;
     const status = document.getElementById("cron-status");
 
-    if (!expr.trim()) { status.textContent = "Masukin dulu ekspresi cron-nya."; return; }
+    if (!expr.trim()) { status.textContent = "{{ _t('Enter Cron First') }}"; return; }
 
     const fd = new FormData();
     fd.append("expr", expr);
     fd.append("count", count);
 
-    status.textContent = "Lagi ngecek...";
+    status.textContent = "{{ _t('Checking') }}";
     try {
         const r = await fetch("/dev/cron", { method: "POST", body: fd });
         const j = await r.json();
         if (j.error) {
-            status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Waduh, kodenya salah: ${j.error}</span>`;
+            status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> {{ _t('Expression Invalid') }}: ${j.error}</span>`;
             document.getElementById("cron-desc").textContent = "";
             document.getElementById("cron-next").textContent = "";
         } else {
-            status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> Ekspresi valid!</span>';
+            status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t("Expression Valid") }}</span>';
             document.getElementById("cron-desc").textContent = j.description;
             document.getElementById("cron-next").textContent = j.next.join("\n");
         }
     } catch (e) {
-        status.innerHTML = `<span style="color:var(--danger)">Ada masalah jaringan: ${e.message}</span>`;
+        status.innerHTML = `<span style="color:var(--danger)">{{ _t('Network Error') }}: ${e.message}</span>`;
     }
 }
 

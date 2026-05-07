@@ -1,42 +1,42 @@
 {% extends "base.html" %}
-{% block title %}{{ _t('sql_title') }} {{ _t('format') }}ter - SerbaBisa{% endblock %}
-{% block top_title %}{{ _t('sql_title') }} {{ _t('format') }}ter{% endblock %}
+{% block title %}{{ _t('SQL Formatter') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('SQL Formatter') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>{{ _t('sql_title') }} {{ _t('format') }}ter</h1>
-        <p>{{ _t('desc_sql_formatter') }}</p>
+        <h1>{{ _t('SQL Formatter') }}</h1>
+        <p>{{ _t('Desc SQL Formatter') }}</p>
     </div>
 
     <div style="display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:center">
-        <label>Huruf {{ _t('to') }}yword:
+        <label>{{ _t('Keyword Case Label') }}
             <select id="sql-keyword">
-                <option value="upper" selected>HURUF BESAR</option>
-                <option value="lower">{{ _t('lowercase_letters') }}</option>
-                <option value="capitalize">Kapital Depan</option>
+                <option value="upper" selected>{{ _t('uppercase') }}</option>
+                <option value="lower">{{ _t('Lowercase Letters') }}</option>
+                <option value="capitalize">{{ _t('Capitalize First') }}</option>
             </select>
         </label>
         <label>{{ _t('indentation') }}
             <select id="sql-indent">
-                <option value="2" selected>2 Spasi</option>
-                <option value="4">4 Spasi</option>
-                <option value="tab">Tab</option>
+                <option value="2" selected>2 {{ _t('spaces') }}</option>
+                <option value="4">4 {{ _t('spaces') }}</option>
+                <option value="tab">{{ _t('tab') }}</option>
             </select>
         </label>
-        <button class="btn btn-primary" onclick="format{{ _t('sql_title') }}()"><i class="bi bi-magic"></i> Rapikan {{ _t('sql_title') }}</button>
+        <button class="btn btn-primary" onclick="formatSQL()"><i class="bi bi-magic"></i> {{ _t('Tidy SQL') }}</button>
     </div>
 
     <div class="split-pane">
         <div class="pane">
-            <div class="pane-header"><span>Input Query</span></div>
+            <div class="pane-header"><span>{{ _t('Input Query') }}</span></div>
             <div class="pane-body">
-                <textarea id="sql-input" placeholder="Contoh: select * from users where id=1"></textarea>
+                <textarea id="sql-input" placeholder="{{ _t('SQL Example Query') }}"></textarea>
             </div>
         </div>
         <div class="pane">
             <div class="pane-header">
-                <span>{{ _t('output_result') }}</span>
+                <span>{{ _t('Output Result') }}</span>
                 <button class="btn btn-small" onclick="copyOutput()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <div class="pane-body"><pre id="sql-output" style="white-space: pre-wrap; word-break: break-all;"></pre></div>
@@ -48,11 +48,11 @@
 
 {% block scripts %}
 <script>
-async function format{{ _t('sql_title') }}() {
+async function formatSQL() {
     const input = document.getElementById("sql-input").value;
     const status = document.getElementById("sql-status");
     if (!input.trim()) { 
-        status.innerHTML = '<span style="color:var(--text-light)">Masukkan query {{ _t('sql_title') }} terlebih dahulu.</span>'; 
+        status.innerHTML = '<span style="color:var(--text-light)">{{ _t('Enter SQL First') }}</span>'; 
         return; 
     }
 
@@ -61,20 +61,20 @@ async function format{{ _t('sql_title') }}() {
     fd.append("keyword_case", document.getElementById("sql-keyword").value);
     fd.append("indent", document.getElementById("sql-indent").value);
 
-    status.textContent = "Sedang me{{ _t('tidy_up') }}...";
+    status.textContent = "{{ _t('Tidying Up') }}";
     try {
         // Pastikan endpoint /dev/sql-format tersedia di backend Flask kamu
         const r = await fetch("/dev/sql-format", { method: "POST", body: fd });
         const j = await r.json();
         
         if (j.error) {
-            status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> Error: ${j.error}</span>`;
+            status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-x-circle"></i> {{ _t('Error Label') }}: ${j.error}</span>`;
         } else {
             document.getElementById("sql-output").textContent = j.text;
-            status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('formatting_done') }}</span>';
+            status.innerHTML = '<span style="color:var(--success)"><i class="bi bi-check-circle"></i> {{ _t('Formatting Done') }}</span>';
         }
     } catch (e) {
-        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamatriangle"></i> Gagal terhubung ke server: ${e.message}</span>`;
+        status.innerHTML = `<span style="color:var(--danger)"><i class="bi bi-exclamatriangle"></i> {{ _t('Server Error') }}: ${e.message}</span>`;
     }
 }
 

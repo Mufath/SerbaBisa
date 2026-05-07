@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Kalkulator - SerbaBisa{% endblock %}
-{% block top_title %}Kalkulator{% endblock %}
+{% block title %}{{ _t('Calculator Title') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Calculator Title') }}{% endblock %}
 
 {% block content %}
 <div class="client-tool" style="max-width:360px">
     <div class="tool-header">
-        <h1>Kalkulator</h1>
-        <p>{{ _t('desc_calculator') }}</p>
+        <h1>{{ _t('Calculator Title') }}</h1>
+        <p>{{ _t('Desc Calculator') }}</p>
     </div>
     <div class="calc-display">
         <div class="calc-expression" id="calc-expr">&nbsp;</div>

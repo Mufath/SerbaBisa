@@ -42,8 +42,8 @@
             </div>
         </div>
         <div class="sidebar-footer" style="padding: 1rem; border-top: 1px solid var(--glass-border); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
-            <div style="margin-bottom: 0.3rem;">{{ _t('original_idea') }} <a href="https://twitter.com/listyantidewi" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@listyantidewi</a></div>
-            <div>{{ _t('developed_by') }} <a href="https://instagram.com/mufathz" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@mufathz</a></div>
+            <div style="margin-bottom: 0.3rem;">{{ _t('Original Idea') }} <a href="https://twitter.com/listyantidewi" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@listyantidewi</a></div>
+            <div>{{ _t('Developed By') }} <a href="https://instagram.com/mufathz" target="_blank" style="color: var(--primary); text-decoration: none; font-weight:600;">@mufathz</a></div>
         </div>
     </nav>
 
@@ -53,23 +53,23 @@
         <header class="top-bar">
             <div class="top-bar-left">
                 <button class="menu-btn" onclick="openSidebar()"><i class="bi bi-list"></i></button>
-                <span class="top-title">{% block top_title %}Dasbor SerbaBisa{% endblock %}</span>
+                <span class="top-title">{% block top_title %}{{ _t('Dashboard Title') }}{% endblock %}</span>
             </div>
             
             <div class="top-bar-right">
-                <button id="theme-toggle" class="btn btn-small" style="padding: 0.5rem; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Ubah Tema">
+                <button id="theme-toggle" class="btn btn-small" style="padding: 0.5rem; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="{{ _t('Change Theme') }}">
                     <i class="bi bi-moon-fill" id="theme-icon"></i>
                 </button>
                 <div class="search-bar">
                     <i class="bi bi-search"></i>
-                    <input type="text" id="global-search" placeholder="{{ _t('search_placeholder') }}">
+                    <input type="text" id="global-search" placeholder="{{ _t('Search Placeholder') }}">
                 </div>
                 
-                <div class="user-profile" onclick="window.location.href='/settings'" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" title="{{ _t('click_to_change_name') }}">
+                <div class="user-profile" onclick="window.location.href='/settings'" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" title="{{ _t('Click To Change Name') }}">
                     <div class="user-avatar" id="avatar-initial">{{ app_config.username[0] | upper }}</div>
                     <div class="user-info">
                         <span class="user-name" id="display-name" style="color: var(--text); font-weight: 600;">{{ app_config.username }}</span>
-                        <span class="user-role">{{ _t('user_profile') }}</span>
+                        <span class="user-role">{{ _t('User Profile') }}</span>
                     </div>
                 </div>
             </div>
@@ -80,6 +80,24 @@
         </div>
     </main>
 
+    <script>
+        window.SERBABISA_TRANS = {
+            cmd_empty: "{{ _t('Cmd Empty') }}",
+            cmd_start: "{{ _t('Cmd Start') }}",
+            uploading: "{{ _t('uploading') }}",
+            processing_wait: "{{ _t('Processing Wait') }}",
+            almost_done: "{{ _t('Almost Done') }}",
+            done: "{{ _t('done') }}",
+            download_prefix: "{{ _t('Download Prefix') }}",
+            saving: "{{ _t('saving') }}",
+            preparing: "{{ _t('preparing') }}",
+            input_csv: "{{ _t('Input CSV') }}",
+            input_json: "{{ _t('Input JSON') }}",
+            output_csv: "{{ _t('Output CSV') }}",
+            output_json: "{{ _t('Output JSON') }}",
+            oops_error: "{{ _t('Oops Error') }}"
+        };
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
     <script>
         function toggleTheme() {
@@ -98,7 +116,7 @@
             fetch('/api/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ theme: newTheme, username: "{{ app_config.username }}", language: "{{ app_config.language }}" })
+                body: JSON.stringify({ theme: newTheme })
             });
         }
 
@@ -116,7 +134,7 @@
         <div class="command-palette">
             <div class="cmd-header">
                 <i class="bi bi-search"></i>
-                <input type="text" id="cmd-input" placeholder="Cari alat... (Esc untuk tutup)" autocomplete="off">
+                <input type="text" id="cmd-input" placeholder="{{ _t('Cmd Placeholder') }}" autocomplete="off">
             </div>
             <div class="cmd-results" id="cmd-results"></div>
         </div>

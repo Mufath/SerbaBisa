@@ -1,6 +1,7 @@
 import io
 import fitz  # PyMuPDF
 from flask import Blueprint, render_template, request, send_file, jsonify
+from locales import m
 from PIL import Image
 import img2pdf
 from docx import Document as DocxDocument
@@ -34,7 +35,35 @@ try:
 except ImportError:
     HAS_EZDXF = False
 
+try:
+    from pptx import Presentation
+    from pptx.util import Inches
+    HAS_PPTX = True
+except ImportError:
+    HAS_PPTX = False
+
 import shutil
+import subprocess
+import os
+import tempfile
+
+def find_soffice():
+    # Cek PATH standar
+    cmd = shutil.which("soffice") or shutil.which("soffice.exe") or shutil.which("soffice.bin")
+    if cmd: return cmd
+    
+    # Cek lokasi instalasi umum di Windows
+    if os.name == 'nt':
+        common_paths = [
+            r"C:\Program Files\LibreOffice\program\soffice.exe",
+            r"C:\Program Files (x86)\LibreOffice\program\soffice.exe"
+        ]
+        for path in common_paths:
+            if os.path.exists(path):
+                return path
+    return None
+
+SOFFICE = find_soffice()
 ODA_CONVERTER = shutil.which("ODAFileConverter") or shutil.which("oda_file_converter")
 
 bp = Blueprint("convert", __name__)
@@ -45,20 +74,56 @@ bp = Blueprint("convert", __name__)
 @bp.route("/to-pdf")
 def to_pdf_page():
     return render_template("upload_tool.html",
-        title="File ke PDF",
-        description="Bikin file PDF dari gambar atau teks",
+        title=m("File ke PDF"),
+        description=m("Desc File ke PDF"),
         endpoint="/convert/to-pdf",
         accept=".jpg,.jpeg,.png,.bmp,.tiff,.webp,.txt,.docx",
         multiple=True,
         options=[])
 
 
+@bp.route("/pdf-to-ppt")
+def pdf_to_ppt_page():
+    return render_template("upload_tool.html",
+        title=m("PDF ke PPT"),
+        description=m("Desc PDF ke PPT"),
+        endpoint="/convert/pdf-to-ppt",
+        accept=".pdf",
+        multiple=False,
+        options=[])
+
+
+@bp.route("/ppt-to-pdf")
+def ppt_to_pdf_page():
+    if SOFFICE:
+        notes = f'<p><i class="bi bi-check-circle-fill" style="color:#2ec4b6"></i> <strong>{m("LibreOffice Detected")}</strong></p>'
+    else:
+        notes = (
+            f'<p><i class="bi bi-exclamation-triangle-fill" style="color:#ffb703"></i> '
+            f'<strong>{m("LibreOffice Not Found")}</strong> {m("LibreOffice Required")}</p>'
+            '<br>'
+            f'<strong>{m("How To Install")}</strong><br>'
+            f'{m("Download From Official")}<br>'
+            f'{m("Install As Usual")}<br>'
+            f'{m("Close And Reopen")}'
+            '</div>'
+        )
+
+    return render_template("upload_tool.html",
+        title=m("PPT ke PDF"),
+        description=m("Desc PPT ke PDF"),
+        notes=notes,
+        endpoint="/convert/ppt-to-pdf",
+        accept=".ppt,.pptx",
+        multiple=False,
+        options=[])
+
 @bp.route("/pdf-to-word")
 def pdf_to_word_page():
     return render_template("upload_tool.html",
-        title="PDF ke Word",
-        description="Ubah PDF ke Word (.docx) biar bisa diedit",
-        notes="<p>Alat ini pakai library gratisan yang udah paling bagus di kelasnya. Hasil teksnya bakal rapi, tapi kalau PDF-mu punya tabel atau *layout* desain yang ribet banget, hasil letak-letaknya mungkin nggak 100% sempurna seperti aslinya. Dimaklumi ya!</p>",
+        title=m("PDF ke Word"),
+        description=m("Desc PDF to Word"),
+        notes=f"<p>{m('Note PDF to Word')}</p>",
         endpoint="/convert/pdf-to-word",
         accept=".pdf",
         multiple=False,
@@ -68,8 +133,8 @@ def pdf_to_word_page():
 @bp.route("/pdf-to-images")
 def pdf_to_images_page():
     return render_template("upload_tool.html",
-        title="PDF ke Gambar",
-        description="Jadikan tiap halaman PDF sebagai gambar",
+        title=m("PDF ke Gambar"),
+        description=m("Desc PDF to Images"),
         endpoint="/convert/pdf-to-images",
         accept=".pdf",
         multiple=False,
@@ -86,8 +151,8 @@ def pdf_to_images_page():
 @bp.route("/pdf-to-text")
 def pdf_to_text_page():
     return render_template("upload_tool.html",
-        title="PDF ke Teks",
-        description="Ambil semua teks yang ada di dalam PDF",
+        title=m("PDF ke Teks"),
+        description=m("Desc PDF to Text"),
         endpoint="/convert/pdf-to-text",
         accept=".pdf",
         multiple=False,
@@ -107,13 +172,9 @@ def md_to_docx_page():
 @bp.route("/pdf-to-excel")
 def pdf_to_excel_page():
     return render_template("upload_tool.html",
-        title="PDF ke Excel",
-        description="Sedot tabel dari PDF ke format Excel",
-        notes=(
-            "<p><strong>Tip:</strong> works best on PDFs with clearly ruled tables. "
-            "For scanned PDFs (images of tables), run them through "
-            "<a href=\"/convert/ocr-pdf\">OCR PDF</a> first so the tool has text to work with.</p>"
-        ),
+        title=m("PDF ke Excel Title"),
+        description=m("Desc PDF to Excel"),
+        notes=f"<p>{m('Tip PDF to Excel')}</p>",
         endpoint="/convert/pdf-to-excel",
         accept=".pdf",
         multiple=False,
@@ -156,8 +217,8 @@ OCR_LANGS = [
 @bp.route("/ocr-pdf")
 def ocr_pdf_page():
     return render_template("upload_tool.html",
-        title="OCR PDF",
-        description="Bikin PDF hasil scan jadi bisa dicopy teksnya",
+        title=m("OCR PDF Title"),
+        description=m("Desc OCR PDF"),
         endpoint="/convert/ocr-pdf",
         accept=".pdf",
         multiple=False,
@@ -184,34 +245,11 @@ def cad_to_pdf_page():
             '<p>DXF files are rendered directly. DWG files are auto-converted to DXF first.</p>'
         )
     else:
-        notes = (
-            '<p><strong>DXF works out of the box.</strong> DWG files need the free '
-            '<a href="https://www.opendesign.com/guestfiles/oda_file_converter" target="_blank" rel="noopener">'
-            'ODA File Converter</a> installed and available on your system <code>PATH</code>.</p>'
-            '<details>'
-            '<summary>How to install ODA File Converter</summary>'
-            '<ol>'
-            '<li>Download the installer for your OS from '
-            '<a href="https://www.opendesign.com/guestfiles/oda_file_converter" target="_blank" rel="noopener">opendesign.com</a> '
-            '(free, guest download — no account required).</li>'
-            '<li>Run the installer. Defaults are fine.</li>'
-            '<li><strong>Add it to your PATH so this app can find it:</strong>'
-            '<ul>'
-            '<li><strong>Windows:</strong> add <code>C:\\Program Files\\ODA\\ODAFileConverter_title_version</code> '
-            '(the folder containing <code>ODAFileConverter.exe</code>) to your <em>System Environment Variables</em> &rarr; <code>Path</code>.</li>'
-            '<li><strong>macOS:</strong> <code>ln -s /Applications/ODAFileConverter.app/Contents/MacOS/ODAFileConverter /usr/local/bin/ODAFileConverter</code></li>'
-            '<li><strong>Linux:</strong> the <code>.deb</code>/<code>.rpm</code> package installs <code>ODAFileConverter</code> on PATH automatically. Otherwise symlink the binary into <code>/usr/local/bin</code>.</li>'
-            '</ul></li>'
-            '<li>Open a new terminal and verify: <code>ODAFileConverter</code> (should launch the tool GUI, or exit silently).</li>'
-            '<li><strong>Restart this Flask server</strong> so it picks up the updated PATH.</li>'
-            '</ol>'
-            '<p style="margin-top:.4rem">Alternative: open your DWG in free tools like <a href="https://www.autodesk.com/viewers" target="_blank" rel="noopener">Autodesk Viewer</a>, LibreCAD, or QCAD and export it as DXF, then upload the DXF here.</p>'
-            '</details>'
-        )
+        notes = m("ODA Instructions")
 
     return render_template("upload_tool.html",
-        title="CAD ke PDF",
-        description="Ubah file gambar CAD (DXF/DWG) ke PDF",
+        title=m("CAD ke PDF"),
+        description=m("Desc CAD to PDF"),
         notes=notes,
         endpoint="/convert/cad-to-pdf",
         accept=".dxf,.dwg",
@@ -231,16 +269,16 @@ def cad_to_pdf_page():
 @bp.route("/html-to-pdf")
 def html_to_pdf_page():
     return render_template("upload_tool.html",
-        title="HTML ke PDF",
-        description="Bikin PDF dari kode HTML",
+        title=m("HTML ke PDF"),
+        description=m("Desc HTML to PDF"),
         endpoint="/convert/html-to-pdf",
         text_input=True,
-        text_label="HTML Content",
-        text_placeholder="<h1>Hello World</h1>\n<p>Paste your HTML here...</p>",
+        text_label=m("HTML Content"),
+        text_placeholder=m("HTML Placeholder"),
         accept="",
         multiple=False,
         options=[],
-        button_text="Ubah ke PDF")
+        button_text=m("Ubah ke PDF"))
 
 
 # ── Helpers ──────────────────────────────────────
@@ -395,6 +433,95 @@ def to_pdf():
                      as_attachment=True, download_name="converted.pdf")
 
 
+@bp.route("/pdf-to-ppt", methods=["POST"])
+def pdf_to_ppt():
+    if not HAS_PPTX:
+        return jsonify(error="Library python-pptx belum terinstal. Silakan jalankan 'pip install python-pptx'."), 400
+
+    files = request.files.getlist("files")
+    if not files or not files[0].filename:
+        return jsonify(error=m("No file uploaded.")), 400
+
+    pdf_data = files[0].read()
+    try:
+        doc = fitz.open(stream=pdf_data, filetype="pdf")
+    except Exception as e:
+        return jsonify(error=f"Gagal membaca PDF: {str(e)}"), 400
+
+    prs = Presentation()
+    # Set default slide width and height
+    # PowerPoint default aspect ratio is 16:9, but let's try to adapt to the first page's aspect ratio.
+    if len(doc) > 0:
+        first_page = doc[0]
+        rect = first_page.rect
+        # PyMuPDF uses points (72 per inch), python-pptx uses Inches
+        prs.slide_width = Inches(rect.width / 72.0)
+        prs.slide_height = Inches(rect.height / 72.0)
+
+    blank_slide_layout = prs.slide_layouts[6]
+
+    for page in doc:
+        # Render page to image
+        pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))  # 2x zoom for better quality
+        img_bytes = pix.tobytes("png")
+        img_stream = io.BytesIO(img_bytes)
+
+        # Add slide
+        slide = prs.slides.add_slide(blank_slide_layout)
+        
+        # Add image to slide
+        slide.shapes.add_picture(img_stream, 0, 0, width=prs.slide_width, height=prs.slide_height)
+
+    doc.close()
+
+    output = io.BytesIO()
+    prs.save(output)
+    output.seek(0)
+    
+    name = files[0].filename.rsplit(".", 1)[0] + ".pptx"
+    return send_file(output, mimetype="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                     as_attachment=True, download_name=name)
+
+
+@bp.route("/ppt-to-pdf", methods=["POST"])
+def ppt_to_pdf():
+    if not SOFFICE:
+        return jsonify(error=m("LibreOffice Not Found")), 400
+
+    files = request.files.getlist("files")
+    if not files or not files[0].filename:
+        return jsonify(error=m("No file uploaded.")), 400
+
+    import tempfile
+    import subprocess
+    import os
+
+    data = files[0].read()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.pptx")
+        with open(input_path, "wb") as f:
+            f.write(data)
+
+        # Run LibreOffice headless conversion
+        try:
+            subprocess.run([SOFFICE, "--headless", "--convert-to", "pdf", "--outdir", tmpdir, input_path], 
+                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            return jsonify(error=f"Gagal mengonversi file. Pastikan file presentasi valid. Error: {e.stderr.decode('utf-8', errors='ignore')}"), 400
+
+        output_path = os.path.join(tmpdir, "input.pdf")
+        if not os.path.exists(output_path):
+            return jsonify(error="Gagal mengonversi file: Output PDF tidak ditemukan."), 400
+
+        with open(output_path, "rb") as f:
+            result_data = io.BytesIO(f.read())
+
+    result_data.seek(0)
+    name = files[0].filename.rsplit(".", 1)[0] + ".pdf"
+    return send_file(result_data, mimetype="application/pdf",
+                     as_attachment=True, download_name=name)
+
+
 @bp.route("/pdf-to-word", methods=["POST"])
 def pdf_to_word():
     if not HAS_PDF2DOCX:
@@ -402,7 +529,7 @@ def pdf_to_word():
 
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     import tempfile, os
     pdf_data = files[0].read()
@@ -434,7 +561,7 @@ def pdf_to_word():
 def pdf_to_images():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     fmt = request.form.get("format", "png")
     dpi = int(request.form.get("dpi", 200))
@@ -473,7 +600,7 @@ def pdf_to_images():
 def pdf_to_text():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     pdf_data = files[0].read()
     doc = fitz.open(stream=pdf_data, filetype="pdf")
@@ -497,7 +624,7 @@ def pdf_to_excel():
 
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     mode = request.form.get("mode", "tables")
     organize = request.form.get("organize", "per_table")
@@ -885,7 +1012,7 @@ def ocr_pdf():
 
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     mode = request.form.get("mode", "searchable")
     lang = request.form.get("lang", "eng")
@@ -941,7 +1068,7 @@ def cad_to_pdf():
 
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     target = request.form.get("format", "pdf")
     dpi = int(request.form.get("dpi", 150))

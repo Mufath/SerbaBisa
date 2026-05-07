@@ -2,6 +2,7 @@ import io
 import zipfile
 from datetime import datetime
 from flask import Blueprint, render_template, request, send_file, jsonify
+from locales import m
 
 from utils.file_utils import make_zip
 
@@ -44,7 +45,7 @@ def zip_create():
 
     files = request.files.getlist("files")
     if not files:
-        return jsonify({"error": "No files uploaded."}), 400
+        return jsonify({"error": m("No file uploaded.")}), 400
 
     method = zipfile.ZIP_DEFLATED if request.form.get("compression", "deflated") == "deflated" else zipfile.ZIP_STORED
     name = (request.form.get("archive_name") or "archive").strip() or "archive"
@@ -81,7 +82,7 @@ def zip_extract():
 
     f = request.files["files"]
     if not f.filename.lower().endswith(".zip"):
-        return jsonify({"error": "Please upload a .zip file."}), 400
+        return jsonify({"error": m("Please upload a .zip file.")}), 400
 
     try:
         data = f.read()
@@ -92,20 +93,20 @@ def zip_extract():
                 if info.is_dir():
                     continue
                 if info.file_size > MAX_EXTRACT_BYTES:
-                    return jsonify({"error": "File in archive exceeds size limit."}), 400
+                    return jsonify({"error": m("File in archive exceeds size limit.")}), 400
                 total += info.file_size
                 if total > MAX_EXTRACT_BYTES:
-                    return jsonify({"error": "Total extracted size exceeds 500 MB limit."}), 400
+                    return jsonify({"error": m("Total extracted size exceeds 500 MB limit.")}), 400
                 out.append((info.filename, zf.read(info)))
     except zipfile.BadZipFile:
-        return jsonify({"error": "Not a valid ZIP archive."}), 400
+        return jsonify({"error": m("Not a valid ZIP archive.")}), 400
     except RuntimeError as e:
         if "password" in str(e).lower() or "encrypted" in str(e).lower():
-            return jsonify({"error": "Password-protected ZIPs are not supported."}), 400
-        return jsonify({"error": f"Extraction failed: {e}"}), 400
+            return jsonify({"error": m("Password-protected ZIPs are not supported.")}), 400
+        return jsonify({"error": m("Extraction failed: {e}", e=e)}), 400
 
     if not out:
-        return jsonify({"error": "Archive is empty."}), 400
+        return jsonify({"error": m("Archive is empty.")}), 400
 
     buf = make_zip(out)
     base = f.filename.rsplit(".", 1)[0]
@@ -130,7 +131,7 @@ def zip_info():
 
     f = request.files["files"]
     if not f.filename.lower().endswith(".zip"):
-        return jsonify({"error": "Please upload a .zip file."}), 400
+        return jsonify({"error": m("Please upload a .zip file.")}), 400
 
     try:
         data = f.read()
@@ -165,7 +166,7 @@ def zip_info():
             )
             return jsonify({"text": header + "\n" + "\n".join(entries) + footer})
     except zipfile.BadZipFile:
-        return jsonify({"error": "Not a valid ZIP archive."}), 400
+        return jsonify({"error": m("Not a valid ZIP archive.")}), 400
 
 
 def _format_size(n: int) -> str:

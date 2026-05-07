@@ -1,5 +1,6 @@
 import io
 from flask import Blueprint, render_template, request, send_file, jsonify
+from locales import m
 from PIL import Image, ImageDraw, ImageFont
 from PIL.ExifTags import TAGS
 
@@ -58,25 +59,25 @@ FORMAT_MAP = {
 @bp.route("/resize")
 def resize_page():
     return render_template("upload_tool.html",
-        title="Ubah Ukuran",
-        description="Ubah resolusi atau dimensi gambar",
+        title=m("Resize Title"),
+        description=m("Desc Resize Image"),
         endpoint="/image/resize",
         accept=IMAGE_ACCEPT,
         multiple=False,
         options=[
-            {"type": "select", "name": "mode", "label": "Resize Mode",
+            {"type": "select", "name": "mode", "label": m("Resize Mode"),
              "choices": [
-                 {"value": "percentage", "label": "By Percentage"},
-                 {"value": "dimensions", "label": "By Dimensions"},
+                 {"value": "percentage", "label": m("By Percentage")},
+                 {"value": "dimensions", "label": m("By Dimensions")},
              ]},
-            {"type": "number", "name": "percentage", "label": "Scale (%)", "default": 50, "min": 1, "max": 1000,
+            {"type": "number", "name": "percentage", "label": m("Scale (%)"), "default": 50, "min": 1, "max": 1000,
              "depends_on": {"mode": "percentage"}},
-            {"type": "number", "name": "width", "label": "Width (px)",
+            {"type": "number", "name": "width", "label": "Width",
              "depends_on": {"mode": "dimensions"}},
-            {"type": "number", "name": "height", "label": "Height (px)",
+            {"type": "number", "name": "height", "label": "Height",
              "depends_on": {"mode": "dimensions"}},
             {"type": "checkbox", "name": "keep_ratio", "label": "Aspect Ratio",
-             "check_label": "Maintain aspect ratio", "default": True,
+             "check_label": "Keep Aspect Ratio", "default": True,
              "depends_on": {"mode": "dimensions"}},
         ])
 
@@ -84,8 +85,8 @@ def resize_page():
 @bp.route("/compress")
 def compress_page():
     return render_template("upload_tool.html",
-        title="Kompres Gambar",
-        description="Kecilin ukuran mb/kb gambar",
+        title=m("Compress Title"),
+        description=m("Desc Compress Image"),
         endpoint="/image/compress",
         accept=IMAGE_ACCEPT,
         multiple=False,
@@ -98,13 +99,13 @@ def compress_page():
 @bp.route("/convert")
 def convert_page():
     return render_template("upload_tool.html",
-        title="Konversi Format",
-        description="Ubah banyak gambar sekaligus ke JPG, PNG, WebP, dll",
+        title=m("Convert Format Title"),
+        description=m("Desc Image Convert"),
         endpoint="/image/convert",
         accept=IMAGE_ACCEPT,
         multiple=True,
         options=[
-            {"type": "select", "name": "format", "label": "Convert to",
+            {"type": "select", "name": "format", "label": "Convert To",
              "choices": [
                  {"value": "png", "label": "PNG"},
                  {"value": "jpg", "label": "JPG"},
@@ -118,18 +119,18 @@ def convert_page():
 @bp.route("/remove-bg")
 def remove_bg_page():
     return render_template("upload_tool.html",
-        title="Hapus Background",
-        description="Bikin background jadi transparan pakai AI",
-        notes="<p><strong>Tips:</strong> Kalau fotomu ramai dan AInya bingung, coba ganti model AInya ke mode Akurat atau Fokus Orang ya!</p>",
+        title=m("Remove BG Title"),
+        description=m("Desc Remove BG"),
+        notes="Tips AI Model",
         endpoint="/image/remove-bg",
         accept=IMAGE_ACCEPT,
         multiple=False,
         options=[
-            {"type": "select", "name": "model", "label": "Model AI", "default": "u2net",
+            {"type": "select", "name": "model", "label": "AI Model", "default": "u2net",
              "choices": [
-                 {"value": "u2net", "label": "Standar (U2Net - Paling Stabil)"},
-                 {"value": "isnet-general-use", "label": "Akurat (ISNet - Buat gambar rumit)"},
-                 {"value": "u2net_human_seg", "label": "Fokus Orang (Buat foto manusia)"},
+                 {"value": "u2net", "label": "U2net Standard"},
+                 {"value": "isnet-general-use", "label": "Isnet Accurate"},
+                 {"value": "u2net_human_seg", "label": "U2net Human"},
              ]},
         ])
 
@@ -137,33 +138,33 @@ def remove_bg_page():
 @bp.route("/crop")
 def crop_page():
     return render_template("upload_tool.html",
-        title="Potong Gambar",
-        description="Crop gambar sesuai keinginan",
+        title=m("Crop Title"),
+        description=m("Desc Crop Image"),
         endpoint="/image/crop",
         accept=IMAGE_ACCEPT,
         multiple=False,
         options=[
             {"type": "select", "name": "mode", "label": "Crop Mode",
              "choices": [
-                 {"value": "ratio", "label": "Aspect Ratio (center crop)"},
-                 {"value": "custom", "label": "Custom Coordinates"},
+                 {"value": "ratio", "label": "Center Crop"},
+                 {"value": "custom", "label": "Custom Coords"},
              ]},
             {"type": "select", "name": "ratio", "label": "Aspect Ratio",
              "choices": [
-                 {"value": "1:1", "label": "1:1 (Square)"},
+                 {"value": "1:1", "label": "Square"},
                  {"value": "4:3", "label": "4:3"},
                  {"value": "3:2", "label": "3:2"},
                  {"value": "16:9", "label": "16:9"},
-                 {"value": "9:16", "label": "9:16 (Vertical)"},
+                 {"value": "9:16", "label": "Vertical"},
              ],
              "depends_on": {"mode": "ratio"}},
-            {"type": "number", "name": "left", "label": "Left (px)", "default": 0,
+            {"type": "number", "name": "left", "label": "Top Left", "default": 0,
              "depends_on": {"mode": "custom"}},
-            {"type": "number", "name": "top", "label": "Top (px)", "default": 0,
+            {"type": "number", "name": "top", "label": "Top Center", "default": 0,
              "depends_on": {"mode": "custom"}},
-            {"type": "number", "name": "right", "label": "Right (px)",
+            {"type": "number", "name": "right", "label": "Top Right",
              "depends_on": {"mode": "custom"}},
-            {"type": "number", "name": "bottom", "label": "Bottom (px)",
+            {"type": "number", "name": "bottom", "label": "Bottom Right",
              "depends_on": {"mode": "custom"}},
         ])
 
@@ -171,17 +172,17 @@ def crop_page():
 @bp.route("/rotate")
 def rotate_page():
     return render_template("upload_tool.html",
-        title="Putar / Balik",
-        description="Putar atau cerminkan foto",
+        title=m("Rotate Title"),
+        description=m("Desc Rotate Flip"),
         endpoint="/image/rotate",
         accept=IMAGE_ACCEPT,
         multiple=False,
         options=[
             {"type": "select", "name": "action", "label": "Action",
              "choices": [
-                 {"value": "90", "label": "Rotate 90° Clockwise"},
+                 {"value": "90", "label": "Rotate 90 Clockwise"},
                  {"value": "180", "label": "Rotate 180°"},
-                 {"value": "270", "label": "Rotate 90° Counter-clockwise"},
+                 {"value": "270", "label": "Rotate 90 Counter-clockwise"},
                  {"value": "flip_h", "label": "Flip Horizontal"},
                  {"value": "flip_v", "label": "Flip Vertical"},
              ]},
@@ -191,16 +192,16 @@ def rotate_page():
 @bp.route("/exif")
 def exif_page():
     return render_template("upload_tool.html",
-        title="Cek EXIF",
-        description="Lihat atau hapus data rahasia foto (metadata)",
+        title=m("Exif Title"),
+        description=m("Desc Check EXIF"),
         endpoint="/image/exif",
         accept=IMAGE_ACCEPT,
         multiple=False,
         options=[
             {"type": "select", "name": "action", "label": "Action",
              "choices": [
-                 {"value": "view", "label": "View EXIF data"},
-                 {"value": "strip", "label": "Strip EXIF data"},
+                 {"value": "view", "label": "View EXIF"},
+                 {"value": "strip", "label": "Strip EXIF"},
              ]},
         ])
 
@@ -208,16 +209,16 @@ def exif_page():
 @bp.route("/favicon")
 def favicon_page():
     return render_template("upload_tool.html",
-        title="Bikin Favicon",
-        description="Bikin icon web (.ico) dari gambar biasa",
+        title=m("Favicon Title"),
+        description=m("Desc Create Favicon"),
         endpoint="/image/favicon",
         accept=IMAGE_ACCEPT,
         multiple=False,
         options=[
-            {"type": "select", "name": "sizes", "label": "Sizes to include",
+            {"type": "select", "name": "sizes", "label": "Sizes To Include",
              "choices": [
-                 {"value": "all", "label": "All (16, 32, 48, 64, 128, 256)"},
-                 {"value": "standard", "label": "Standard (16, 32, 48)"},
+                 {"value": "all", "label": "All Sizes"},
+                 {"value": "standard", "label": "Standard Sizes"},
                  {"value": "16", "label": "16x16 only"},
                  {"value": "32", "label": "32x32 only"},
              ]},
@@ -228,24 +229,24 @@ def favicon_page():
 @bp.route("/animated")
 def animated_page():
     return render_template("upload_tool.html",
-        title="GIF / WebP",
-        description="Ubah bolak-balik antara GIF dan WebP animasi",
+        title=m("Animated Title"),
+        description=m("Desc Animated GIF WebP"),
         endpoint="/image/animated",
         accept=".gif,.webp",
         multiple=False,
         options=[
             {"type": "select", "name": "target", "label": "Output Format",
              "choices": [
-                 {"value": "webp", "label": "Animated WebP"},
-                 {"value": "gif", "label": "GIF"},
+                 {"value": "webp", "label": "Animated Webp"},
+                 {"value": "gif", "label": "Animated Gif"},
              ]},
-            {"type": "range", "name": "quality", "label": "WebP Quality",
+            {"type": "range", "name": "quality", "label": "Webp Quality",
              "default": 80, "min": 10, "max": 100, "step": 5, "suffix": "%",
              "depends_on": {"target": "webp"}},
-            {"type": "number", "name": "fps", "label": "Override FPS (0 = keep original)",
+            {"type": "number", "name": "fps", "label": "Override FPS",
              "default": 0, "min": 0, "max": 60},
-            {"type": "checkbox", "name": "lossless", "label": "Lossless",
-             "check_label": "Lossless WebP (larger file)", "default": False,
+            {"type": "checkbox", "name": "lossless", "label": "Lossless Webp",
+             "check_label": "Lossless Webp", "default": False,
              "depends_on": {"target": "webp"}},
         ])
 
@@ -253,8 +254,8 @@ def animated_page():
 @bp.route("/ocr")
 def ocr_page():
     return render_template("upload_tool.html",
-        title="Gambar ke Teks",
-        description="Ambil tulisan dari dalam gambar",
+        title=m("OCR Image Title"),
+        description=m("Desc Image to Text"),
         endpoint="/image/ocr",
         accept=IMAGE_ACCEPT,
         multiple=False,
@@ -264,8 +265,8 @@ def ocr_page():
 @bp.route("/palette")
 def palette_page():
     return render_template("upload_tool.html",
-        title="Palet Warna",
-        description="Cari tahu warna apa aja yang ada di foto",
+        title=m("Palette Title"),
+        description=m("Desc Color Palette"),
         endpoint="/image/palette",
         accept=IMAGE_ACCEPT,
         multiple=False,
@@ -273,8 +274,8 @@ def palette_page():
             {"type": "number", "name": "count", "label": "Number of colors", "default": 8, "min": 2, "max": 32},
             {"type": "select", "name": "method", "label": "Method", "default": "quantize",
              "choices": [
-                 {"value": "quantize", "label": "Pillow quantize (fast, median-cut)"},
-                 {"value": "grid", "label": "Grid sampling (broader spread)"},
+                 {"value": "quantize", "label": "Pillow Quantize"},
+                 {"value": "grid", "label": "Grid Sampling"},
              ]},
         ])
 
@@ -282,34 +283,34 @@ def palette_page():
 @bp.route("/svg-to-png")
 def svg_to_png_page():
     return render_template("upload_tool.html",
-        title="SVG ke PNG",
-        description="Ubah gambar vektor SVG jadi PNG",
+        title=m("SVG PNG Title"),
+        description=m("Desc SVG to PNG"),
         endpoint="/image/svg-to-png",
         accept=".svg",
         multiple=False,
         options=[
-            {"type": "number", "name": "width", "label": "Output width (pixels, 0 = native size)",
+            {"type": "number", "name": "width", "label": "Output Width Px",
              "default": 0, "min": 0, "max": 8192},
             {"type": "checkbox", "name": "transparent", "label": "Background",
-             "default": True, "check_label": "Transparent (otherwise white)"},
+             "default": True, "check_label": "Transparent Bg"},
         ])
 
 
 @bp.route("/svg-optimize")
 def svg_optimize_page():
     return render_template("upload_tool.html",
-        title="Optimasi SVG",
-        description="Bersihin file SVG biar lebih ringan",
+        title=m("SVG Optimize Title"),
+        description=m("Desc SVG Optimizer"),
         endpoint="/image/svg-optimize",
         accept=".svg",
         multiple=False,
         options=[
-            {"type": "checkbox", "name": "strip_comments", "label": "Comments",
-             "default": True, "check_label": "Remove <!-- comments -->"},
+            {"type": "checkbox", "name": "strip_comments", "label": "Komentar",
+             "default": True, "check_label": "Remove Comments"},
             {"type": "checkbox", "name": "strip_metadata", "label": "Metadata",
-             "default": True, "check_label": "Remove <metadata>, <title>, <desc>, editor namespaces"},
-            {"type": "checkbox", "name": "collapse_whitespace", "label": "Whitespace",
-             "default": True, "check_label": "Collapse whitespace between tags"},
+             "default": True, "check_label": "Remove Metadata"},
+            {"type": "checkbox", "name": "collapse_whitespace", "label": "Spasi",
+             "default": True, "check_label": "Collapse Whitespace"},
             {"type": "number", "name": "decimals", "label": "Max decimal places for numbers",
              "default": 3, "min": 0, "max": 6},
         ])
@@ -318,23 +319,23 @@ def svg_optimize_page():
 @bp.route("/watermark")
 def watermark_page():
     return render_template("upload_tool.html",
-        title="Watermark",
-        description="Kasih teks tanda air di fotomu",
+        title=m("Watermark Title"),
+        description=m("Desc Watermark"),
         endpoint="/image/watermark",
         accept=IMAGE_ACCEPT,
         multiple=False,
         options=[
-            {"type": "text", "name": "text", "label": "Watermark Text", "placeholder": "Your watermark text"},
-            {"type": "select", "name": "position", "label": "Position",
+            {"type": "text", "name": "text", "label": "Watermark Text", "placeholder": "Watermark Text Placeholder"},
+            {"type": "select", "name": "position", "label": "Position Label",
              "choices": [
-                 {"value": "center", "label": "Center"},
+                 {"value": "center", "label": "Tengah"},
                  {"value": "bottom-right", "label": "Bottom Right"},
                  {"value": "bottom-left", "label": "Bottom Left"},
                  {"value": "top-right", "label": "Top Right"},
                  {"value": "top-left", "label": "Top Left"},
                  {"value": "tiled", "label": "Tiled (repeated)"},
              ]},
-            {"type": "range", "name": "opacity", "label": "Opacity",
+            {"type": "range", "name": "opacity", "label": "Opasitas",
              "default": 40, "min": 10, "max": 100, "step": 5, "suffix": "%"},
             {"type": "number", "name": "fontsize", "label": "Font Size", "default": 36, "min": 10, "max": 200},
         ])
@@ -346,7 +347,7 @@ def watermark_page():
 def resize():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     img = get_pil_image(files[0])
     mode = request.form.get("mode", "percentage")
@@ -392,7 +393,7 @@ def resize():
 def compress():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     quality = int(request.form.get("quality", 80))
     img = get_pil_image(files[0])
@@ -409,7 +410,7 @@ def convert():
     import zipfile
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     target = request.form.get("format", "png")
     fmt_info = FORMAT_MAP.get(target, FORMAT_MAP["png"])
@@ -438,11 +439,11 @@ def convert():
 @bp.route("/remove-bg", methods=["POST"])
 def remove_bg():
     if not HAS_REMBG:
-        return jsonify(error="Waduh, belum ada package rembg nih. Install dulu ya: pip install rembg"), 400
+        return jsonify(error=m("Package 'rembg' is not installed. Background removal is unavailable.")), 400
 
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="Tolong upload file-nya dulu ya."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     model_name = request.form.get("model", "u2net")
     input_data = files[0].read()
@@ -451,7 +452,7 @@ def remove_bg():
         session = new_session(model_name)
         output_data = rembg_remove(input_data, session=session)
     except Exception as e:
-        return jsonify(error=f"Yaaah, AI-nya gagal proses nih: {str(e)}"), 500
+        return jsonify(error=m("AI failed to process image: {e}", e=str(e))), 500
 
     name = files[0].filename.rsplit(".", 1)[0] + "_nobg.png"
     return send_file(io.BytesIO(output_data), mimetype="image/png",
@@ -462,7 +463,7 @@ def remove_bg():
 def crop():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     img = get_pil_image(files[0])
     mode = request.form.get("mode", "ratio")
@@ -502,7 +503,7 @@ def crop():
 def rotate():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     action = request.form.get("action", "90")
     img = get_pil_image(files[0])
@@ -530,11 +531,11 @@ def rotate():
 def watermark():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     text = request.form.get("text", "Watermark")
     if not text:
-        return jsonify(error="Please enter watermark text."), 400
+        return jsonify(error=m("Please enter watermark text.")), 400
 
     position = request.form.get("position", "center")
     opacity = int(request.form.get("opacity", 40))
@@ -587,7 +588,7 @@ def watermark():
 def exif():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     action = request.form.get("action", "view")
     img = get_pil_image(files[0])
@@ -608,7 +609,7 @@ def exif():
                     value = str(value)
                 exif_data[str(tag_name)] = value
         if not exif_data:
-            return jsonify(text="No EXIF data found in this image.")
+            return jsonify(text=m("No EXIF data found in this image."))
         import json
         return jsonify(text=json.dumps(exif_data, indent=2, ensure_ascii=False))
     else:
@@ -628,7 +629,7 @@ def exif():
 def favicon():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     size_opt = request.form.get("sizes", "all")
     size_map = {
@@ -657,7 +658,7 @@ def favicon():
 def animated():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     target = request.form.get("target", "webp").lower()
     quality = int(request.form.get("quality", 80))
@@ -667,7 +668,7 @@ def animated():
     try:
         src = Image.open(io.BytesIO(files[0].read()))
     except Exception as e:
-        return jsonify(error=f"Could not read image: {e}"), 400
+        return jsonify(error=m("Could not read image: {e}", e=e)), 400
 
     frames = []
     durations = []
@@ -737,7 +738,7 @@ def ocr():
 
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     img = get_pil_image(files[0])
     text = pytesseract.image_to_string(img)
@@ -751,7 +752,7 @@ def ocr():
 def palette():
     files = request.files.getlist("files")
     if not files or not files[0].filename:
-        return jsonify(error="No file uploaded."), 400
+        return jsonify(error=m("No file uploaded.")), 400
 
     try:
         count = max(2, min(32, int(request.form.get("count", 8))))

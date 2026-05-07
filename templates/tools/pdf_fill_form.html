@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}{{ translate_tool(title) }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ translate_tool(title) }}{% endblock %}
+
+{% block content %}
+<div class="tool-page">
+    <div class="tool-header">
+        <h1>{{ translate_tool(title) }}</h1>
+        <p>{{ translate_tool(description) }}</p>
+    </div>
+
+    <div class="tool-notes">
+        <p>{{ _t('Fill Form Instructions') }}</p>
+    </div>
+
+    <!-- Step 1: Upload PDF to read fields -->
+    <form id="read-form-fields" data-endpoint="/pdf/read-fields">
+        <div class="upload-zone" id="upload-zone">
+            <input type="file" id="file-input" name="files" accept=".pdf">
+            <div class="upload-prompt" id="upload-prompt">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <p>{{ _t('Drag Drop') }}</p>
+                <small>Format: .pdf</small>
+            </div>
+        </div>
+        <div class="file-list" id="file-list"></div>
+
+        <button type="submit" class="btn btn-primary" id="read-btn" style="display:none; margin-top: 1rem;">
+            <span class="btn-text">{{ _t('Read PDF Fields') }}</span>
+            <span class="btn-loading" style="display:none">
+                <i class="bi bi-arrow-repeat spin"></i> {{ _t('processing') }}
+            </span>
+        </button>
+    </form>
+
+    <!-- Step 2: Dynamic Form to Fill -->
+    <div id="dynamic-form-container" style="display:none; margin-top: 2rem; background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+        <h4>{{ _t('Form Fields Found') }}</h4>
+        <form id="fill-form-submit">
+            <div id="dynamic-fields" class="tool-options" style="margin-top: 1rem;"></div>
+            
+            <button type="submit" class="btn btn-success" id="submit-btn" style="margin-top: 1rem;">
+                <span class="btn-text">{{ _t('Save Filled PDF') }} <i class="bi bi-download"></i></span>
+                <span class="btn-loading" style="display:none">
+                    <i class="bi bi-arrow-repeat spin"></i> {{ _t('processing') }}
+                </span>
+            </button>
+        </form>
+    </div>
+
+    <div id="result-area" class="result-area" style="display:none">
+        <div id="result-success" class="result-success" style="display:none">
+            <i class="bi bi-check-circle-fill"></i>
+            <span id="result-message">Selesai!</span>
+            <a id="download-btn" class="btn btn-success" download>
+                <i class="bi bi-download"></i> Unduh Hasil
+            </a>
+        </div>
+        <div id="result-error" class="result-error" style="display:none">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span id="error-message"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const fileInput = document.getElementById('file-input');
+    const fileList = document.getElementById('file-list');
+    const readBtn = document.getElementById('read-btn');
+    const dynamicFormContainer = document.getElementById('dynamic-form-container');
+    const dynamicFields = document.getElementById('dynamic-fields');
+    
+    fileInput.addEventListener('change', function() {
+        fileList.innerHTML = '';
+        if (this.files.length > 0) {
+            const f = this.files[0];
+            fileList.innerHTML = `<div class="file-item"><i class="bi bi-file-earmark-pdf"></i> <span>${f.name}</span></div>`;
+            readBtn.style.display = 'inline-flex';
+            dynamicFormContainer.style.display = 'none';
+        } else {
+            readBtn.style.display = 'none';
+        }
+    });
+
+    // Step 1: Read Fields
+    document.getElementById('read-form-fields').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (fileInput.files.length === 0) return;
+        
+        const btn = readBtn;
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoad = btn.querySelector('.btn-loading');
+        
+        btn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoad.style.display = 'inline-block';
+        
+        const formData = new FormData();
+        formData.append('files', fileInput.files[0]);
+        
+        try {
+            const res = await fetch('/pdf/read-fields', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.error || 'Server error');
+            }
+            
+            if (data.fields && data.fields.length > 0) {
+                renderDynamicFields(data.fields);
+                dynamicFormContainer.style.display = 'block';
+                document.getElementById('result-area').style.display = 'none';
+            } else {
+                showError("{{ _t('No Form Fields') }}");
+                dynamicFormContainer.style.display = 'none';
+            }
+        } catch (err) {
+            showError(err.message);
+        } finally {
+            btn.disabled = false;
+            btnText.style.display = 'inline-block';
+            btnLoad.style.display = 'none';
+        }
+    });
+
+    // Step 2: Fill and Submit
+    document.getElementById('fill-form-submit').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('submit-btn');
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoad = btn.querySelector('.btn-loading');
+        
+        btn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoad.style.display = 'inline-block';
+        
+        // Collect dynamic form data
+        const formDataObj = {};
+        const inputs = dynamicFields.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                formDataObj[input.name] = input.checked ? 'Yes' : 'Off';
+            } else {
+                formDataObj[input.name] = input.value;
+            }
+        });
+        
+        const formData = new FormData();
+        formData.append('files', fileInput.files[0]);
+        formData.append('form_data', JSON.stringify(formDataObj));
+        
+        try {
+            const res = await fetch('/pdf/fill-form', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Server error');
+            }
+            
+            // Handle binary download
+            const blob = await res.blob();
+            const contentDisp = res.headers.get('Content-Disposition');
+            let filename = 'filled_form.pdf';
+            if (contentDisp && contentDisp.includes('filename=')) {
+                filename = contentDisp.split('filename=')[1].replace(/"/g, '');
+            }
+            
+            const url = window.URL.createObjectURL(blob);
+            
+            // For pywebview desktop wrapper
+            if (window.pywebview) {
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = function() {
+                    let base64data = reader.result.split(',')[1];
+                    window.pywebview.api.save_file(base64data, filename).then(saved => {
+                        if (saved) {
+                            showSuccess("File PDF berhasil disimpan!");
+                        } else {
+                            showError("Gagal menyimpan file PDF.");
+                        }
+                    });
+                }
+            } else {
+                // Web browser fallback
+                document.getElementById('download-btn').href = url;
+                document.getElementById('download-btn').download = filename;
+                showSuccess("Berhasil! Silakan unduh hasilnya.");
+                
+                // auto download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            }
+        } catch (err) {
+            showError(err.message);
+        } finally {
+            btn.disabled = false;
+            btnText.style.display = 'inline-block';
+            btnLoad.style.display = 'none';
+        }
+    });
+
+    function renderDynamicFields(fields) {
+        dynamicFields.innerHTML = '';
+        fields.forEach(f => {
+            const group = document.createElement('div');
+            group.className = 'form-group option-group';
+            group.style.marginBottom = '1rem';
+            
+            const label = document.createElement('label');
+            label.textContent = f.name;
+            label.setAttribute('for', 'field-' + f.name);
+            group.appendChild(label);
+            
+            let input;
+            if (f.type === 'Text') {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control';
+                input.value = f.value || '';
+            } else if (f.type === 'CheckBox' || f.type === 'RadioButton') {
+                input = document.createElement('input');
+                input.type = 'checkbox';
+                input.checked = (f.value === 'Yes' || f.value === true);
+            } else {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control';
+                input.value = f.value || '';
+            }
+            
+            input.id = 'field-' + f.name;
+            input.name = f.name;
+            group.appendChild(input);
+            dynamicFields.appendChild(group);
+        });
+    }
+
+    function showSuccess(msg) {
+        document.getElementById('result-area').style.display = 'block';
+        document.getElementById('result-error').style.display = 'none';
+        document.getElementById('result-success').style.display = 'flex';
+        document.getElementById('result-message').innerText = msg;
+    }
+
+    function showError(msg) {
+        document.getElementById('result-area').style.display = 'block';
+        document.getElementById('result-success').style.display = 'none';
+        document.getElementById('result-error').style.display = 'flex';
+        document.getElementById('error-message').innerText = msg;
+    }
+});
+</script>
+{% endblock %}

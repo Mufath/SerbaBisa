@@ -18,9 +18,9 @@
     <form id="tool-form" data-endpoint="{{ endpoint }}">
         {% if text_input %}
         <div class="form-group">
-            <label for="text-input">{{ translate_tool(text_label) if text_label else translate_tool('Masukkan teks') }}</label>
+            <label for="text-input">{% if text_label %}{{ _t(text_label) }}{% else %}{{ _t('Text Input') }}{% endif %}</label>
             <textarea id="text-input" name="text" class="text-input" rows="4"
-                placeholder="{{ translate_tool(text_placeholder) if text_placeholder else translate_tool('Ketik atau tempel di sini...') }}"></textarea>
+                placeholder="{% if text_placeholder %}{{ _t(text_placeholder) }}{% else %}{{ _t('Type Or Paste Here') }}{% endif %}"></textarea>
         </div>
         {% else %}
         <div class="upload-zone" id="upload-zone">
@@ -28,7 +28,7 @@
                 accept="{{ accept }}" {{ 'multiple' if multiple }}>
             <div class="upload-prompt" id="upload-prompt">
                 <i class="bi bi-cloud-arrow-up"></i>
-                <p>{{ _t('drag_drop') }}</p>
+                <p>{{ _t('Drag Drop') }}</p>
                 {% if accept %}<small>Format: {{ accept }}</small>{% endif %}
             </div>
         </div>
@@ -43,40 +43,52 @@
                 data-depends-on="{{ opt.depends_on.keys()|list|first }}"
                 data-depends-value="{{ opt.depends_on.values()|list|first }}"
                 {% endif %}>
-                <label for="opt-{{ opt.name }}">{{ translate_tool(opt.label) }}</label>
+                <label for="opt-{{ opt.name }}">{{ _t(opt.label) if _t(opt.label) != opt.label else translate_tool(opt.label) }}</label>
 
                 {% if opt.type == 'select' %}
                 <select id="opt-{{ opt.name }}" name="{{ opt.name }}">
                     {% for c in opt.choices %}
-                    <option value="{{ c.value }}" {{ 'selected' if c.value == opt.get('default','') }}>{{ translate_tool(c.label) }}</option>
+                    <option value="{{ c.value }}" {{ 'selected' if c.value == opt.get('default','') }}>{{ _t(c.label) if _t(c.label) != c.label else translate_tool(c.label) }}</option>
                     {% endfor %}
                 </select>
 
                 {% elif opt.type == 'number' %}
-                <input type="number" id="opt-{{ opt.name }}" name="{{ opt.name }}"
-                    value="{{ opt.default|default('') }}"
-                    min="{{ opt.min|default('') }}" max="{{ opt.max|default('') }}"
-                    step="{{ opt.step|default('1') }}">
+                <div class="number-stepper">
+                    <button type="button" class="step-btn" onclick="const input = this.nextElementSibling; input.stepDown(); input.dispatchEvent(new Event('change'));">-</button>
+                    <input type="number" id="opt-{{ opt.name }}" name="{{ opt.name }}"
+                        value="{{ opt.default|default('') }}"
+                        min="{{ opt.min|default('') }}" max="{{ opt.max|default('') }}"
+                        step="{{ opt.step|default('1') }}">
+                    <button type="button" class="step-btn" onclick="const input = this.previousElementSibling; input.stepUp(); input.dispatchEvent(new Event('change'));">+</button>
+                </div>
 
                 {% elif opt.type == 'text' %}
                 <input type="text" id="opt-{{ opt.name }}" name="{{ opt.name }}"
                     value="{{ opt.default|default('') }}"
-                    placeholder="{{ opt.placeholder|default('') }}">
+                    placeholder="{{ _t(opt.placeholder) if opt.placeholder and _t(opt.placeholder) != opt.placeholder else (translate_tool(opt.placeholder) if opt.placeholder else '') }}">
 
                 {% elif opt.type == 'password' %}
                 <input type="password" id="opt-{{ opt.name }}" name="{{ opt.name }}"
-                    placeholder="{{ opt.placeholder|default('') }}">
+                    placeholder="{{ _t(opt.placeholder) if opt.placeholder and _t(opt.placeholder) != opt.placeholder else (translate_tool(opt.placeholder) if opt.placeholder else '') }}">
 
                 {% elif opt.type == 'file' %}
-                <input type="file" id="opt-{{ opt.name }}" name="{{ opt.name }}"
-                    accept="{{ opt.accept|default('') }}"
-                    {{ 'required' if opt.required }}>
+                <div class="custom-file-input">
+                    <button type="button" class="btn btn-small" onclick="this.nextElementSibling.click()">
+                        <i class="bi bi-folder2-open"></i> {{ _t('Choose File') }}
+                    </button>
+                    <input type="file" id="opt-{{ opt.name }}" name="{{ opt.name }}"
+                        accept="{{ opt.accept|default('') }}"
+                        {{ 'required' if opt.required }}
+                        style="display:none"
+                        onchange="this.nextElementSibling.textContent = this.files[0] ? this.files[0].name : '{{ _t('No File Chosen') }}'">
+                    <span class="file-name-label">{{ _t('No File Chosen') }}</span>
+                </div>
 
                 {% elif opt.type == 'checkbox' %}
                 <label class="checkbox-label">
                     <input type="checkbox" id="opt-{{ opt.name }}" name="{{ opt.name }}"
                         {{ 'checked' if opt.default }}>
-                    <span>{{ opt.check_label|default('Aktifkan') }}</span>
+                    <span>{{ _t(opt.check_label) if opt.check_label and _t(opt.check_label) != opt.check_label else (translate_tool(opt.check_label) if opt.check_label else _t('Activate')) }}</span>
                 </label>
 
                 {% elif opt.type == 'range' %}
@@ -95,7 +107,7 @@
                     <label class="radio-label">
                         <input type="radio" name="{{ opt.name }}" value="{{ c.value }}"
                             {{ 'checked' if c.value == opt.default }}>
-                        <span>{{ c.label }}</span>
+                        <span>{{ _t(c.label) if _t(c.label) != c.label else translate_tool(c.label) }}</span>
                     </label>
                     {% endfor %}
                 </div>
@@ -106,7 +118,7 @@
         {% endif %}
 
         <button type="submit" class="btn btn-primary" id="submit-btn">
-            <span class="btn-text">{% if button_text %}{{ translate_tool(button_text) }}{% else %}{{ _t('process_again') if request.endpoint else translate_tool('Proses Sekarang') }}{% endif %}</span>
+            <span class="btn-text">{% if button_text %}{{ translate_tool(button_text) }}{% else %}{{ _t('Process Now') }}{% endif %}</span>
             <span class="btn-loading" style="display:none">
                 <i class="bi bi-arrow-repeat spin"></i> {{ _t('processing') }}
             </span>
@@ -114,7 +126,7 @@
 
         <div id="progress-container" style="display:none; margin-top: 1.5rem;">
             <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: var(--text-light); margin-bottom: 0.5rem;">
-                <span id="progress-text">Menyiapkan data...</span>
+                <span id="progress-text">{{ _t('preparing') }}</span>
                 <span id="progress-pct">0%</span>
             </div>
             <div class="progress-track" style="width: 100%; height: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow: hidden;">
@@ -126,16 +138,16 @@
     <div id="result-area" class="result-area" style="display:none">
         <div id="result-success" class="result-success" style="display:none">
             <i class="bi bi-check-circle-fill"></i>
-            <span id="result-message">Selesai!</span>
+            <span id="result-message">{{ _t('done') }}</span>
             <a id="download-btn" class="btn btn-success" download>
-                <i class="bi bi-download"></i> Unduh Hasil
+                <i class="bi bi-download"></i> {{ _t('Download Prefix') }} {{ _t('Result Label') }}
             </a>
             <div id="result-preview" style="display:none"></div>
         </div>
         <div id="result-text" class="result-text-box" style="display:none">
             <div class="result-text-header">
-                <span>Hasil</span>
-                <button class="btn btn-small" onclick="copyResult()"><i class="bi bi-clipboard"></i> Salin</button>
+                <span>{{ _t('Result Header') }}</span>
+                <button class="btn btn-small" onclick="copyResult()"><i class="bi bi-clipboard"></i> {{ _t('copy') }}</button>
             </div>
             <pre id="result-text-content"></pre>
         </div>

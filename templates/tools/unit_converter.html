@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Unit Converter - SerbaBisa{% endblock %}
+{% block title %}{{ _t('Unit Converter') }} - SerbaBisa{% endblock %}
 {% block top_title %}Unit Converter{% endblock %}
 
 {% block content %}
 <div class="client-tool">
     <div class="tool-header">
-        <h1>Konverter Satuan</h1>
-        <p>{{ _t('desc_unit_converter') }}</p>
+        <h1>{{ _t('Unit Converter') }}</h1>
+        <p>{{ _t('Desc Unit Converter') }}</p>
     </div>
     <div class="form-group">
         <label>{{ _t('category') }}</label>
@@ -17,7 +17,7 @@
             <option value="area">{{ _t('area') }}</option>
             <option value="volume">{{ _t('volume') }}</option>
             <option value="speed">{{ _t('speed') }}</option>
-            <option value="data">{{ _t('digital_storage') }}</option>
+            <option value="data">{{ _t('Digital Storage') }}</option>
             <option value="time">{{ _t('time') }}</option>
         </select>
     </div>
@@ -68,8 +68,8 @@ const UNITS = {
         terabyte: 1099511627776, bit: 0.125
     },
     time: {
-        detik: 1, menit: 60, jam: 3600, hari: 86400, minggu: 604800,
-        bulan: 2629746, tahun: 31557600
+        unit_seconds: 1, unit_minutes: 60, unit_hours: 3600, unit_days: 86400, unit_weeks: 604800,
+        unit_months: 2629746, unit_years: 31557600
     }
 };
 
@@ -78,9 +78,10 @@ function loadUnits() {
     const units = Object.keys(UNITS[cat]);
     ["uc-from-unit", "uc-to-unit"].forEach((id, i) => {
         const sel = document.getElementById(id);
-        sel.innerHTML = units.map((u, j) =>
-            `<option value="${u}" ${j === i ? "selected" : ""}>${u.charAt(0).toUpperCase() + u.slice(1)}</option>`
-        ).join("");
+        sel.innerHTML = units.map((u, j) => {
+            const label = window.SERBABISA_TRANS?.[u] || u.charAt(0).toUpperCase() + u.slice(1);
+            return `<option value="${u}" ${j === i ? "selected" : ""}>${label}</option>`;
+        }).join("");
     });
     convertUnit();
 }
