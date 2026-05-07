@@ -343,14 +343,20 @@ def api_settings():
     if os.name == 'nt':
         save_config(data)
     
+    # Ambil nilai lama dari Cookie atau Config sebagai cadangan jika tidak ada di data baru
+    global_config = load_config()
+    curr_user = request.cookies.get("sb_username", global_config.get("username", "User"))
+    curr_lang = request.cookies.get("sb_language", global_config.get("language", "id"))
+    curr_theme = request.cookies.get("sb_theme", global_config.get("theme", "light"))
+
     # Di Cloud maupun Lokal, simpan ke Cookie agar bersifat pribadi per-device
     resp = make_response(jsonify({"success": True}))
     
     # Set cookie berlaku selama 1 tahun
     max_age = 365 * 24 * 60 * 60 
-    resp.set_cookie("sb_username", data.get("username", username), max_age=max_age, samesite="None", secure=True)
-    resp.set_cookie("sb_language", data.get("language", language), max_age=max_age, samesite="None", secure=True)
-    resp.set_cookie("sb_theme", data.get("theme", theme), max_age=max_age, samesite="None", secure=True)
+    resp.set_cookie("sb_username", data.get("username", curr_user), max_age=max_age, samesite="None", secure=True)
+    resp.set_cookie("sb_language", data.get("language", curr_lang), max_age=max_age, samesite="None", secure=True)
+    resp.set_cookie("sb_theme", data.get("theme", curr_theme), max_age=max_age, samesite="None", secure=True)
     
     return resp
 
