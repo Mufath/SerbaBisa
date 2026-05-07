@@ -3,12 +3,9 @@ services:
     name: serbabisa
     env: docker
     plan: free
-    region: singapore # Pilih region terdekat dengan Indonesia
+    region: singapore
     numInstances: 1
-    disk:
-      name: serbabisa-data
-      mountPath: /app/data
-      sizeGB: 1 # 1GB sudah cukup untuk config & history JSON
+    # Disk dihapus agar benar-benar gratis tanpa perlu kartu kredit
     envVars:
       - key: PORT
         value: 5000
