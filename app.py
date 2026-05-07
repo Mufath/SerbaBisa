@@ -33,6 +33,15 @@ app.config["CSRF_COOKIE_SECURE"] = True
 
 csrf = SeaSurf(app)
 
+# Matikan pengecekan CSRF jika berjalan di Cloud agar lancar di HP/Iframe
+if os.name != 'nt':
+    app.config['WTF_CSRF_ENABLED'] = False
+    # SeaSurf khusus: kita kecualikan semua proses jika di cloud
+    @app.before_request
+    def disable_csrf_on_cloud():
+        if os.name != 'nt':
+            setattr(request, '_csrf_exempt', True)
+
 @app.after_request
 def add_header(response):
     # Hapus X-Frame-Options agar bisa tampil di Iframe Hugging Face
@@ -245,6 +254,7 @@ def inject_globals():
     # Coba ambil pengaturan pribadi dari Cookie (perangkat masing-masing)
     username = request.cookies.get("sb_username", global_config.get("username", "User"))
     language = request.cookies.get("sb_language", global_config.get("language", "id"))
+    theme = request.cookies.get("sb_theme", global_config.get("theme", "light"))
     
     # Cache kategori alat berdasarkan bahasa user
     lang = language
@@ -268,9 +278,10 @@ def inject_globals():
 
     return {
         "tool_categories": translated_categories,
-        "app_config": {"username": username, "language": language},
+        "app_config": {"username": username, "language": language, "theme": theme},
         "username": username,
         "language": language,
+        "theme": theme,
         "weekly_count": get_weekly_count(),
         "format_time_ago": format_time_ago,
         "m": m,
@@ -337,8 +348,9 @@ def api_settings():
     
     # Set cookie berlaku selama 1 tahun
     max_age = 365 * 24 * 60 * 60 
-    resp.set_cookie("sb_username", data.get("username", "User"), max_age=max_age, samesite="None", secure=True)
-    resp.set_cookie("sb_language", data.get("language", "id"), max_age=max_age, samesite="None", secure=True)
+    resp.set_cookie("sb_username", data.get("username", username), max_age=max_age, samesite="None", secure=True)
+    resp.set_cookie("sb_language", data.get("language", language), max_age=max_age, samesite="None", secure=True)
+    resp.set_cookie("sb_theme", data.get("theme", theme), max_age=max_age, samesite="None", secure=True)
     
     return resp
 

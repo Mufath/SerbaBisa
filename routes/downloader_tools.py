@@ -126,6 +126,7 @@ def download_video():
             "merge_output_format": "mp4",
             "quiet": True,
             "no_warnings": True,
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.extract_info(url, download=True)
@@ -198,6 +199,7 @@ def download_audio():
             }],
             "quiet": True,
             "no_warnings": True,
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.extract_info(url, download=True)
@@ -258,6 +260,7 @@ def download_image():
             "outtmpl": os.path.join(tmpdir, "%(title).100s.%(ext)s"),
             "quiet": True,
             "no_warnings": True,
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
