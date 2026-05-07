@@ -4,6 +4,13 @@ import requests
 import subprocess
 import threading
 import time
+import sys
+
+# Tambahkan path aplikasi agar modul lokal (utils, routes, dll) terbaca di Cloud
+app_root = os.path.dirname(os.path.abspath(__file__))
+if app_root not in sys.path:
+    sys.path.append(app_root)
+
 from flask import Flask, render_template, request, jsonify
 from flask_seasurf import SeaSurf
 from utils.config_manager import load_config, save_config
