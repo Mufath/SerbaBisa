@@ -239,14 +239,18 @@ _TRANSLATED_CACHE = {"lang": None, "categories": None}
 
 @app.context_processor
 def inject_globals():
-    config = load_config()
-    lang = config.get("language", "id")
+    # Ambil pengaturan default dari server
+    global_config = load_config()
     
-    # Gunakan cache jika bahasa tidak berubah
+    # Coba ambil pengaturan pribadi dari Cookie (perangkat masing-masing)
+    user_name = request.cookies.get("sb_user_name", global_config.get("user_name", "User"))
+    language = request.cookies.get("sb_language", global_config.get("language", "id"))
+    
+    # Cache kategori alat berdasarkan bahasa user
+    lang = language
     if _TRANSLATED_CACHE["lang"] == lang and _TRANSLATED_CACHE["categories"]:
         translated_categories = _TRANSLATED_CACHE["categories"]
     else:
-        # Menerjemahkan kategori dan alat
         translated_categories = []
         for cat in TOOL_CATEGORIES:
             new_cat = cat.copy()
@@ -259,14 +263,17 @@ def inject_globals():
                 new_tools.append(new_tool)
             new_cat["tools"] = new_tools
             translated_categories.append(new_cat)
-        
-        # Simpan ke cache
         _TRANSLATED_CACHE["lang"] = lang
         _TRANSLATED_CACHE["categories"] = translated_categories
 
     return {
         "tool_categories": translated_categories,
-        "app_config": config,
+        "app_config": {"user_name": user_name, "language": language},
+        "user_name": user_name,
+        "language": language,
+        "weekly_count": get_weekly_count(),
+        "format_time_ago": format_time_ago,
+        "m": m,
         "_t": lambda key, **kwargs: translate_ui(key, lang=lang, **kwargs),
         "translate_tool": lambda text: translate_tool(text, lang)
     }
@@ -314,14 +321,26 @@ def settings_page():
 def support_page():
     return render_template("support.html")
 
-from flask import jsonify
+from flask import make_response
 @app.route("/api/settings", methods=["POST"])
 def api_settings():
     data = request.json
     if not data:
         return jsonify({"success": False}), 400
-    save_config(data)
-    return jsonify({"success": True})
+    
+    # Jika di Lokal (Windows), simpan ke file
+    if os.name == 'nt':
+        save_config(data)
+    
+    # Di Cloud maupun Lokal, simpan ke Cookie agar bersifat pribadi per-device
+    resp = make_response(jsonify({"success": True}))
+    
+    # Set cookie berlaku selama 1 tahun
+    max_age = 365 * 24 * 60 * 60 
+    resp.set_cookie("sb_user_name", data.get("user_name", "User"), max_age=max_age, samesite="None", secure=True)
+    resp.set_cookie("sb_language", data.get("language", "id"), max_age=max_age, samesite="None", secure=True)
+    
+    return resp
 
 
 from utils.updater import check_for_updates, run_updater
