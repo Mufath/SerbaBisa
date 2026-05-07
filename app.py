@@ -243,7 +243,7 @@ def inject_globals():
     global_config = load_config()
     
     # Coba ambil pengaturan pribadi dari Cookie (perangkat masing-masing)
-    user_name = request.cookies.get("sb_user_name", global_config.get("user_name", "User"))
+    username = request.cookies.get("sb_username", global_config.get("username", "User"))
     language = request.cookies.get("sb_language", global_config.get("language", "id"))
     
     # Cache kategori alat berdasarkan bahasa user
@@ -268,8 +268,8 @@ def inject_globals():
 
     return {
         "tool_categories": translated_categories,
-        "app_config": {"user_name": user_name, "language": language},
-        "user_name": user_name,
+        "app_config": {"username": username, "language": language},
+        "username": username,
         "language": language,
         "weekly_count": get_weekly_count(),
         "format_time_ago": format_time_ago,
@@ -337,7 +337,7 @@ def api_settings():
     
     # Set cookie berlaku selama 1 tahun
     max_age = 365 * 24 * 60 * 60 
-    resp.set_cookie("sb_user_name", data.get("user_name", "User"), max_age=max_age, samesite="None", secure=True)
+    resp.set_cookie("sb_username", data.get("username", "User"), max_age=max_age, samesite="None", secure=True)
     resp.set_cookie("sb_language", data.get("language", "id"), max_age=max_age, samesite="None", secure=True)
     
     return resp
