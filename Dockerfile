@@ -28,8 +28,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Salin semua file proyek ke dalam container
 COPY . .
 
-# Pastikan folder data ada
-RUN mkdir -p data
+# Pastikan folder data ada dan bisa ditulisi
+RUN mkdir -p data && chmod -R 777 data
 
 # Ekspos port yang digunakan Hugging Face (default 7860)
 EXPOSE 7860

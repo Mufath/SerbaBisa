@@ -19,8 +19,23 @@ from utils.history import get_history, log_history, get_weekly_count, format_tim
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100 MB max upload
-app.config["SECRET_KEY"] = os.urandom(24) # Diperlukan untuk CSRF
+
+# Gunakan kunci tetap agar CSRF konsisten di semua Gunicorn workers
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "serbabisa-super-secret-key-123")
+
+# Konfigurasi agar Cookie aman digunakan di dalam Iframe (Hugging Face)
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["CSRF_COOKIE_SAMESITE"] = "None"
+app.config["CSRF_COOKIE_SECURE"] = True
+
 csrf = SeaSurf(app)
+
+@app.after_request
+def add_header(response):
+    # Izinkan aplikasi tampil di Iframe Hugging Face
+    response.headers['X-Frame-Options'] = 'ALLOWALL'
+    return response
 
 # Masukkan folder bin lokal ke dalam PATH agar FFmpeg dan tool eksternal lainnya langsung dikenali
 # Hanya lakukan di Windows (lokal), di Linux (cloud) kita akan instal via package manager
