@@ -6,6 +6,9 @@ WORKDIR /app
 
 # Instal dependensi sistem (FFmpeg, Tesseract, Zbar, dll)
 RUN apt-get update && apt-get install -y \
+    build-essential \
+    libcairo2-dev \
+    pkg-config \
     ffmpeg \
     tesseract-ocr \
     libzbar0 \
