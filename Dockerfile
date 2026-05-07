@@ -4,6 +4,9 @@ FROM python:3.10-slim
 # Set working directory
 WORKDIR /app
 
+# Pastikan Python mencari modul di folder utama
+ENV PYTHONPATH=/app
+
 # Instal dependensi sistem (FFmpeg, Tesseract, Zbar, dll)
 RUN apt-get update && apt-get install -y \
     build-essential \
