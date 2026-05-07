@@ -25,9 +25,9 @@ COPY . .
 # Pastikan folder data ada
 RUN mkdir -p data
 
-# Ekspos port yang digunakan Flask (default 5000, tapi Render pakai env PORT)
-EXPOSE 5000
+# Ekspos port yang digunakan Hugging Face (default 7860)
+EXPOSE 7860
 
 # Jalankan aplikasi menggunakan gunicorn
 # Kita menggunakan bind 0.0.0.0:$PORT agar bisa diakses dari luar
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 4 --threads 2 app:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-7860} --workers 4 --threads 2 app:app"]

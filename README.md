@@ -1,3 +1,12 @@
+---
+title: SerbaBisa
+emoji: 🛠️
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+---
+
 # 🛠️ SerbaBisa
 
 **SerbaBisa** adalah toolkit serbaguna berbasis Desktop (Native PyWebView) untuk membantu berbagai tugas digital Anda, seperti konversi file, manipulasi gambar, pengolahan teks, dan banyak lagi secara lokal tanpa upload data ke internet.
