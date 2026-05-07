@@ -1,5 +1,6 @@
 # Core
 Flask
+Flask-SeaSurf
 requests
 Pillow
 PyMuPDF

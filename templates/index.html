@@ -9,8 +9,8 @@
             <h1>{{ _t('hello') }}, <span id="dash-username">{{ app_config.username }}</span>!</h1>
             <p>{{ _t('Weekly Usage', count=weekly_count) }}<br>{{ _t('Weekly Desc') }}</p>
         </div>
-        <div class="welcome-illus">
-            <i class="bi bi-rocket-takeoff-fill"></i>
+        <div class="welcome-chart">
+            <canvas id="usageChart"></canvas>
         </div>
     </div>
     
@@ -36,6 +36,59 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('usageChart').getContext('2d');
+    const isDark = document.body.classList.contains('dark-theme');
+    
+    const labels = [{% for s in daily_stats %}'{{ s.label }}',{% endfor %}];
+    const data = [{% for s in daily_stats %}{{ s.count }},{% endfor %}];
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "{{ _t('Tool Usage') }}",
+                data: data,
+                borderColor: '#4299e1',
+                backgroundColor: 'rgba(66, 153, 225, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#4299e1',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        color: isDark ? '#a0aec0' : '#718096',
+                        font: { size: 10 }
+                    },
+                    grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    ticks: {
+                        color: isDark ? '#a0aec0' : '#718096',
+                        font: { size: 10 }
+                    },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+});
+</script>
 
 {% for cat in tool_categories %}
 <div class="category-section">

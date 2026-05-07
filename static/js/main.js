@@ -1,3 +1,40 @@
+/* ── Utilities ────────────────────────────────── */
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+}
+
+/**
+ * Show a premium toast notification
+ * @param {string} message 
+ * @param {'success'|'error'|'info'} type 
+ */
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    const icons = {
+        success: 'bi-check-circle-fill',
+        error: 'bi-exclamation-triangle-fill',
+        info: 'bi-info-circle-fill'
+    };
+
+    toast.innerHTML = `
+        <i class="bi ${icons[type]}"></i>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        toast.classList.add('hiding');
+        toast.addEventListener('animationend', () => toast.remove());
+    }, 4000);
+}
+
 /* ── Sidebar ──────────────────────────────────── */
 function toggleCategory(btn) {
     btn.classList.toggle("open");
@@ -43,18 +80,26 @@ function initGlobalSearch() {
     // Kumpulkan semua alat dari sidebar untuk pencarian
     document.querySelectorAll('.nav-items .nav-item').forEach(el => {
         const iconEl = el.querySelector('i');
-        allTools.push({
-            name: el.textContent.trim(),
-            url: el.getAttribute('href'),
-            icon: iconEl ? iconEl.className : 'bi bi-tools'
-        });
+        const url = el.getAttribute('href');
+        if (url && url !== '#' && !url.includes('/settings') && !url.includes('/history') && !url.includes('/support')) {
+            allTools.push({
+                name: el.textContent.trim(),
+                url: url,
+                icon: iconEl ? iconEl.className : 'bi bi-tools'
+            });
+        }
     });
 
     const overlay = document.getElementById('cmd-palette-overlay');
     const input = document.getElementById('cmd-input');
     const results = document.getElementById('cmd-results');
+    const globalSearchInput = document.getElementById('global-search');
     
     if (!overlay || !input) return;
+
+    if (globalSearchInput) {
+        globalSearchInput.addEventListener('click', openCommandPalette);
+    }
 
     // Buka dengan Ctrl+K
     document.addEventListener('keydown', e => {
@@ -75,9 +120,19 @@ function initGlobalSearch() {
     input.addEventListener('input', e => {
         const q = e.target.value.toLowerCase();
         results.innerHTML = '';
-        if (!q) return;
+        
+        // Smart Sorting based on usage
+        const usage = JSON.parse(localStorage.getItem('tool_usage') || '{}');
 
-        const filtered = allTools.filter(t => t.name.toLowerCase().includes(q));
+        let filtered = allTools;
+        if (q) {
+            filtered = allTools.filter(t => t.name.toLowerCase().includes(q));
+        } else {
+            // If empty search, show most used tools
+            filtered = [...allTools]
+                .sort((a, b) => (usage[b.url] || 0) - (usage[a.url] || 0))
+                .slice(0, 8);
+        }
         if (filtered.length === 0) {
             results.innerHTML = `<div class="cmd-empty">${window.SERBABISA_TRANS?.cmd_empty || 'No matching tools found.'}</div>`;
             return;
@@ -94,6 +149,12 @@ function initGlobalSearch() {
                     <div class="cmd-item-desc">${t.url}</div>
                 </div>
             `;
+            item.addEventListener('click', () => {
+                // Record usage
+                const usage = JSON.parse(localStorage.getItem('tool_usage') || '{}');
+                usage[t.url] = (usage[t.url] || 0) + 1;
+                localStorage.setItem('tool_usage', JSON.stringify(usage));
+            });
             results.appendChild(item);
         });
     });
@@ -111,8 +172,9 @@ function initGlobalSearch() {
     function openCommandPalette() {
         overlay.classList.add('open');
         input.value = '';
-        results.innerHTML = `<div class="cmd-empty">${window.SERBABISA_TRANS?.cmd_start || 'Start typing...'}</div>`;
         setTimeout(() => input.focus(), 50);
+        // Trigger input event to show suggestions/usage
+        input.dispatchEvent(new Event('input'));
     }
 
     function closeCommandPalette() {
@@ -255,7 +317,13 @@ function initToolForm() {
         selectedFiles.forEach(f => formData.append("files", f));
 
         try {
-            const resp = await fetch(endpoint, { method: "POST", body: formData });
+            const resp = await fetch(endpoint, { 
+                method: "POST", 
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCsrfToken()
+                }
+            });
 
             if (!resp.ok) {
                 let msg = "Processing failed.";
@@ -326,7 +394,9 @@ function initToolForm() {
 }
 
 function showError(msg) {
+    showToast(msg, 'error');
     const area = document.getElementById("result-area");
+    if (!area) return;
     area.style.display = "block";
     document.getElementById("result-success").style.display = "none";
     document.getElementById("result-text")?.style.setProperty("display", "none");
@@ -336,7 +406,9 @@ function showError(msg) {
 }
 
 function showFileResult(url, filename, isImage, blob = null) {
+    showToast(window.SERBABISA_TRANS?.done || "Done!", 'success');
     const area = document.getElementById("result-area");
+    if (!area) return;
     area.style.display = "block";
     document.getElementById("result-error").style.display = "none";
     document.getElementById("result-text")?.style.setProperty("display", "none");
@@ -380,7 +452,9 @@ function showFileResult(url, filename, isImage, blob = null) {
 }
 
 function showTextResult(text) {
+    showToast(window.SERBABISA_TRANS?.done || "Done!", 'success');
     const area = document.getElementById("result-area");
+    if (!area) return;
     area.style.display = "block";
     document.getElementById("result-error").style.display = "none";
     document.getElementById("result-success").style.display = "none";
@@ -394,7 +468,10 @@ function showTextResult(text) {
 
 function copyResult() {
     const text = document.getElementById("result-text-content")?.textContent;
-    if (text) navigator.clipboard.writeText(text);
+    if (text) {
+        navigator.clipboard.writeText(text);
+        showToast(window.SERBABISA_TRANS?.copied_to_clipboard || "Tersalin ke clipboard!", 'success');
+    }
 }
 
 

@@ -249,9 +249,9 @@ a:hover { color: var(--primary-dark); }
     background: #fff;
     border: none;
     border-radius: var(--radius-lg);
-    padding: 0.6rem 1rem 0.6rem 2.5rem;
-    font-size: 0.9rem;
-    width: 250px;
+    padding: 0.6rem 5rem 0.6rem 2.5rem;
+    font-size: 0.85rem;
+    width: 220px;
     box-shadow: var(--shadow-soft);
     color: var(--text);
     outline: none;
@@ -387,13 +387,14 @@ a:hover { color: var(--primary-dark); }
 .welcome-card {
     background: #fff;
     border-radius: var(--radius);
-    padding: 2.5rem;
+    padding: 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     box-shadow: var(--shadow-soft);
     position: relative;
     overflow: hidden;
+    gap: 1.5rem;
 }
 
 .welcome-card::before {
@@ -402,6 +403,18 @@ a:hover { color: var(--primary-dark); }
     top: 0; right: 0; bottom: 0; width: 40%;
     background: linear-gradient(90deg, transparent, rgba(49, 130, 206, 0.05));
     pointer-events: none;
+}
+
+.welcome-text {
+    flex: 1.2;
+    z-index: 2;
+    min-width: 200px;
+}
+
+.welcome-chart {
+    flex: 2;
+    height: 180px;
+    z-index: 1;
 }
 
 .welcome-text h1 {
@@ -418,9 +431,15 @@ a:hover { color: var(--primary-dark); }
 }
 
 .welcome-illus {
-    font-size: 5rem;
-    color: var(--primary-light);
-    opacity: 0.8;
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-15deg);
+    font-size: 8rem;
+    color: var(--primary);
+    opacity: 0.05;
+    z-index: 0;
+    pointer-events: none;
 }
 
 .stats-card {
@@ -880,6 +899,17 @@ textarea:focus {
     .dashboard-grid { grid-template-columns: 1fr; }
     .welcome-illus { display: none; }
     .split-pane { grid-template-columns: 1fr; }
+    .welcome-card { flex-direction: column; text-align: center; padding: 1.5rem; }
+    .welcome-chart { width: 100%; max-width: 100%; height: 140px; margin-top: 1rem; }
+}
+
+@media (min-width: 769px) and (max-width: 1250px) {
+    .welcome-card { padding: 1.5rem; gap: 1rem; }
+    .welcome-text { flex: 2; min-width: 180px; }
+    .welcome-text h1 { font-size: 1.5rem; }
+    .welcome-text p { font-size: 0.85rem; }
+    .welcome-chart { flex: 3; height: 160px; }
+    .welcome-illus { font-size: 3rem; }
 }
 
 /* ── Dark Theme ───────────────────────────────── */
@@ -1124,4 +1154,71 @@ body.dark-theme select {
 body.dark-theme select option {
     background: #1e293b;
     color: #f8fafc;
+}
+
+/* ── Toast Notifications ──────────────────────── */
+.toast-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--bg-card);
+    backdrop-filter: var(--blur-heavy);
+    -webkit-backdrop-filter: var(--blur-heavy);
+    border: 1px solid var(--glass-border);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-hover);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-width: 280px;
+    max-width: 400px;
+    animation: toast-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto;
+}
+
+@keyframes toast-in {
+    from { transform: translateX(100%) scale(0.8); opacity: 0; }
+    to { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+.toast.hiding {
+    animation: toast-out 0.3s ease-in forwards;
+}
+
+@keyframes toast-out {
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+.toast i { font-size: 1.2rem; }
+.toast-success i { color: var(--success); }
+.toast-error i { color: var(--danger); }
+.toast-info i { color: var(--primary); }
+
+/* ── Search Hint ─────────────────────────────── */
+.search-hint {
+    position: absolute;
+    right: 0.8rem;
+    background: var(--bg-body);
+    border: 1px solid var(--glass-border);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    pointer-events: none;
+    text-transform: uppercase;
+}
+
+body.dark-theme .search-hint {
+    background: rgba(255,255,255,0.05);
 }

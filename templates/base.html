@@ -6,6 +6,8 @@
     <title>{% block title %}SerbaBisa{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body {% if app_config.theme == 'dark' %}class="dark-theme"{% endif %}>
     <nav class="sidebar" id="sidebar">
@@ -36,7 +38,10 @@
             {% endfor %}
             
             <div class="nav-category" style="margin-top: 1rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
-                <a href="/settings" class="nav-category-btn" style="text-decoration: none;">
+                <a href="/support" class="nav-category-btn" style="text-decoration: none; color: var(--primary);">
+                    <i class="bi bi-heart-fill"></i> {{ _t('Support Us') or 'Dukungan' }}
+                </a>
+                <a href="/settings" class="nav-category-btn" style="text-decoration: none; margin-top: 0.5rem;">
                     <i class="bi bi-gear-fill"></i> {{ _t('settings') }}
                 </a>
             </div>
@@ -63,6 +68,7 @@
                 <div class="search-bar">
                     <i class="bi bi-search"></i>
                     <input type="text" id="global-search" placeholder="{{ _t('Search Placeholder') }}">
+                    <span class="search-hint">Ctrl + K</span>
                 </div>
                 
                 <div class="user-profile" onclick="window.location.href='/settings'" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" title="{{ _t('Click To Change Name') }}">
@@ -95,7 +101,9 @@
             input_json: "{{ _t('Input JSON') }}",
             output_csv: "{{ _t('Output CSV') }}",
             output_json: "{{ _t('Output JSON') }}",
-            oops_error: "{{ _t('Oops Error') }}"
+            oops_error: "{{ _t('Oops Error') }}",
+            tool_usage: "{{ _t('Tool Usage') }}",
+            copied_to_clipboard: "{{ _t('Copied to clipboard!') }}"
         };
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
@@ -115,7 +123,10 @@
             
             fetch('/api/settings', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
                 body: JSON.stringify({ theme: newTheme })
             });
         }
@@ -140,6 +151,7 @@
         </div>
     </div>
 
+    <div id="toast-container" class="toast-container"></div>
     {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -2,11 +2,18 @@ import os
 import json
 import requests
 import subprocess
+import threading
+import time
 from flask import Flask, render_template, request, jsonify
-from utils.history import get_history, log_history, get_weekly_count, format_time_ago
+from flask_seasurf import SeaSurf
+from utils.config_manager import load_config, save_config
+from locales import m, translate_ui, translate_tool
+from utils.history import get_history, log_history, get_weekly_count, format_time_ago, get_daily_stats
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100 MB max upload
+app.config["SECRET_KEY"] = os.urandom(24) # Diperlukan untuk CSRF
+csrf = SeaSurf(app)
 
 # Masukkan folder bin lokal ke dalam PATH agar FFmpeg dan tool eksternal lainnya langsung dikenali
 bin_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
@@ -197,27 +204,36 @@ TOOL_CATEGORIES = [
     },
 ]
 
-from utils.config_manager import load_config, save_config
-from locales import translate_ui, translate_tool
+
+# Cache sederhana untuk kategori alat yang sudah diterjemahkan
+_TRANSLATED_CACHE = {"lang": None, "categories": None}
 
 @app.context_processor
 def inject_globals():
     config = load_config()
     lang = config.get("language", "id")
     
-    # Menerjemahkan kategori dan alat
-    translated_categories = []
-    for cat in TOOL_CATEGORIES:
-        new_cat = cat.copy()
-        new_cat["name"] = translate_tool(cat["name"], lang)
-        new_tools = []
-        for tool in cat["tools"]:
-            new_tool = tool.copy()
-            new_tool["name"] = translate_tool(tool["name"], lang)
-            new_tool["desc"] = translate_tool(tool["desc"], lang)
-            new_tools.append(new_tool)
-        new_cat["tools"] = new_tools
-        translated_categories.append(new_cat)
+    # Gunakan cache jika bahasa tidak berubah
+    if _TRANSLATED_CACHE["lang"] == lang and _TRANSLATED_CACHE["categories"]:
+        translated_categories = _TRANSLATED_CACHE["categories"]
+    else:
+        # Menerjemahkan kategori dan alat
+        translated_categories = []
+        for cat in TOOL_CATEGORIES:
+            new_cat = cat.copy()
+            new_cat["name"] = translate_tool(cat["name"], lang)
+            new_tools = []
+            for tool in cat["tools"]:
+                new_tool = tool.copy()
+                new_tool["name"] = translate_tool(tool["name"], lang)
+                new_tool["desc"] = translate_tool(tool["desc"], lang)
+                new_tools.append(new_tool)
+            new_cat["tools"] = new_tools
+            translated_categories.append(new_cat)
+        
+        # Simpan ke cache
+        _TRANSLATED_CACHE["lang"] = lang
+        _TRANSLATED_CACHE["categories"] = translated_categories
 
     return {
         "tool_categories": translated_categories,
@@ -248,7 +264,8 @@ def index():
         r['time_str'] = format_time_ago(r['timestamp'], lang=lang)
         r['tool_name'] = translate_tool(r['tool_name'], lang)
     weekly_count = get_weekly_count()
-    return render_template("index.html", recent_history=recent[:3], weekly_count=weekly_count)
+    daily_stats = get_daily_stats()
+    return render_template("index.html", recent_history=recent[:3], weekly_count=weekly_count, daily_stats=daily_stats)
 
 @app.route("/history")
 def history_page():
@@ -264,6 +281,10 @@ def history_page():
 def settings_page():
     return render_template("settings.html")
 
+@app.route("/support")
+def support_page():
+    return render_template("support.html")
+
 from flask import jsonify
 @app.route("/api/settings", methods=["POST"])
 def api_settings():
@@ -274,54 +295,18 @@ def api_settings():
     return jsonify({"success": True})
 
 
+from utils.updater import check_for_updates, run_updater
+
 @app.route("/api/check-update")
 def check_update():
-    try:
-        # Load local version
-        version_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "version.json")
-        local_version = "1.0.0"
-        if os.path.exists(version_file):
-            with open(version_file, "r") as f:
-                local_data = json.load(f)
-                local_version = local_data.get("version", "1.0.0")
-        
-        # Fetch remote version from GitHub
-        repo_url = "https://raw.githubusercontent.com/Mufath/SerbaBisa/main/version.json"
-        response = requests.get(repo_url, timeout=5)
-        if response.status_code == 200:
-            remote_data = response.json()
-            remote_version = remote_data.get("version", "1.0.0")
-            
-            if remote_version != local_version:
-                return jsonify({
-                    "update_available": True, 
-                    "local": local_version, 
-                    "remote": remote_version
-                })
-        
-        return jsonify({"update_available": False, "local": local_version})
-    except Exception as e:
-        print("Error checking update:", e)
-        return jsonify({"update_available": False, "local": "1.0.0", "error": str(e)})
+    return jsonify(check_for_updates())
 
 @app.route("/api/perform-update", methods=["POST"])
 def perform_update():
-    try:
-        updater_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts", "updater.bat")
-        if os.path.exists(updater_path):
-            # Jalankan updater di console baru agar tidak ikut mati saat app mati
-            subprocess.Popen([updater_path], shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE)
-            
-            # Beri sinyal untuk menutup aplikasi
-            def shutdown_later():
-                time.sleep(2)
-                os._exit(0)
-            
-            threading.Thread(target=shutdown_later).start()
-            return jsonify({"success": True})
-        return jsonify({"success": False, "error": "Updater script not found"}), 404
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+    success = run_updater()
+    if success:
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "Updater script not found"}), 404
 
 
 @app.errorhandler(413)

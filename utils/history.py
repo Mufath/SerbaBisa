@@ -46,6 +46,28 @@ def log_history(cat, tool):
     with open(HISTORY_FILE, "w") as f:
         json.dump(history[:10000], f)  # Keep up to 10,000 items in history
 
+def get_daily_stats():
+    history = get_history()
+    now = datetime.now()
+    stats = []
+    
+    for i in range(6, -1, -1):
+        day = now - timedelta(days=i)
+        day_str = day.strftime("%Y-%m-%d")
+        count = 0
+        for h in history:
+            try:
+                ts = datetime.fromisoformat(h['timestamp'])
+                if ts.strftime("%Y-%m-%d") == day_str:
+                    count += 1
+            except:
+                pass
+        stats.append({
+            "label": day.strftime("%a"), # e.g., Mon, Tue
+            "count": count
+        })
+    return stats
+
 def get_weekly_count():
     history = get_history()
     one_week_ago = datetime.now() - timedelta(days=7)

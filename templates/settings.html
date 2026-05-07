@@ -119,7 +119,10 @@
         btn.textContent = '{{ _t("Updating Msg") }}';
         
         try {
-            const resp = await fetch('/api/perform-update', { method: 'POST' });
+            const resp = await fetch('/api/perform-update', { 
+                method: 'POST',
+                headers: { 'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+            });
             if (resp.ok) {
                 setTimeout(() => {
                     alert('Update dimulai. Jendela ini akan tertutup. Silakan tunggu hingga aplikasi terbuka kembali.');
@@ -140,7 +143,10 @@
         try {
             const resp = await fetch('/api/settings', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
                 body: JSON.stringify({ username: newName, language: newLang, theme: theme })
             });
             if (resp.ok) {

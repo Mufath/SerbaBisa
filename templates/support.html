@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ _t('Support Us') }} - SerbaBisa{% endblock %}
+{% block top_title %}{{ _t('Support Us') }}{% endblock %}
+
+{% block content %}
+<div class="tool-page" style="max-width: 900px; margin: 0 auto;">
+    <div class="tool-header" style="text-align: center; margin-bottom: 3rem;">
+        <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">
+            <i class="bi bi-heart-fill"></i>
+        </div>
+        <h1>{{ _t('Support Title') }}</h1>
+        <p>{{ _t('Support Desc') }}</p>
+    </div>
+
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem;">
+        <!-- QRIS Card -->
+        <div class="tool-container" style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 2.5rem; text-align: center; border: 2px solid transparent; transition: all 0.3s ease;" onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)'">
+            <div>
+                <h3 style="margin-bottom: 1.5rem;">QRIS (Local / ID)</h3>
+                <div style="background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; width: 100%; max-width: 250px; margin-left: auto; margin-right: auto;">
+                    <img src="{{ url_for('static', filename='img/qris.png') }}" alt="QRIS Donation" style="width: 100%; height: auto; border-radius: 4px;">
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">{{ _t('QRIS Desc') }}</p>
+            </div>
+            <div style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Indonesia Only</div>
+        </div>
+
+        <!-- Ko-fi Card -->
+        <div class="tool-container" style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 2.5rem; text-align: center; border: 2px solid transparent; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#72a4f2'; this.style.transform='translateY(-5px)'" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)'">
+            <div>
+                <div style="margin-bottom: 1.5rem; color: #72a4f2; font-size: 3rem;">
+                    <i class="bi bi-cup-hot-fill"></i>
+                </div>
+                <h3 style="margin-bottom: 1.5rem;">Ko-fi (Global)</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.6;">{{ _t('Ko-fi Desc') }}</p>
+            </div>
+            <a href="https://ko-fi.com/mufathz" target="_blank" class="btn" style="width: 100%; background: #72a4f2; color: white; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.7rem; padding: 0.8rem; font-weight: 600; border-radius: 12px;">
+                <i class="bi bi-cup-fill" style="font-size: 1.2rem;"></i> {{ _t('Ko-fi Button') }}
+            </a>
+        </div>
+    </div>
+
+    <div style="margin-top: 5rem; text-align: center; padding: 2rem; border-top: 1px solid var(--glass-border);">
+        <h4 style="margin-bottom: 1rem;">{{ _t('Thank You') }}</h4>
+        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; max-width: 600px; margin: 0 auto;">
+            {{ _t('Thank You Desc') }}
+        </p>
+    </div>
+</div>
+{% endblock %}
