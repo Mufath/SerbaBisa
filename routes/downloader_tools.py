@@ -33,8 +33,8 @@ def _handle_ytdlp_error(e):
         return jsonify(error=m("Video is unavailable or has been deleted.")), 400
     if "Private video" in msg:
         return jsonify(error=m("This video is private and cannot be downloaded.")), 400
-    if "Sign in" in msg or "age" in msg.lower():
-        return jsonify(error=m("This video requires login (age-restricted) and cannot be downloaded.")), 400
+    if "Sign in" in msg or "confirm you’re not a bot" in msg.lower() or "age" in msg.lower():
+        return jsonify(error=m("YouTube detected suspicious activity (bot) or requires login. Try waiting a few minutes, or avoid downloading multiple videos simultaneously.")), 400
     if "HTTP Error 404" in msg:
         return jsonify(error=m("Content not found (404). Make sure the link is still valid.")), 400
     clean = msg.split("\n")[0][:200]
@@ -126,6 +126,12 @@ def download_video():
             "merge_output_format": "mp4",
             "quiet": True,
             "no_warnings": True,
+            "nocheckcertificate": True,
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["ios", "android", "web"]
+                }
+            },
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -199,6 +205,12 @@ def download_audio():
             }],
             "quiet": True,
             "no_warnings": True,
+            "nocheckcertificate": True,
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["ios", "android", "web"]
+                }
+            },
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -260,6 +272,12 @@ def download_image():
             "outtmpl": os.path.join(tmpdir, "%(title).100s.%(ext)s"),
             "quiet": True,
             "no_warnings": True,
+            "nocheckcertificate": True,
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["ios", "android", "web"]
+                }
+            },
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
