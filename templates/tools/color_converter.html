@@ -3,41 +3,325 @@
 {% block top_title %}{{ _t('Color Converter Title') }}{% endblock %}
 
 {% block content %}
-<div class="client-tool">
+<style>
+    .color-tool-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .color-card {
+        background: var(--bg-card);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border-radius: var(--radius);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .color-body {
+        padding: 2rem;
+    }
+
+    /* Custom Picker Area */
+    .picker-container {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .picker-container {
+            flex-direction: column;
+        }
+    }
+
+    .sl-picker {
+        position: relative;
+        width: 300px;
+        height: 200px;
+        border-radius: var(--radius-sm);
+        cursor: crosshair;
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+    }
+
+    .sl-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .picker-cursor {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        border: 2px solid white;
+        border-radius: 50%;
+        box-shadow: 0 0 4px rgba(0,0,0,0.5);
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+    }
+
+    .hue-slider-container {
+        width: 100%;
+        height: 12px;
+        border-radius: 6px;
+        margin: 1.5rem 0;
+        position: relative;
+        background: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
+    }
+
+    .hue-slider-container input[type="range"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .hue-thumb {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 3px solid white;
+        background: transparent;
+        border-radius: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    /* Info & Results */
+    .color-preview-block {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .main-preview {
+        height: 120px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 800;
+        font-size: 1.5rem;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        position: relative;
+    }
+
+    .color-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .color-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .control-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .section-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .input-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(0,0,0,0.02);
+        padding: 0.7rem 1rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--glass-border);
+    }
+
+    .dark-theme .input-row {
+        background: rgba(255,255,255,0.03);
+    }
+
+    .input-row label {
+        width: 30px;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .input-row input[type="range"] {
+        flex: 1;
+    }
+
+    .input-row input[type="number"] {
+        width: 80px; /* Increased to avoid 'nabrak' */
+        background: transparent;
+        border: none;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--text);
+        text-align: right;
+        padding-right: 5px;
+    }
+
+    /* Hide spinners */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .result-card {
+        background: rgba(0,0,0,0.02);
+        padding: 1rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .dark-theme .result-card {
+        background: rgba(255,255,255,0.03);
+    }
+
+    .result-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+    }
+
+    .copy-btn {
+        background: none;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        padding: 5px;
+        font-size: 1.1rem;
+    }
+</style>
+
+<div class="color-tool-container">
     <div class="tool-header">
         <h1>{{ _t('Color Converter Title') }}</h1>
         <p>{{ _t('Desc Color Converter') }}</p>
     </div>
-    <div class="color-preview" id="color-preview"></div>
-    <div class="form-group" style="margin-bottom:1rem">
-        <label>{{ _t('Pick Color') }}</label>
-        <input type="color" id="color-picker" value="#4361ee" onchange="fromPicker()" style="width:60px;height:36px;padding:2px;cursor:pointer">
-    </div>
-    <div class="color-inputs">
-        <div class="form-group">
-            <label>{{ _t('Hex Code') }}</label>
-            <input type="text" id="c-hex" value="#4361ee" oninput="fromHex()">
-        </div>
-        <div class="form-group">
-            <label>{{ _t('RGB Format Label') }}</label>
-            <div style="display:flex;gap:.3rem">
-                <input type="number" id="c-r" min="0" max="255" value="67" oninput="fromRGB()" placeholder="R" style="width:33%">
-                <input type="number" id="c-g" min="0" max="255" value="97" oninput="fromRGB()" placeholder="G" style="width:33%">
-                <input type="number" id="c-b" min="0" max="255" value="238" oninput="fromRGB()" placeholder="B" style="width:33%">
+
+    <div class="color-card">
+        <div class="color-body">
+            <!-- Top Picker & Preview -->
+            <div class="picker-container">
+                <div class="color-preview-block">
+                    <div class="main-preview" id="main-preview">#4361EE</div>
+                    <div class="hue-slider-container">
+                        <div class="hue-thumb" id="hue-thumb" style="left: 63.6%;"></div>
+                        <input type="range" id="hue-slider" min="0" max="360" value="229" oninput="updateHue(this.value)">
+                    </div>
+                </div>
+                
+                <div class="sl-picker" id="sl-picker">
+                    <canvas id="sl-canvas" class="sl-canvas"></canvas>
+                    <div class="picker-cursor" id="picker-cursor" style="left: 82%; top: 40%;"></div>
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label>{{ _t('HSL Format Label') }}</label>
-            <div style="display:flex;gap:.3rem">
-                <input type="number" id="c-h" min="0" max="360" value="229" oninput="fromHSL()" placeholder="H" style="width:33%">
-                <input type="number" id="c-s" min="0" max="100" value="82" oninput="fromHSL()" placeholder="S%" style="width:33%">
-                <input type="number" id="c-l" min="0" max="100" value="60" oninput="fromHSL()" placeholder="L%" style="width:33%">
+
+            <div class="color-grid">
+                <!-- RGB Controls -->
+                <div class="control-section">
+                    <h3 class="section-title"><i class="bi bi-sliders"></i> {{ _t('RGB Channels') }}</h3>
+                    <div class="input-row">
+                        <label>R</label>
+                        <input type="range" id="range-r" min="0" max="255" value="67" oninput="fromRange('r')">
+                        <input type="number" id="num-r" min="0" max="255" value="67" oninput="fromNum('r')">
+                    </div>
+                    <div class="input-row">
+                        <label>G</label>
+                        <input type="range" id="range-g" min="0" max="255" value="97" oninput="fromRange('g')">
+                        <input type="number" id="num-g" min="0" max="255" value="97" oninput="fromNum('g')">
+                    </div>
+                    <div class="input-row">
+                        <label>B</label>
+                        <input type="range" id="range-b" min="0" max="255" value="238" oninput="fromRange('b')">
+                        <input type="number" id="num-b" min="0" max="255" value="238" oninput="fromNum('b')">
+                    </div>
+                </div>
+
+                <!-- HSL Controls -->
+                <div class="control-section">
+                    <h3 class="section-title"><i class="bi bi-palette"></i> {{ _t('HSL Values') }}</h3>
+                    <div class="input-row">
+                        <label>H</label>
+                        <input type="range" id="range-h" min="0" max="360" value="229" oninput="fromRange('h')">
+                        <input type="number" id="num-h" min="0" max="360" value="229" oninput="fromNum('h')">
+                    </div>
+                    <div class="input-row">
+                        <label>S</label>
+                        <input type="range" id="range-s" min="0" max="100" value="82" oninput="fromRange('s')">
+                        <input type="number" id="num-s" min="0" max="100" value="82" oninput="fromNum('s')">
+                    </div>
+                    <div class="input-row">
+                        <label>L</label>
+                        <input type="range" id="range-l" min="0" max="100" value="60" oninput="fromRange('l')">
+                        <input type="number" id="num-l" min="0" max="100" value="60" oninput="fromNum('l')">
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label>{{ _t('CSS Code Label') }}</label>
-            <input type="text" id="c-css" readonly>
-            <button class="btn btn-small" style="margin-top:.3rem" onclick="navigator.clipboard.writeText(document.getElementById('c-css').value)"><i class="bi bi-clipboard"></i> {{ _t('Copy Code') }}</button>
+
+            <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--glass-border);">
+
+            <!-- Export Formats -->
+            <h3 class="section-title"><i class="bi bi-code-slash"></i> {{ _t('Export Formats') }}</h3>
+            <div class="color-grid" style="margin-top: 1rem;">
+                <div class="result-card">
+                    <div>
+                        <div class="section-title" style="font-size: 0.7rem;">HEX</div>
+                        <div class="result-value" id="val-hex">#4361EE</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('val-hex')"><i class="bi bi-clipboard"></i></button>
+                </div>
+                <div class="result-card">
+                    <div>
+                        <div class="section-title" style="font-size: 0.7rem;">RGB</div>
+                        <div class="result-value" id="val-rgb">rgb(67, 97, 238)</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('val-rgb')"><i class="bi bi-clipboard"></i></button>
+                </div>
+                <div class="result-card">
+                    <div>
+                        <div class="section-title" style="font-size: 0.7rem;">HSL</div>
+                        <div class="result-value" id="val-hsl">hsl(229, 82%, 60%)</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('val-hsl')"><i class="bi bi-clipboard"></i></button>
+                </div>
+                <div class="result-card">
+                    <div>
+                        <div class="section-title" style="font-size: 0.7rem;">{{ _t('CSS Variable') }}</div>
+                        <div class="result-value" id="val-css">--color: #4361ee;</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('val-css')"><i class="bi bi-clipboard"></i></button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -45,67 +329,161 @@
 
 {% block scripts %}
 <script>
-function updatePreview(r, g, b) {
-    const hex = rgbToHex(r, g, b);
-    document.getElementById("color-preview").style.background = hex;
-    document.getElementById("c-css").value = `rgb(${r}, ${g}, ${b})`;
-    document.getElementById("color-picker").value = hex;
+let currentHue = 229;
+let currentSat = 82;
+let currentLight = 60;
+
+const slCanvas = document.getElementById('sl-canvas');
+const slCtx = slCanvas.getContext('2d');
+const slPicker = document.getElementById('sl-picker');
+const pickerCursor = document.getElementById('picker-cursor');
+
+function drawSLCanvas() {
+    const width = slCanvas.width = slCanvas.clientWidth;
+    const height = slCanvas.height = slCanvas.clientHeight;
+
+    // Fill base color (hue)
+    slCtx.fillStyle = `hsl(${currentHue}, 100%, 50%)`;
+    slCtx.fillRect(0, 0, width, height);
+
+    // White gradient (left to right)
+    const whiteGrad = slCtx.createLinearGradient(0, 0, width, 0);
+    whiteGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    whiteGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    slCtx.fillStyle = whiteGrad;
+    slCtx.fillRect(0, 0, width, height);
+
+    // Black gradient (bottom to top)
+    const blackGrad = slCtx.createLinearGradient(0, height, 0, 0);
+    blackGrad.addColorStop(0, 'rgba(0, 0, 0, 1)');
+    blackGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    slCtx.fillStyle = blackGrad;
+    slCtx.fillRect(0, 0, width, height);
 }
 
-function fromPicker() {
-    const hex = document.getElementById("color-picker").value;
-    document.getElementById("c-hex").value = hex;
-    fromHex();
+function updateHue(h) {
+    currentHue = h;
+    document.getElementById('hue-thumb').style.left = (h / 360 * 100) + '%';
+    drawSLCanvas();
+    updateFromHSL();
 }
 
-function fromHex() {
-    let hex = document.getElementById("c-hex").value.trim().replace("#", "");
-    if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-    if (hex.length !== 6) return;
+// SL Picker Interaction
+let isDragging = false;
+slPicker.addEventListener('mousedown', (e) => { isDragging = true; updateSL(e); });
+window.addEventListener('mousemove', (e) => { if (isDragging) updateSL(e); });
+window.addEventListener('mouseup', () => { isDragging = false; });
 
-    const r = parseInt(hex.slice(0,2), 16);
-    const g = parseInt(hex.slice(2,4), 16);
-    const b = parseInt(hex.slice(4,6), 16);
-    if (isNaN(r) || isNaN(g) || isNaN(b)) return;
+function updateSL(e) {
+    const rect = slPicker.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
 
-    document.getElementById("c-r").value = r;
-    document.getElementById("c-g").value = g;
-    document.getElementById("c-b").value = b;
+    x = Math.max(0, Math.min(x, rect.width));
+    y = Math.max(0, Math.min(y, rect.height));
 
-    const [h, s, l] = rgbToHsl(r, g, b);
-    document.getElementById("c-h").value = h;
-    document.getElementById("c-s").value = s;
-    document.getElementById("c-l").value = l;
+    pickerCursor.style.left = x + 'px';
+    pickerCursor.style.top = y + 'px';
 
-    updatePreview(r, g, b);
+    // Calculate S and L from X and Y
+    // Simplified mapping for a standard HSL/HSV-like picker
+    currentSat = Math.round((x / rect.width) * 100);
+    currentLight = Math.round(100 - (y / rect.height) * 100);
+    
+    // Adjust L slightly to feel more natural (using HSV to HSL conversion logic internally or simplified)
+    // For simplicity, we'll stick to a direct mapping for now
+    updateFromHSL();
 }
 
-function fromRGB() {
-    const r = parseInt(document.getElementById("c-r").value) || 0;
-    const g = parseInt(document.getElementById("c-g").value) || 0;
-    const b = parseInt(document.getElementById("c-b").value) || 0;
-
-    document.getElementById("c-hex").value = rgbToHex(r, g, b);
-    const [h, s, l] = rgbToHsl(r, g, b);
-    document.getElementById("c-h").value = h;
-    document.getElementById("c-s").value = s;
-    document.getElementById("c-l").value = l;
-
-    updatePreview(r, g, b);
+function fromRange(type) {
+    if (['r', 'g', 'b'].includes(type)) {
+        const r = parseInt(document.getElementById('range-r').value);
+        const g = parseInt(document.getElementById('range-g').value);
+        const b = parseInt(document.getElementById('range-b').value);
+        updateAll('rgb', r, g, b);
+    } else {
+        const h = parseInt(document.getElementById('range-h').value);
+        const s = parseInt(document.getElementById('range-s').value);
+        const l = parseInt(document.getElementById('range-l').value);
+        updateAll('hsl', h, s, l);
+    }
 }
 
-function fromHSL() {
-    const h = parseInt(document.getElementById("c-h").value) || 0;
-    const s = parseInt(document.getElementById("c-s").value) || 0;
-    const l = parseInt(document.getElementById("c-l").value) || 0;
+function fromNum(type) {
+    if (['r', 'g', 'b'].includes(type)) {
+        const r = Math.min(255, Math.max(0, parseInt(document.getElementById('num-r').value) || 0));
+        const g = Math.min(255, Math.max(0, parseInt(document.getElementById('num-g').value) || 0));
+        const b = Math.min(255, Math.max(0, parseInt(document.getElementById('num-b').value) || 0));
+        updateAll('rgb', r, g, b);
+    } else {
+        const h = Math.min(360, Math.max(0, parseInt(document.getElementById('num-h').value) || 0));
+        const s = Math.min(100, Math.max(0, parseInt(document.getElementById('num-s').value) || 0));
+        const l = Math.min(100, Math.max(0, parseInt(document.getElementById('num-l').value) || 0));
+        updateAll('hsl', h, s, l);
+    }
+}
 
-    const [r, g, b] = hslToRgb(h, s, l);
-    document.getElementById("c-r").value = r;
-    document.getElementById("c-g").value = g;
-    document.getElementById("c-b").value = b;
-    document.getElementById("c-hex").value = rgbToHex(r, g, b);
+function updateFromHSL() {
+    updateAll('hsl', currentHue, currentSat, currentLight);
+}
 
-    updatePreview(r, g, b);
+function updateAll(source, v1, v2, v3) {
+    let r, g, b, h, s, l;
+    
+    if (source === 'rgb') {
+        r = v1; g = v2; b = v3;
+        [h, s, l] = rgbToHsl(r, g, b);
+    } else {
+        h = v1; s = v2; l = v3;
+        [r, g, b] = hslToRgb(h, s, l);
+    }
+
+    currentHue = h;
+    currentSat = s;
+    currentLight = l;
+
+    const hex = rgbToHex(r, g, b).toUpperCase();
+
+    // Update UI Elements
+    const preview = document.getElementById('main-preview');
+    preview.style.background = hex;
+    preview.innerText = hex;
+    
+    // Contrast check
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    preview.style.color = luminance > 0.5 ? '#000' : '#fff';
+
+    // Update RGB inputs
+    document.getElementById('range-r').value = r;
+    document.getElementById('num-r').value = r;
+    document.getElementById('range-g').value = g;
+    document.getElementById('num-g').value = g;
+    document.getElementById('range-b').value = b;
+    document.getElementById('num-b').value = b;
+
+    // Update HSL inputs
+    document.getElementById('range-h').value = h;
+    document.getElementById('num-h').value = h;
+    document.getElementById('range-s').value = s;
+    document.getElementById('num-s').value = s;
+    document.getElementById('range-l').value = l;
+    document.getElementById('num-l').value = l;
+
+    // Update Hue Slider & Canvas
+    document.getElementById('hue-slider').value = h;
+    document.getElementById('hue-thumb').style.left = (h / 360 * 100) + '%';
+    
+    const rect = slPicker.getBoundingClientRect();
+    pickerCursor.style.left = (s / 100 * rect.width) + 'px';
+    pickerCursor.style.top = ((100 - l) / 100 * rect.height) + 'px';
+    
+    drawSLCanvas();
+
+    // Update Export Formats
+    document.getElementById('val-rgb').innerText = `rgb(${r}, ${g}, ${b})`;
+    document.getElementById('val-hex').innerText = hex;
+    document.getElementById('val-hsl').innerText = `hsl(${h}, ${s}%, ${l}%)`;
+    document.getElementById('val-css').innerText = `--color: ${hex.toLowerCase()};`;
 }
 
 function rgbToHex(r, g, b) {
@@ -116,7 +494,6 @@ function rgbToHsl(r, g, b) {
     r /= 255; g /= 255; b /= 255;
     const max = Math.max(r,g,b), min = Math.min(r,g,b);
     let h, s, l = (max + min) / 2;
-
     if (max === min) { h = s = 0; }
     else {
         const d = max - min;
@@ -152,6 +529,19 @@ function hslToRgb(h, s, l) {
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
-fromHex();
+function copyText(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        if (window.showToast) {
+            window.showToast("{{ _t('Copied to clipboard!') }}");
+        }
+    });
+}
+
+// Init
+window.addEventListener('load', () => {
+    drawSLCanvas();
+    updateAll('rgb', 67, 97, 238);
+});
 </script>
 {% endblock %}

@@ -1,37 +1,298 @@
 {% extends "base.html" %}
 {% block title %}{{ _t('Unit Converter') }} - SerbaBisa{% endblock %}
-{% block top_title %}Unit Converter{% endblock %}
+{% block top_title %}{{ _t('Unit Converter') }}{% endblock %}
 
 {% block content %}
-<div class="client-tool">
+<style>
+    .converter-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Category Chips */
+    .category-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .chip {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.7rem 1.2rem;
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        color: var(--text-light);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .chip i {
+        font-size: 1.1rem;
+        transition: transform 0.3s;
+    }
+
+    .chip:hover {
+        background: var(--glass-hover);
+        border-color: var(--primary-light);
+        color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .chip.active {
+        background: var(--grad-primary);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 8px 20px rgba(49, 130, 206, 0.3);
+    }
+
+    .chip.active i {
+        transform: scale(1.1);
+    }
+
+    /* Converter Card */
+    .converter-card {
+        background: var(--bg-card);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border-radius: var(--radius);
+        padding: 2.5rem;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-soft);
+        position: relative;
+    }
+
+    .converter-main {
+        display: flex;
+        align-items: flex-end;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .converter-block {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .converter-block label {
+        display: block;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.8rem;
+        font-weight: 700;
+    }
+
+    .input-group {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input-group input {
+        font-size: 1.8rem;
+        font-weight: 700;
+        padding: 1rem 1.2rem;
+        border: 2px solid var(--glass-border);
+        border-radius: var(--radius-sm);
+        background: rgba(0, 0, 0, 0.02);
+        color: var(--text);
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .dark-theme .input-group input {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .input-group input:focus {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.1);
+    }
+
+    .dark-theme .input-group input:focus {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Hide number spinners for cleaner UI */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .input-group select {
+        padding: 0.6rem 1rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--glass-border);
+        background: var(--bg-card);
+        font-weight: 500;
+        color: var(--text-light);
+        cursor: pointer;
+    }
+
+    .swap-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-bottom: 3.5rem;
+    }
+
+    .swap-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--grad-primary);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 4px 15px rgba(49, 130, 206, 0.4);
+        z-index: 2;
+    }
+
+    .swap-btn:hover {
+        transform: rotate(180deg) scale(1.1);
+        box-shadow: 0 6px 20px rgba(49, 130, 206, 0.5);
+    }
+
+    .swap-btn:active {
+        transform: rotate(180deg) scale(0.95);
+    }
+
+    .result-block input {
+        color: var(--primary);
+        border-color: rgba(49, 130, 206, 0.2);
+        padding-right: 3rem; /* Space for copy button */
+    }
+
+    .copy-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        padding: 5px;
+        font-size: 1.2rem;
+        transition: transform 0.2s;
+    }
+
+    .copy-btn:hover {
+        transform: translateY(-50%) scale(1.15);
+    }
+
+    @media (max-width: 768px) {
+        .converter-main {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .swap-container {
+            padding: 1rem 0;
+        }
+        .swap-btn {
+            transform: rotate(90deg);
+        }
+        .swap-btn:hover {
+            transform: rotate(270deg) scale(1.1);
+        }
+    }
+</style>
+
+<div class="converter-container">
     <div class="tool-header">
         <h1>{{ _t('Unit Converter') }}</h1>
         <p>{{ _t('Desc Unit Converter') }}</p>
     </div>
-    <div class="form-group">
-        <label>{{ _t('category') }}</label>
-        <select id="uc-category" onchange="loadUnits()">
-            <option value="length">{{ _t('length') }}</option>
-            <option value="weight">{{ _t('weight') }}</option>
-            <option value="temperature">{{ _t('temperature') }}</option>
-            <option value="area">{{ _t('area') }}</option>
-            <option value="volume">{{ _t('volume') }}</option>
-            <option value="speed">{{ _t('speed') }}</option>
-            <option value="data">{{ _t('Digital Storage') }}</option>
-            <option value="time">{{ _t('time') }}</option>
-        </select>
+
+    <!-- Category Selector -->
+    <div class="category-chips" id="uc-categories">
+        <button class="chip active" data-category="length" onclick="selectCategory('length', this)">
+            <i class="bi bi-rulers"></i>
+            <span>{{ _t('length') }}</span>
+        </button>
+        <button class="chip" data-category="weight" onclick="selectCategory('weight', this)">
+            <i class="bi bi-box-seam"></i>
+            <span>{{ _t('weight') }}</span>
+        </button>
+        <button class="chip" data-category="temperature" onclick="selectCategory('temperature', this)">
+            <i class="bi bi-thermometer-half"></i>
+            <span>{{ _t('temperature') }}</span>
+        </button>
+        <button class="chip" data-category="area" onclick="selectCategory('area', this)">
+            <i class="bi bi-grid-3x3"></i>
+            <span>{{ _t('area') }}</span>
+        </button>
+        <button class="chip" data-category="volume" onclick="selectCategory('volume', this)">
+            <i class="bi bi-droplet-half"></i>
+            <span>{{ _t('volume') }}</span>
+        </button>
+        <button class="chip" data-category="speed" onclick="selectCategory('speed', this)">
+            <i class="bi bi-speedometer"></i>
+            <span>{{ _t('speed') }}</span>
+        </button>
+        <button class="chip" data-category="data" onclick="selectCategory('data', this)">
+            <i class="bi bi-hdd-network"></i>
+            <span>{{ _t('Digital Storage') }}</span>
+        </button>
+        <button class="chip" data-category="time" onclick="selectCategory('time', this)">
+            <i class="bi bi-clock-history"></i>
+            <span>{{ _t('time') }}</span>
+        </button>
     </div>
-    <div class="converter-row">
-        <div class="form-group">
-            <label>{{ _t('from') }}</label>
-            <input type="number" id="uc-from-val" value="1" oninput="convertUnit()">
-            <select id="uc-from-unit" onchange="convertUnit()" style="margin-top:.3rem"></select>
-        </div>
-        <button class="converter-swap" onclick="swapUnits()"><i class="bi bi-arrow-left-right"></i></button>
-        <div class="form-group">
-            <label>{{ _t('to') }}</label>
-            <input type="number" id="uc-to-val" readonly>
-            <select id="uc-to-unit" onchange="convertUnit()" style="margin-top:.3rem"></select>
+
+    <input type="hidden" id="uc-category" value="length">
+
+    <div class="converter-card">
+        <div class="converter-main">
+            <!-- From Block -->
+            <div class="converter-block">
+                <label>{{ _t('from') }}</label>
+                <div class="input-group">
+                    <input type="number" id="uc-from-val" value="1" step="any" placeholder="0.00" oninput="convertUnit()">
+                    <select id="uc-from-unit" onchange="convertUnit()"></select>
+                </div>
+            </div>
+
+            <!-- Swap Button -->
+            <div class="swap-container">
+                <button class="swap-btn" onclick="swapUnits()" title="Swap Units">
+                    <i class="bi bi-arrow-left-right"></i>
+                </button>
+            </div>
+
+            <!-- To Block -->
+            <div class="converter-block result-block">
+                <label>{{ _t('to') }}</label>
+                <div class="input-group">
+                    <div style="position: relative;">
+                        <input type="number" id="uc-to-val" readonly step="any" placeholder="0.00">
+                        <button class="copy-btn" onclick="copyResult()" title="Copy Result">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <select id="uc-to-unit" onchange="convertUnit()"></select>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -39,6 +300,22 @@
 
 {% block scripts %}
 <script>
+// Inject translations for units using Jinja2 loop
+{% set unit_keys = [
+    'meter', 'kilometer', 'centimeter', 'millimeter', 'mile', 'yard', 'foot', 'inch', 'nautical mile',
+    'kilogram', 'gram', 'milligram', 'metric ton', 'pound', 'ounce', 'stone',
+    'celsius', 'fahrenheit', 'kelvin',
+    'sq meter', 'sq kilometer', 'sq centimeter', 'sq mile', 'sq yard', 'sq foot', 'sq inch', 'hectare', 'acre',
+    'liter', 'milliliter', 'cubic meter', 'gallon', 'quart', 'pint', 'cup', 'fluid ounce', 'tablespoon',
+    'm/s', 'km/h', 'mph', 'knot', 'ft/s',
+    'byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'bit',
+    'Unit Seconds', 'Unit Minutes', 'Unit Hours', 'Unit Days', 'Unit Weeks', 'Unit Months', 'Unit Years'
+] %}
+
+{% for key in unit_keys %}
+window.SERBABISA_TRANS["{{ key }}"] = "{{ _t(key) }}";
+{% endfor %}
+
 const UNITS = {
     length: {
         meter: 1, kilometer: 1000, centimeter: 0.01, millimeter: 0.001,
@@ -68,10 +345,22 @@ const UNITS = {
         terabyte: 1099511627776, bit: 0.125
     },
     time: {
-        unit_seconds: 1, unit_minutes: 60, unit_hours: 3600, unit_days: 86400, unit_weeks: 604800,
-        unit_months: 2629746, unit_years: 31557600
+        "Unit Seconds": 1, "Unit Minutes": 60, "Unit Hours": 3600, "Unit Days": 86400, "Unit Weeks": 604800,
+        "Unit Months": 2629746, "Unit Years": 31557600
     }
 };
+
+function selectCategory(cat, el) {
+    // Update Hidden Input
+    document.getElementById("uc-category").value = cat;
+    
+    // Update UI Active State
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    
+    // Load Units
+    loadUnits();
+}
 
 function loadUnits() {
     const cat = document.getElementById("uc-category").value;
@@ -79,7 +368,12 @@ function loadUnits() {
     ["uc-from-unit", "uc-to-unit"].forEach((id, i) => {
         const sel = document.getElementById(id);
         sel.innerHTML = units.map((u, j) => {
-            const label = window.SERBABISA_TRANS?.[u] || u.charAt(0).toUpperCase() + u.slice(1);
+            let label = window.SERBABISA_TRANS?.[u];
+            if (!label) {
+                // Clean up: remove 'unit_', replace '_' with ' ', and capitalize
+                label = u.replace(/^unit_/, '').replace(/_/g, ' ');
+                label = label.charAt(0).toUpperCase() + label.slice(1);
+            }
             return `<option value="${u}" ${j === i ? "selected" : ""}>${label}</option>`;
         }).join("");
     });
@@ -126,6 +420,20 @@ function swapUnits() {
     convertUnit();
 }
 
+function copyResult() {
+    const val = document.getElementById("uc-to-val").value;
+    if (!val) return;
+    
+    navigator.clipboard.writeText(val).then(() => {
+        if (typeof showToast === 'function') {
+            showToast(window.SERBABISA_TRANS.copied_to_clipboard || "Copied to clipboard!");
+        } else {
+            alert("Copied: " + val);
+        }
+    });
+}
+
+// Initialize
 loadUnits();
 </script>
 {% endblock %}

@@ -13,6 +13,7 @@ from utils.history import get_history, log_history, get_weekly_count, format_tim
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100 MB max upload
 app.config["SECRET_KEY"] = os.urandom(24) # Diperlukan untuk CSRF
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 csrf = SeaSurf(app)
 
 # Masukkan folder bin lokal ke dalam PATH agar FFmpeg dan tool eksternal lainnya langsung dikenali
@@ -366,7 +367,7 @@ class WebviewApi:
 
 if __name__ == "__main__":
     def start_flask():
-        app.run(debug=False, port=5000)
+        app.run(debug=True, port=5000, use_reloader=False)
         
     # Jalankan server Flask di thread terpisah agar tidak memblokir UI
     t = threading.Thread(target=start_flask)

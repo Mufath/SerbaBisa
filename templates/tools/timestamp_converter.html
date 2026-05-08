@@ -3,100 +3,422 @@
 {% block top_title %}{{ _t('Timestamp Title') }}{% endblock %}
 
 {% block content %}
-<div class="client-tool">
+<style>
+    .ts-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .ts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 2rem;
+    }
+
+    @media (max-width: 600px) {
+        .ts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .calc-card {
+        background: var(--bg-card);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border-radius: var(--radius);
+        padding: 2rem;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .calc-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+        border-color: var(--primary-light);
+    }
+
+    .calc-card h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .calc-card h3 i {
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    .input-group label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .input-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .date-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .date-text-input, .ts-input, .select-input {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.03);
+        border: 2px solid var(--glass-border);
+        border-radius: var(--radius-sm);
+        padding: 0.6rem 0.8rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text);
+        transition: all 0.2s;
+    }
+
+    .dark-theme .date-text-input, .dark-theme .ts-input, .dark-theme .select-input {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .date-text-input:focus, .ts-input:focus, .select-input:focus {
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.9);
+        color: #1a202c; /* Ensure dark text on light focus */
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.1);
+    }
+
+    .dark-theme .date-text-input:focus, .dark-theme .ts-input:focus, .dark-theme .select-input:focus {
+        background: rgba(45, 55, 72, 0.9);
+        color: white;
+        border-color: var(--primary-light);
+    }
+
+    .picker-trigger {
+        position: absolute;
+        right: 10px;
+        background: none;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hidden-picker {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Hide spinners */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .select-input {
+        appearance: none;
+        padding-right: 2.5rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%233182ce' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        width: auto;
+        min-width: 140px;
+    }
+
+    .result-area {
+        margin-top: auto;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--glass-border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .result-main {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--primary);
+        font-family: 'JetBrains Mono', monospace;
+        word-break: break-all;
+    }
+
+    .result-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .result-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .result-text {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .btn-copy {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-copy:hover {
+        background: var(--primary-light);
+        transform: translateY(-2px);
+    }
+
+    .btn-icon {
+        background: rgba(49, 130, 206, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(49, 130, 206, 0.2);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+        background: var(--primary);
+        color: white;
+        transform: rotate(15deg);
+    }
+</style>
+
+<div class="ts-container">
     <div class="tool-header">
         <h1>{{ _t('Timestamp Title') }}</h1>
         <p>{{ _t('Desc Unix Timestamp') }}</p>
     </div>
 
-    <div class="calc-section">
-        <h3>{{ _t('Current Time') }}</h3>
-        <div class="calc-result-inline" id="ts-now"></div>
-        <div style="font-size:.85rem;color:var(--text-light)" id="ts-now-date"></div>
-    </div>
-
-    <div class="calc-section">
-        <h3>{{ _t('Unix To Date') }}</h3>
-        <div class="inline-form">
-            <input type="number" id="ts-input" placeholder="{{ _t('Ts Example') }}" class="wide" oninput="tsToDate()">
-            <select id="ts-unit" onchange="tsToDate()" style="width:auto">
-                <option value="s">{{ _t('Seconds Seconds') }}</option>
-                <option value="ms">{{ _t('milliseconds') }} (Milliseconds)</option>
-            </select>
-        </div>
-        <div id="ts-to-date-result" class="calc-result-inline" style="font-size:1rem;margin-top:.5rem">&mdash;</div>
-    </div>
-
-    <div class="calc-section">
-        <h3>{{ _t('Date To Unix') }}</h3>
-        <div class="inline-form">
-            <input type="datetime-local" id="ts-date-input" onchange="dateToTs()" step="1">
-        </div>
-        <div style="display:flex;gap:1rem;margin-top:.5rem">
-            <div>
-                <div style="font-size:.8rem;color:var(--text-light)">{{ _t('seconds') }}</div>
-                <div class="calc-result-inline" id="ts-from-date-s" style="font-size:1rem">&mdash;</div>
-            </div>
-            <div>
-                <div style="font-size:.8rem;color:var(--text-light)">{{ _t('milliseconds') }}</div>
-                <div class="calc-result-inline" id="ts-from-date-ms" style="font-size:1rem">&mdash;</div>
+    <div class="ts-grid">
+        <!-- Current Time Card -->
+        <div class="calc-card">
+            <h3><i class="bi bi-clock-history"></i> {{ _t('Current Time') }}</h3>
+            <div class="result-main" id="ts-now">0000000000</div>
+            <div class="result-area" style="border: none; padding: 0;">
+                <div class="result-item">
+                    <span class="result-label" id="ts-now-label">{{ _t('Waktu Lokal') }}</span>
+                    <span class="result-text" id="ts-now-date">...</span>
+                </div>
             </div>
         </div>
-        <button class="btn btn-small" style="margin-top:.5rem" onclick="copyTs()"><i class="bi bi-clipboard"></i> {{ _t('copy') }} {{ _t('seconds') }}</button>
+
+        <!-- Unix To Date Card -->
+        <div class="calc-card">
+            <h3><i class="bi bi-calendar-check"></i> {{ _t('Unix To Date') }}</h3>
+            <div class="input-row">
+                <input type="number" id="ts-input" class="ts-input" style="flex: 1;" placeholder="{{ _t('Ts Example') }}" oninput="tsToDate()">
+                <select id="ts-unit" class="select-input" onchange="tsToDate()">
+                    <option value="s">{{ _t('Seconds Seconds') }}</option>
+                    <option value="ms">{{ _t('milliseconds') }}</option>
+                </select>
+            </div>
+            <div class="result-area" id="ts-to-date-result-area">
+                <div class="result-item">
+                    <span class="result-label">{{ _t('Waktu Lokal') }}</span>
+                    <span class="result-text" id="res-local">&mdash;</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">UTC</span>
+                    <span class="result-text" id="res-utc">&mdash;</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">ISO 8601</span>
+                    <span class="result-text" id="res-iso">&mdash;</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date To Unix Card -->
+        <div class="calc-card">
+            <h3><i class="bi bi-calendar-plus"></i> {{ _t('Date To Unix') }}</h3>
+            <div class="input-group">
+                <label>{{ _t('Waktu Lokal') }} (DD-MM-YYYY HH:mm:ss)</label>
+                <div class="date-input-wrapper">
+                    <input type="text" id="ts-date-input" class="date-text-input" placeholder="DD-MM-YYYY HH:mm:ss" oninput="dateToTs()">
+                    <button class="picker-trigger" onclick="document.getElementById('p-date').showPicker()"><i class="bi bi-calendar3"></i></button>
+                    <input type="datetime-local" id="p-date" class="hidden-picker" onchange="onPickerChange()">
+                </div>
+            </div>
+            <div class="result-area">
+                <div class="result-item">
+                    <span class="result-label">{{ _t('Detik') }}</span>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="result-main" style="font-size: 1.5rem;" id="ts-from-date-s">&mdash;</span>
+                        <button class="btn-icon" onclick="copyText('ts-from-date-s')" title="{{ _t('copy') }}"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">{{ _t('Milidetik') }}</span>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="result-main" style="font-size: 1.2rem;" id="ts-from-date-ms">&mdash;</span>
+                        <button class="btn-icon" onclick="copyText('ts-from-date-ms')" title="{{ _t('copy') }}"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+const lang = document.documentElement.lang || 'id';
+
 function updateNow() {
     const now = Math.floor(Date.now() / 1000);
     document.getElementById("ts-now").textContent = now;
-    document.getElementById("ts-now-date").textContent = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' });
+    document.getElementById("ts-now-date").textContent = new Date().toLocaleString(lang === 'id' ? 'id-ID' : 'en-US', { 
+        dateStyle: 'full', 
+        timeStyle: 'medium' 
+    });
 }
 updateNow();
 setInterval(updateNow, 1000);
 
+function parseDateTime(str) {
+    if (!str) return null;
+    // Format: DD-MM-YYYY HH:mm:ss
+    const regex = /^(\d{1,2})-(\d{1,2})-(\d{4})\s(\d{1,2}):(\d{1,2}):(\d{1,2})$/;
+    const parts = str.match(regex);
+    if (parts) {
+        const d = parseInt(parts[1], 10);
+        const m = parseInt(parts[2], 10) - 1;
+        const y = parseInt(parts[3], 10);
+        const hh = parseInt(parts[4], 10);
+        const mm = parseInt(parts[5], 10);
+        const ss = parseInt(parts[6], 10);
+        const date = new Date(y, m, d, hh, mm, ss);
+        return isNaN(date.getTime()) ? null : date;
+    }
+    return null;
+}
+
+function formatDateTime(date) {
+    const d = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const y = date.getFullYear();
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+    const ss = String(date.getSeconds()).padStart(2, '0');
+    return `${d}-${m}-${y} ${hh}:${mm}:${ss}`;
+}
+
+function onPickerChange() {
+    const val = document.getElementById('p-date').value;
+    if (val) {
+        const d = new Date(val);
+        document.getElementById('ts-date-input').value = formatDateTime(d);
+        dateToTs();
+    }
+}
+
 function tsToDate() {
     const val = document.getElementById("ts-input").value;
     const unit = document.getElementById("ts-unit").value;
-    const resultDiv = document.getElementById("ts-to-date-result");
     
-    if (!val) { resultDiv.textContent = "\u2014"; return; }
+    const local = document.getElementById("res-local");
+    const utc = document.getElementById("res-utc");
+    const iso = document.getElementById("res-iso");
+    
+    if (!val) { 
+        local.textContent = "\u2014"; 
+        utc.textContent = "\u2014"; 
+        iso.textContent = "\u2014"; 
+        return; 
+    }
 
-    let ms = parseInt(val);
+    let ms = parseFloat(val);
     if (unit === "s") ms *= 1000;
 
     const d = new Date(ms);
-    if (isNaN(d)) { resultDiv.textContent = "{{ _t('Invalid Timestamp') }}"; return; }
+    if (isNaN(d)) { 
+        local.textContent = "{{ _t('Invalid Timestamp') }}"; 
+        utc.textContent = ""; 
+        iso.textContent = ""; 
+        return; 
+    }
 
-    resultDiv.innerHTML = 
-        `<div style="margin-bottom: 0.5rem"><strong>${d.toLocaleString('id-ID')}</strong> <span style="color:var(--text-light);font-size:.85rem">(Waktu Lokal)</span></div>` +
-        `<div style="margin-bottom: 0.5rem">${d.toUTCString()} <span style="color:var(--text-light);font-size:.85rem">(UTC)</span></div>` +
-        `<div><code>${d.toISOString()}</code> <span style="color:var(--text-light);font-size:.85rem">(ISO 8601)</span></div>`;
+    local.textContent = d.toLocaleString(lang === 'id' ? 'id-ID' : 'en-US');
+    utc.textContent = d.toUTCString();
+    iso.textContent = d.toISOString();
 }
 
 function dateToTs() {
     const val = document.getElementById("ts-date-input").value;
-    if (!val) return;
-    const d = new Date(val);
+    const d = parseDateTime(val);
+    const resS = document.getElementById("ts-from-date-s");
+    const resMs = document.getElementById("ts-from-date-ms");
+
+    if (!d) {
+        resS.textContent = "\u2014";
+        resMs.textContent = "\u2014";
+        return;
+    }
+
     const s = Math.floor(d.getTime() / 1000);
-    document.getElementById("ts-from-date-s").textContent = s;
-    document.getElementById("ts-from-date-ms").textContent = d.getTime();
+    resS.textContent = s;
+    resMs.textContent = d.getTime();
 }
 
-function copyTs() {
-    const s = document.getElementById("ts-from-date-s").textContent;
-    if (s !== "\u2014") {
-        navigator.clipboard.writeText(s);
+function copyText(id) {
+    const txt = document.getElementById(id).textContent;
+    if (txt !== "\u2014") {
+        navigator.clipboard.writeText(txt);
+        if (window.showToast) window.showToast("{{ _t('Copied to clipboard!') }}");
     }
 }
 
-// Inisialisasi input tanggal dengan waktu sekarang
-const nowInit = new Date();
-const offset = nowInit.getTimezoneOffset() * 60000;
-const localISOTime = new Date(nowInit.getTime() - offset).toISOString().slice(0, 19);
-document.getElementById("ts-date-input").value = localISOTime;
-dateToTs();
+// Init
+window.addEventListener('load', () => {
+    const now = new Date();
+    document.getElementById("ts-date-input").value = formatDateTime(now);
+    dateToTs();
+});
 </script>
 {% endblock %}
