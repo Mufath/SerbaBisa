@@ -3,103 +3,273 @@
 {% block top_title %}{{ _t('Percentage Calc Title') }}{% endblock %}
 
 {% block content %}
-<div class="client-tool">
+<style>
+    .percent-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .percent-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 2rem;
+    }
+
+    @media (max-width: 600px) {
+        .percent-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .calc-card {
+        background: var(--bg-card);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border-radius: var(--radius);
+        padding: 2rem;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .calc-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+        border-color: var(--primary-light);
+    }
+
+    .calc-card h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .calc-card h3 i {
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    .input-row {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--text);
+    }
+
+    .input-row input {
+        width: 120px;
+    }
+
+    .input-row select {
+        width: auto;
+        min-width: 140px;
+        padding-right: 2.5rem;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%233182ce' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+    }
+
+    .input-row input, .input-row select {
+        background: rgba(0, 0, 0, 0.03);
+        border: 2px solid var(--glass-border);
+        border-radius: var(--radius-sm);
+        padding: 0.6rem 0.8rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        transition: all 0.2s;
+    }
+
+    .dark-theme .input-row input, .dark-theme .input-row select {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .input-row input:focus, .input-row select:focus {
+        border-color: var(--primary);
+        background: white;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.1);
+    }
+
+    .dark-theme .input-row input:focus, .dark-theme .input-row select:focus {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Hide spinners */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .result-area {
+        margin-top: auto;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .result-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .result-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--primary);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .result-value.empty {
+        color: var(--text-muted);
+        opacity: 0.3;
+    }
+</style>
+
+<div class="percent-container">
     <div class="tool-header">
         <h1>{{ _t('Percentage Calc Title') }}</h1>
         <p>{{ _t('Desc Percentage Calc') }}</p>
     </div>
 
-    <div class="calc-section">
-        <h3>{{ _t('What Is X Percent Of Y') }}</h3>
-        <div class="inline-form">
-            <span>Berapa</span>
-            <input type="number" id="p1-pct" style="width:80px" placeholder="10" oninput="calc1()">
-            <span>% {{ _t('From Of') }}</span>
-            <input type="number" id="p1-val" style="width:120px" placeholder="100000" oninput="calc1()">
-            <span>?</span>
+    <div class="percent-grid">
+        <!-- Operation 1 -->
+        <div class="calc-card">
+            <h3><i class="bi bi-percent"></i> {{ _t('What Is X Percent Of Y') }}</h3>
+            <div class="input-row">
+                <span>{{ _t('Berapa') }}</span>
+                <input type="number" id="p1-pct" placeholder="10" step="any" oninput="calc1()">
+                <span>% {{ _t('From Of') }}</span>
+                <input type="number" id="p1-val" placeholder="100000" step="any" oninput="calc1()">
+                <span>?</span>
+            </div>
+            <div class="result-area">
+                <span class="result-label">{{ _t('result') }}</span>
+                <span class="result-value empty" id="p1-result">&mdash;</span>
+            </div>
         </div>
-        <div class="calc-result-inline" id="p1-result">&mdash;</div>
-    </div>
 
-    <div class="calc-section">
-        <h3>{{ _t('X Is What Percent Of Y') }}</h3>
-        <div class="inline-form">
-            <input type="number" id="p2-x" style="width:100px" placeholder="50" oninput="calc2()">
-            <span>adalah {{ _t('How Much') }} % {{ _t('From Of') }}</span>
-            <input type="number" id="p2-y" style="width:100px" placeholder="200" oninput="calc2()">
-            <span>?</span>
+        <!-- Operation 2 -->
+        <div class="calc-card">
+            <h3><i class="bi bi-question-circle"></i> {{ _t('X Is What Percent Of Y') }}</h3>
+            <div class="input-row">
+                <input type="number" id="p2-x" placeholder="50" step="any" oninput="calc2()">
+                <span>{{ _t('adalah berapa % dari') }}</span>
+                <input type="number" id="p2-y" placeholder="200" step="any" oninput="calc2()">
+                <span>?</span>
+            </div>
+            <div class="result-area">
+                <span class="result-label">{{ _t('result') }}</span>
+                <span class="result-value empty" id="p2-result">&mdash;</span>
+            </div>
         </div>
-        <div class="calc-result-inline" id="p2-result">&mdash;</div>
-    </div>
 
-    <div class="calc-section">
-        <h3>{{ _t('Percentage Change X To Y') }}</h3>
-        <div class="inline-form">
-            <span>{{ _t('from') }} {{ _t('value') }}</span>
-            <input type="number" id="p3-from" style="width:120px" placeholder="Harga beli" oninput="calc3()">
-            <span>ke {{ _t('value') }}</span>
-            <input type="number" id="p3-to" style="width:120px" placeholder="Harga jual" oninput="calc3()">
+        <!-- Operation 3 -->
+        <div class="calc-card">
+            <h3><i class="bi bi-graph-up-arrow"></i> {{ _t('Percentage Change X To Y') }}</h3>
+            <div class="input-row">
+                <span>{{ _t('Dari') }}</span>
+                <input type="number" id="p3-from" placeholder="100" step="any" oninput="calc3()">
+                <span>{{ _t('ke') }}</span>
+                <input type="number" id="p3-to" placeholder="150" step="any" oninput="calc3()">
+            </div>
+            <div class="result-area">
+                <span class="result-label">{{ _t('result') }}</span>
+                <span class="result-value empty" id="p3-result">&mdash;</span>
+            </div>
         </div>
-        <div class="calc-result-inline" id="p3-result">&mdash;</div>
-    </div>
 
-    <div class="calc-section">
-        <h3>Tambah/Kurang Berdasarkan Persen</h3>
-        <div class="inline-form">
-            <input type="number" id="p4-val" style="width:120px" placeholder="{{ _t('Initial Value') }}" oninput="calc4()">
-            <select id="p4-dir" onchange="calc4()" style="width:auto">
-                <option value="increase">+ Naik</option>
-                <option value="decrease">− Turun</option>
-            </select>
-            <input type="number" id="p4-pct" style="width:80px" placeholder="%" oninput="calc4()">
-            <span>%</span>
+        <!-- Operation 4 -->
+        <div class="calc-card">
+            <h3><i class="bi bi-plus-slash-minus"></i> {{ _t('Tambah / Kurang %') }}</h3>
+            <div class="input-row">
+                <input type="number" id="p4-val" placeholder="1000" step="any" oninput="calc4()">
+                <select id="p4-dir" onchange="calc4()">
+                    <option value="increase">+ {{ _t('Naik') }}</option>
+                    <option value="decrease">− {{ _t('Turun') }}</option>
+                </select>
+                <input type="number" id="p4-pct" placeholder="10" step="any" oninput="calc4()">
+                <span>%</span>
+            </div>
+            <div class="result-area">
+                <span class="result-label">{{ _t('result') }}</span>
+                <span class="result-value empty" id="p4-result">&mdash;</span>
+            </div>
         </div>
-        <div class="calc-result-inline" id="p4-result">&mdash;</div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+function updateResult(id, val, isPercent = false, color = null) {
+    const el = document.getElementById(id);
+    if (val === null) {
+        el.textContent = "\u2014";
+        el.classList.add('empty');
+        el.style.color = '';
+    } else {
+        el.textContent = val + (isPercent ? "%" : "");
+        el.classList.remove('empty');
+        if (color) el.style.color = color;
+        else el.style.color = '';
+    }
+}
+
 function calc1() {
     const pct = parseFloat(document.getElementById("p1-pct").value);
     const val = parseFloat(document.getElementById("p1-val").value);
-    const res = document.getElementById("p1-result");
-    if (isNaN(pct) || isNaN(val)) { res.textContent = "\u2014"; return; }
-    res.textContent = Number((pct / 100 * val).toPrecision(10));
+    if (isNaN(pct) || isNaN(val)) { updateResult("p1-result", null); return; }
+    updateResult("p1-result", Number((pct / 100 * val).toPrecision(10)));
 }
 
 function calc2() {
     const x = parseFloat(document.getElementById("p2-x").value);
     const y = parseFloat(document.getElementById("p2-y").value);
-    const res = document.getElementById("p2-result");
-    if (isNaN(x) || isNaN(y) || y === 0) { res.textContent = "\u2014"; return; }
-    res.textContent = Number((x / y * 100).toPrecision(10)) + "%";
+    if (isNaN(x) || isNaN(y) || y === 0) { updateResult("p2-result", null); return; }
+    updateResult("p2-result", Number((x / y * 100).toPrecision(10)), true);
 }
 
 function calc3() {
     const from = parseFloat(document.getElementById("p3-from").value);
     const to = parseFloat(document.getElementById("p3-to").value);
-    const res = document.getElementById("p3-result");
-    if (isNaN(from) || isNaN(to) || from === 0) { res.textContent = "\u2014"; return; }
+    if (isNaN(from) || isNaN(to) || from === 0) { updateResult("p3-result", null); return; }
     
     const change = ((to - from) / Math.abs(from)) * 100;
     const sign = change > 0 ? "+" : "";
+    const color = change > 0 ? "#28a745" : (change < 0 ? "#dc3545" : "");
     
-    // Memberi warna: hijau jika {{ _t('increase') }}, merah jika {{ _t('decrease') }}
-    res.style.color = change > 0 ? "#28a745" : (change < 0 ? "#dc3545" : "inherit");
-    res.textContent = sign + Number(change.toPrecision(10)) + "%";
+    updateResult("p3-result", sign + Number(change.toPrecision(10)), true, color);
 }
 
 function calc4() {
     const val = parseFloat(document.getElementById("p4-val").value);
     const pct = parseFloat(document.getElementById("p4-pct").value);
     const dir = document.getElementById("p4-dir").value;
-    const res = document.getElementById("p4-result");
-    if (isNaN(val) || isNaN(pct)) { res.textContent = "\u2014"; return; }
+    if (isNaN(val) || isNaN(pct)) { updateResult("p4-result", null); return; }
     
     const factor = dir === "increase" ? 1 + pct / 100 : 1 - pct / 100;
-    res.textContent = Number((val * factor).toPrecision(10));
+    updateResult("p4-result", Number((val * factor).toPrecision(10)));
 }
 </script>
 {% endblock %}
