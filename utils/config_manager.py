@@ -4,9 +4,9 @@ import os
 CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "config.json")
 
 DEFAULT_CONFIG = {
-    "username": "Sobat",
+    "username": "User",
     "theme": "light",
-    "language": "id"
+    "language": "en"
 }
 
 def load_config():

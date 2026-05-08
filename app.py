@@ -253,7 +253,7 @@ def inject_globals():
     
     # Coba ambil pengaturan pribadi dari Cookie (perangkat masing-masing)
     username = request.cookies.get("sb_username", global_config.get("username", "User"))
-    language = request.cookies.get("sb_language", global_config.get("language", "id"))
+    language = request.cookies.get("sb_language", global_config.get("language", "en"))
     theme = request.cookies.get("sb_theme", global_config.get("theme", "light"))
     
     # Cache kategori alat berdasarkan bahasa user
@@ -346,7 +346,7 @@ def api_settings():
     # Ambil nilai lama dari Cookie atau Config sebagai cadangan jika tidak ada di data baru
     global_config = load_config()
     curr_user = request.cookies.get("sb_username", global_config.get("username", "User"))
-    curr_lang = request.cookies.get("sb_language", global_config.get("language", "id"))
+    curr_lang = request.cookies.get("sb_language", global_config.get("language", "en"))
     curr_theme = request.cookies.get("sb_theme", global_config.get("theme", "light"))
 
     # Di Cloud maupun Lokal, simpan ke Cookie agar bersifat pribadi per-device
