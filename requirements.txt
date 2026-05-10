@@ -20,6 +20,7 @@ jsonpath-ng
 pywebview
 cryptography
 yt-dlp
+pycryptodomex
 rembg[cpu]
 onnxruntime
 # Optional (app works without these, shows install message if missing)
