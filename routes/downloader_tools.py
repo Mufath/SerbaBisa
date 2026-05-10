@@ -24,7 +24,10 @@ _SUPPORTED_EN = "<p>Supports YouTube, TikTok, Instagram, Twitter/X, Facebook, Vi
 def _disclaimer():
     from locales import get_lang
     lang = get_lang()
-    return (_SUPPORTED_EN if lang == "en" else _SUPPORTED_ID) + (_DISCLAIMER_EN if lang == "en" else _DISCLAIMER_ID)
+    tips = m("Cookies Tip")
+    return (f"<div style='margin-bottom:1rem;padding:0.75rem;background:rgba(var(--primary-rgb),0.1);border-radius:8px;font-size:0.85rem;'>{tips}</div>" + 
+            (_SUPPORTED_EN if lang == "en" else _SUPPORTED_ID) + 
+            (_DISCLAIMER_EN if lang == "en" else _DISCLAIMER_ID))
 
 
 def _handle_ytdlp_error(e):
@@ -34,7 +37,8 @@ def _handle_ytdlp_error(e):
     if "Private video" in msg:
         return jsonify(error=m("This video is private and cannot be downloaded.")), 400
     if "Sign in" in msg or "confirm you’re not a bot" in msg.lower() or "age" in msg.lower():
-        return jsonify(error=m("YouTube detected suspicious activity (bot) or requires login. Try waiting a few minutes, or avoid downloading multiple videos simultaneously.")), 400
+        # Gunakan pesan yang menyarankan penggunaan cookie
+        return jsonify(error=m("YouTube detected suspicious activity (bot) or requires login. Try using 'Use Cookies From Browser' option below.")), 400
     if "HTTP Error 404" in msg:
         return jsonify(error=m("Content not found (404). Make sure the link is still valid.")), 400
     clean = msg.split("\n")[0][:200]
@@ -97,6 +101,27 @@ def download_video():
                         {"value": "360",   "label": "Low (360p)"},
                     ],
                 },
+                {
+                    "type": "select",
+                    "name": "browser",
+                    "label": "Use Cookies From Browser",
+                    "default": "none",
+                    "choices": [
+                        {"value": "none", "label": "None (Default)"},
+                        {"value": "chrome", "label": "Google Chrome"},
+                        {"value": "edge", "label": "Microsoft Edge"},
+                        {"value": "firefox", "label": "Firefox"},
+                        {"value": "opera", "label": "Opera"},
+                        {"value": "vivaldi", "label": "Vivaldi"},
+                        {"value": "safari", "label": "Safari"},
+                    ],
+                },
+                {
+                    "type": "file",
+                    "name": "cookies_file",
+                    "label": "Cookies File (Netscape format)",
+                    "accept": ".txt",
+                },
             ],
             button_text="Download Video",
         )
@@ -134,6 +159,20 @@ def download_video():
             },
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
+
+        # Add browser cookies if selected
+        browser = request.form.get("browser", "none")
+        if browser != "none":
+            ydl_opts["cookiesfrombrowser"] = (browser,)
+        
+        # Add cookies file if uploaded
+        if "cookies_file" in request.files:
+            cfile = request.files["cookies_file"]
+            if cfile and cfile.filename:
+                cookie_path = os.path.join(tmpdir, "cookies_upload.txt")
+                cfile.save(cookie_path)
+                ydl_opts["cookiefile"] = cookie_path
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.extract_info(url, download=True)
     except ImportError:
@@ -179,6 +218,27 @@ def download_audio():
                         {"value": "128", "label": m("Saver 128kbps")},
                     ],
                 },
+                {
+                    "type": "select",
+                    "name": "browser",
+                    "label": "Use Cookies From Browser",
+                    "default": "none",
+                    "choices": [
+                        {"value": "none", "label": "None (Default)"},
+                        {"value": "chrome", "label": "Google Chrome"},
+                        {"value": "edge", "label": "Microsoft Edge"},
+                        {"value": "firefox", "label": "Firefox"},
+                        {"value": "opera", "label": "Opera"},
+                        {"value": "vivaldi", "label": "Vivaldi"},
+                        {"value": "safari", "label": "Safari"},
+                    ],
+                },
+                {
+                    "type": "file",
+                    "name": "cookies_file",
+                    "label": "Cookies File (Netscape format)",
+                    "accept": ".txt",
+                },
             ],
             button_text=m("Download Audio MP3"),
         )
@@ -213,6 +273,20 @@ def download_audio():
             },
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
+
+        # Add browser cookies if selected
+        browser = request.form.get("browser", "none")
+        if browser != "none":
+            ydl_opts["cookiesfrombrowser"] = (browser,)
+
+        # Add cookies file if uploaded
+        if "cookies_file" in request.files:
+            cfile = request.files["cookies_file"]
+            if cfile and cfile.filename:
+                cookie_path = os.path.join(tmpdir, "cookies_upload.txt")
+                cfile.save(cookie_path)
+                ydl_opts["cookiefile"] = cookie_path
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.extract_info(url, download=True)
     except ImportError:
@@ -254,7 +328,29 @@ def download_image():
             text_input=True,
             text_label=m("Image Post Link"),
             text_placeholder=m("Instagram Example"),
-            options=[],
+            options=[
+                {
+                    "type": "select",
+                    "name": "browser",
+                    "label": "Use Cookies From Browser",
+                    "default": "none",
+                    "choices": [
+                        {"value": "none", "label": "None (Default)"},
+                        {"value": "chrome", "label": "Google Chrome"},
+                        {"value": "edge", "label": "Microsoft Edge"},
+                        {"value": "firefox", "label": "Firefox"},
+                        {"value": "opera", "label": "Opera"},
+                        {"value": "vivaldi", "label": "Vivaldi"},
+                        {"value": "safari", "label": "Safari"},
+                    ],
+                },
+                {
+                    "type": "file",
+                    "name": "cookies_file",
+                    "label": "Cookies File (Netscape format)",
+                    "accept": ".txt",
+                },
+            ],
             button_text=m("Download Image"),
         )
 
@@ -280,6 +376,20 @@ def download_image():
             },
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
+
+        # Add browser cookies if selected
+        browser = request.form.get("browser", "none")
+        if browser != "none":
+            ydl_opts["cookiesfrombrowser"] = (browser,)
+
+        # Add cookies file if uploaded
+        if "cookies_file" in request.files:
+            cfile = request.files["cookies_file"]
+            if cfile and cfile.filename:
+                cookie_path = os.path.join(tmpdir, "cookies_upload.txt")
+                cfile.save(cookie_path)
+                ydl_opts["cookiefile"] = cookie_path
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
     except ImportError:
